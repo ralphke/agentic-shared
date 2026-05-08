@@ -1,4 +1,4 @@
-# agentic-shared
+# Agentic-shared
 
 Shared reusable agentic SDLC assets for Ralph's repositories.
 
@@ -48,7 +48,7 @@ Recommended pattern:
 
 `Agentic-Coding` already matches the shared `spec/openspec/` conventions, so it can consume the full content set directly.
 
-`Agentic-DevOps` currently uses `openspec/` rather than `spec/openspec/`, so it should adopt the shared content selectively until those paths are intentionally aligned.
+`Agentic-DevOps` currently uses now `spec/openspec/`, so it adopts the shared content as these paths are aligned.
 
 ## Update policy
 
