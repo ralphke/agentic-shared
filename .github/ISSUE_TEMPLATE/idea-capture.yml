@@ -1,0 +1,121 @@
+name: "💡 Idea Capture"
+description: Submit a new idea for the Software Fabric autonomous SDLC pipeline
+title: "💡 Idea: "
+labels:
+  - idea
+  - stage:proposal
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 💡 Software Fabric — Idea Capture
+        
+        Fill in this form to submit a new idea to the autonomous SDLC pipeline.
+        The **Product Owner Agent** will transform this into an OpenSPEC proposal.
+        
+        > **Tip:** The more detail you provide, the faster the agent can proceed
+        > without asking clarifying questions.
+
+  - type: input
+    id: title
+    attributes:
+      label: "Short Title"
+      description: "Action-oriented title (≤ 10 words). Use a verb: 'Add', 'Fix', 'Enable', 'Remove'"
+      placeholder: "Add CSV export for user data"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How urgent is this?
+      options:
+        - "P2 — Medium: improvement or minor feature"
+        - "P1 — High: user-facing bug or major feature"
+        - "P0 — Critical: security incident, data loss, or outage"
+        - "P3 — Low: polish, tech debt, nice-to-have"
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: "What pain point or opportunity does this address? Who is affected?"
+      placeholder: |
+        Users currently cannot export their data from the platform. 
+        When they want to migrate or do their own analysis, they have to 
+        manually copy data, which is time-consuming and error-prone.
+        This affects ~200 users/month who contact support requesting exports.
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: "High-level approach (not implementation details). What should be built?"
+      placeholder: |
+        Add a "Download my data" button in the user profile settings page
+        that generates and downloads a CSV file containing all user-owned records.
+    validations:
+      required: true
+
+  - type: textarea
+    id: success
+    attributes:
+      label: Success Criteria
+      description: "How will we know this succeeded? Give 2-3 measurable outcomes."
+      placeholder: |
+        - Users can download their data within 30 seconds for up to 10,000 rows
+        - Support tickets about data export drop by 50% within 30 days
+        - CSV format is compatible with Excel and Google Sheets
+    validations:
+      required: true
+
+  - type: textarea
+    id: scenarios
+    attributes:
+      label: Key Scenarios (optional but helpful)
+      description: "Describe 1-3 user scenarios. The Product Owner Agent will expand these."
+      placeholder: |
+        - A user with lots of data clicks "Download" and gets a CSV file
+        - A new user with no data clicks "Download" and gets an empty CSV (or a helpful message)
+        - An unauthenticated user cannot access the export endpoint
+    validations:
+      required: false
+
+  - type: textarea
+    id: out_of_scope
+    attributes:
+      label: Out of Scope (optional)
+      description: "What should NOT be included in this change?"
+      placeholder: |
+        - PDF or Excel export formats
+        - Scheduled/automated exports
+        - Admin export of other users' data
+    validations:
+      required: false
+
+  - type: textarea
+    id: technical_notes
+    attributes:
+      label: Technical Notes (optional)
+      description: "Any constraints, risks, or technical context the Architect should know"
+      placeholder: |
+        - The user data table has ~50 columns; we may need to let users select columns
+        - Large exports (>100K rows) may need to be async with email notification
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: acknowledgements
+    attributes:
+      label: Checklist
+      options:
+        - label: I have searched existing issues to avoid duplicates
+          required: true
+        - label: I understand this will be processed by the Product Owner Agent
+          required: true

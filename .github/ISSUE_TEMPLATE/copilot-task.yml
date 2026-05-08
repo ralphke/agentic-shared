@@ -1,0 +1,59 @@
+name: Copilot Task
+about: Request GitHub Copilot to implement a bug fix or feature
+title: "[copilot-task] "
+labels:
+  - copilot-task
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template to create an issue that can be routed to Copilot.
+
+  - type: dropdown
+    id: task_type
+    attributes:
+      label: Task type
+      description: Is this a bug fix or a new feature?
+      options:
+        - bug
+        - feature
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem statement
+      description: Describe the issue or feature request.
+      placeholder: What should be fixed or created?
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Define done criteria as a checklist.
+      placeholder: |
+        - [ ] Expected behavior A
+        - [ ] Expected behavior B
+    validations:
+      required: true
+
+  - type: textarea
+    id: constraints
+    attributes:
+      label: Constraints
+      description: List constraints, non-goals, or restricted files.
+      placeholder: Keep API backward compatible, avoid file X, etc.
+    validations:
+      required: false
+
+  - type: textarea
+    id: test_plan
+    attributes:
+      label: Test plan
+      description: How should the change be validated?
+      placeholder: Unit tests, integration checks, manual verification.
+    validations:
+      required: true

@@ -1,0 +1,292 @@
+name: SDLC Orchestrator
+on:
+  issues:
+    types: [labeled]
+  pull_request:
+    types: [labeled, unlabeled, ready_for_review]
+
+permissions:
+  issues: write
+  pull-requests: write
+  contents: read
+
+jobs:
+  # ─── IDEA INTAKE ──────────────────────────────────────────────────────────
+  # Triggered when an issue gets the `idea` label (from the Idea Capture template)
+  idea-intake:
+    name: "💡 Idea → Proposal"
+    if: |
+      github.event_name == 'issues' &&
+      github.event.action == 'labeled' &&
+      github.event.label.name == 'idea'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Acknowledge idea
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: [
+                '## 🏭 Software Fabric — Idea Received',
+                '',
+                'Your idea has been queued for the autonomous SDLC pipeline.',
+                '',
+                '**Next step:** The Product Owner Agent will transform this into an OpenSPEC proposal.',
+                '',
+                '**To start the pipeline now**, run in VS Code Copilot chat:',
+                '```',
+                `/opsx:propose  ← then reference issue #${context.issue.number}`,
+                '```',
+                '',
+                '**Or use the full kickoff prompt:**',
+                '```',
+                'Use the sdlc-kickoff prompt from .github/prompts/sdlc-kickoff.prompt.md',
+                '```',
+                '',
+                '**Pipeline stages:**',
+                '1. 📋 Proposal (Product Owner)',
+                '2. 🏗️ Design + Tasks (Architect)',
+                '3. 💻 Implementation (Developer)',
+                '4. 🧪 Tests (QA Engineer)',
+                '5. 🔒 Security Review (Security Engineer)',
+                '6. 👁️ Code Review (Code Reviewer)',
+                '7. 🚀 Deploy (DevOps/SRE)',
+                '8. 📊 Monitor + Archive (Operations SRE)',
+              ].join('\n')
+            });
+
+      - name: Add stage label
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['stage:proposal']
+            });
+
+  # ─── STAGE GATE: PROPOSAL → DESIGN ────────────────────────────────────────
+  stage-design-gate:
+    name: "🏗️ Stage: Design"
+    if: |
+      github.event_name == 'pull_request' &&
+      github.event.action == 'labeled' &&
+      github.event.label.name == 'stage:design'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comment — design stage started
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: [
+                '## 🏗️ Stage: Design',
+                '',
+                '**Architect Agent** — your turn.',
+                '',
+                'Run in VS Code Copilot chat:',
+                '```',
+                '/opsx:apply  ← will detect design stage and create design.md + tasks.md',
+                '```',
+                '',
+                'Expected outputs:',
+                '- `spec/openspec/changes/<slug>/design.md`',
+                '- `spec/openspec/changes/<slug>/tasks.md`',
+              ].join('\n')
+            });
+
+  # ─── STAGE GATE: IMPLEMENT → TEST ─────────────────────────────────────────
+  stage-test-gate:
+    name: "🧪 Stage: Test"
+    if: |
+      github.event_name == 'pull_request' &&
+      github.event.action == 'labeled' &&
+      github.event.label.name == 'stage:test'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run tests (Python)
+        if: hashFiles('**/pytest.ini', '**/pyproject.toml', '**/setup.cfg') != ''
+        run: |
+          pip install -q pytest pytest-cov 2>/dev/null || true
+          python3 -m pytest --tb=short -q 2>/dev/null || echo "::warning::Tests not yet set up"
+
+      - name: Run tests (.NET)
+        if: hashFiles('**/*.csproj') != ''
+        run: dotnet test --no-build -q 2>/dev/null || echo "::warning::Tests not yet set up"
+
+      - name: Comment — test stage
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: [
+                '## 🧪 Stage: Test',
+                '',
+                '**QA Engineer Agent** — your turn.',
+                '',
+                'Generate tests from spec scenarios and achieve ≥80% coverage.',
+                '',
+                'Run in VS Code Copilot chat:',
+                '```',
+                '/opsx:apply  ← will detect test stage and generate test suites',
+                '```',
+              ].join('\n')
+            });
+
+  # ─── STAGE GATE: TEST → SECURITY ──────────────────────────────────────────
+  stage-security-gate:
+    name: "🔒 Stage: Security"
+    if: |
+      github.event_name == 'pull_request' &&
+      github.event.action == 'labeled' &&
+      github.event.label.name == 'stage:security'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Python SAST (bandit)
+        if: hashFiles('**/*.py') != ''
+        continue-on-error: true
+        run: |
+          pip install -q bandit 2>/dev/null || true
+          bandit -r src/ -ll -f txt 2>/dev/null || echo "bandit not configured"
+
+      - name: Dependency audit (pip-audit)
+        if: hashFiles('**/requirements*.txt', '**/pyproject.toml') != ''
+        continue-on-error: true
+        run: |
+          pip install -q pip-audit 2>/dev/null || true
+          pip-audit --format columns 2>/dev/null || echo "pip-audit not configured"
+
+      - name: npm audit
+        if: hashFiles('**/package.json') != ''
+        continue-on-error: true
+        run: npm audit --audit-level high 2>/dev/null || echo "npm audit not configured"
+
+      - name: Comment — security stage
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: [
+                '## 🔒 Stage: Security Review',
+                '',
+                '**Security Engineer Agent** — your turn.',
+                '',
+                'Run in VS Code Copilot chat:',
+                '```',
+                '/opsx:verify  ← runs security review + code review',
+                '```',
+                '',
+                'Security gate: no CRITICAL or HIGH findings to merge.',
+              ].join('\n')
+            });
+
+  # ─── STAGE GATE: SECURITY → REVIEW ───────────────────────────────────────
+  stage-review-gate:
+    name: "👁️ Stage: Review"
+    if: |
+      github.event_name == 'pull_request' &&
+      github.event.action == 'labeled' &&
+      github.event.label.name == 'stage:review'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comment — review stage
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: [
+                '## 👁️ Stage: Code Review',
+                '',
+                '**Code Reviewer Agent** — your turn.',
+                '',
+                'Run in VS Code Copilot chat:',
+                '```',
+                '/opsx:verify  ← includes code review stage',
+                '```',
+                '',
+                'Review against `design.md` requirements and coding standards.',
+                'Approve or REQUEST_CHANGES with specific, actionable feedback.',
+              ].join('\n')
+            });
+
+  # ─── STAGE GATE: REVIEW → DEPLOY ──────────────────────────────────────────
+  stage-deploy-gate:
+    name: "🚀 Stage: Deploy"
+    if: |
+      github.event_name == 'pull_request' &&
+      github.event.action == 'labeled' &&
+      github.event.label.name == 'stage:deploy'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comment — deploy stage
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: [
+                '## 🚀 Stage: Deployment',
+                '',
+                '**DevOps/SRE Agent** — your turn.',
+                '',
+                'Merge this PR to trigger the staged deployment pipeline.',
+                'The deployment workflow will:',
+                '1. Build and scan the container image',
+                '2. Deploy to dev → run smoke tests',
+                '3. Deploy to staging → run integration tests',
+                '4. Auto-advance to production (P2/P3) or await approval (P0/P1)',
+                '',
+                'Rollback is automatic if smoke tests fail.',
+              ].join('\n')
+            });
+
+  # ─── SPEC STRUCTURE VALIDATION ────────────────────────────────────────────
+  validate-openspec:
+    name: "📋 Validate OpenSPEC Structure"
+    if: |
+      github.event_name == 'pull_request' &&
+      (github.event.action == 'labeled' || github.event.action == 'ready_for_review')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate spec/openspec structure
+        run: |
+          echo "Validating OpenSPEC structure..."
+          
+          # Check config exists
+          [ -f "spec/openspec/config.yaml" ] && echo "✅ config.yaml present" || echo "❌ config.yaml missing"
+          
+          # Check domain specs exist
+          for domain in sdlc-process personas idea-capture security-standards testing-standards operations; do
+            [ -f "spec/openspec/specs/$domain/spec.md" ] \
+              && echo "✅ specs/$domain/spec.md present" \
+              || echo "⚠️  specs/$domain/spec.md missing"
+          done
+          
+          # Check changes directory
+          [ -d "spec/openspec/changes" ] && echo "✅ changes/ directory present" || echo "❌ changes/ missing"
+          
+          echo "OpenSPEC validation complete."

@@ -1,0 +1,73 @@
+name: Copilot Task Router
+
+on:
+  issues:
+    types:
+      - opened
+      - labeled
+      - edited
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  route:
+    if: contains(join(github.event.issue.labels.*.name, ','), 'copilot-task') || contains(github.event.issue.body, '/copilot')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add tracking labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const issue_number = context.payload.issue.number;
+
+            const labels = ["copilot-task", "copilot-routed"];
+            await github.rest.issues.addLabels({ owner, repo, issue_number, labels });
+
+      - name: Try assigning Copilot
+        id: assign
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const issue_number = context.payload.issue.number;
+
+            try {
+              await github.rest.issues.addAssignees({
+                owner,
+                repo,
+                issue_number,
+                assignees: ["copilot"]
+              });
+              core.setOutput("assigned", "true");
+            } catch (error) {
+              core.warning(`Could not auto-assign Copilot: ${error.message}`);
+              core.setOutput("assigned", "false");
+            }
+
+      - name: Post kickoff comment for Copilot
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const issue_number = context.payload.issue.number;
+            const body = context.payload.issue.body || "";
+            const assigned = "${{ steps.assign.outputs.assigned }}" === "true";
+
+            const comment = [
+              "@copilot Please implement this issue end-to-end and open a pull request.",
+              "",
+              "Context captured from issue template:",
+              body,
+              "",
+              assigned
+                ? "Copilot assignment attempt: success"
+                : "Copilot assignment attempt: not available in this repo/org. A maintainer may need to request the task manually."
+            ].join("\n");
+
+            await github.rest.issues.createComment({ owner, repo, issue_number, body: comment });
