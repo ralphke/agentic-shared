@@ -1,0 +1,27 @@
+# Paths synchronized into ralphke/Agentic-Coding
+.github/copilot-instructions.md
+.github/ISSUE_TEMPLATE/copilot-task.yml
+.github/ISSUE_TEMPLATE/idea-capture.yml
+.github/workflows/copilot-task-router.yml
+.github/workflows/sdlc-orchestrator.yml
+.github/prompts/opsx-apply.prompt.md
+.github/prompts/opsx-propose.prompt.md
+.github/prompts/opsx-verify.prompt.md
+.github/prompts/sdlc-kickoff.prompt.md
+.github/instructions/openspec-workflow.instructions.md
+.github/instructions/sdlc-fabric.instructions.md
+.github/skills/deploy-pipeline.md
+.github/skills/idea-to-spec.md
+.github/skills/pr-review.md
+.github/skills/security-review.md
+.github/skills/spec-to-design.md
+.github/skills/test-generation.md
+.github/agents/architect.md
+.github/agents/code-reviewer.md
+.github/agents/developer.md
+.github/agents/devops-sre.md
+.github/agents/operations-sre.md
+.github/agents/product-owner.md
+.github/agents/qa-engineer.md
+.github/agents/security-engineer.md
+spec/spec-template.md

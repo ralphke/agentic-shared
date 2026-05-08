@@ -1,0 +1,6 @@
+# Shared paths recommended for ralphke/Agentic-DevOps
+# The repo currently keeps Azure-specific pipeline logic and local OpenSpec content in-repo.
+# Only the safe, path-compatible subset is recommended for automated sync today.
+.github/ISSUE_TEMPLATE/copilot-task.yml
+.github/ISSUE_TEMPLATE/idea-capture.yml
+.github/workflows/copilot-task-router.yml
