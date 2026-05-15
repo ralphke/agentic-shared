@@ -111,7 +111,7 @@ jobs:
       github.event.label.name == 'stage:test'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Run tests (Python)
         if: hashFiles('**/pytest.ini', '**/pyproject.toml', '**/setup.cfg') != ''
@@ -154,46 +154,139 @@ jobs:
       github.event.label.name == 'stage:security'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          fetch-depth: 0  # full history needed for secrets scan
 
+      # ── Python SAST — BLOCKING ──────────────────────────────────────────
       - name: Python SAST (bandit)
         if: hashFiles('**/*.py') != ''
-        continue-on-error: true
         run: |
-          pip install -q bandit 2>/dev/null || true
-          bandit -r src/ -ll -f txt 2>/dev/null || echo "bandit not configured"
+          pip install -q bandit
+          # Exit 1 on MEDIUM+ (severity level -ll); fail the build
+          bandit -r src/ -ll -f txt
+        # NOTE: intentionally no continue-on-error — HIGH/CRITICAL findings BLOCK merge
 
+      # ── Dependency CVE audit — BLOCKING ────────────────────────────────
       - name: Dependency audit (pip-audit)
         if: hashFiles('**/requirements*.txt', '**/pyproject.toml') != ''
-        continue-on-error: true
         run: |
-          pip install -q pip-audit 2>/dev/null || true
-          pip-audit --format columns 2>/dev/null || echo "pip-audit not configured"
+          pip install -q pip-audit
+          # --fail-on-vuln exits non-zero when any vulnerability is found
+          pip-audit --format columns --fail-on-vuln
 
       - name: npm audit
         if: hashFiles('**/package.json') != ''
-        continue-on-error: true
-        run: npm audit --audit-level high 2>/dev/null || echo "npm audit not configured"
+        run: |
+          # --audit-level high: exit non-zero only on HIGH or CRITICAL findings
+          npm audit --audit-level high
 
+      # ── Lockfile hash pinning check ─────────────────────────────────────
+      - name: Verify dependency hash pinning (Python)
+        if: hashFiles('**/requirements*.txt') != ''
+        run: |
+          set -euo pipefail
+          UNPINNED=0
+          while IFS= read -r req_file; do
+            # Warn on any dependency missing both a pinned version and a hash
+            if grep -Eq '^[a-zA-Z]' "$req_file"; then
+              if ! grep -q '\-\-hash=' "$req_file"; then
+                echo "::warning file=${req_file}::No hash pinning found. Consider using pip-compile --generate-hashes."
+                UNPINNED=1
+              fi
+            fi
+          done < <(find . -name 'requirements*.txt' -not -path '*/.venv*' -not -path '*/node_modules*')
+          # Treat unpinned deps as a HIGH finding — block merge
+          [ "$UNPINNED" -eq 0 ] || { echo "::error::One or more requirements files lack hash pinning. See warnings above."; exit 1; }
+
+      # ── Phantom package detection — BLOCKING ────────────────────────────
+      - name: Phantom package check (PyPI)
+        if: hashFiles('**/requirements*.txt') != ''
+        run: |
+          set -euo pipefail
+          PHANTOM=0
+          while IFS= read -r req_file; do
+            while IFS= read -r pkg; do
+              # Strip version specifier and extras
+              CLEAN=$(echo "$pkg" | sed 's/[>=<!\[].*//' | tr -d ' ')
+              [ -z "$CLEAN" ] && continue
+              HTTP_STATUS=$(curl -sf -o /dev/null -w "%{http_code}" \
+                "https://pypi.org/pypi/${CLEAN}/json" || true)
+              if [ "$HTTP_STATUS" != "200" ]; then
+                echo "::error::PHANTOM PACKAGE: '${CLEAN}' returned HTTP ${HTTP_STATUS} from PyPI — possible hallucinated package. BLOCKING MERGE."
+                PHANTOM=1
+              fi
+            done < <(grep -E '^[a-zA-Z]' "$req_file" | sed '/^#/d')
+          done < <(find . -name 'requirements*.txt' -not -path '*/.venv*' -not -path '*/node_modules*')
+          [ "$PHANTOM" -eq 0 ] || exit 1
+
+      - name: Phantom package check (npm)
+        if: hashFiles('**/package.json') != ''
+        run: |
+          set -euo pipefail
+          PHANTOM=0
+          for PKG in $(node -e "const p=require('./package.json'); console.log(Object.keys({...p.dependencies,...p.devDependencies}).join('\n'))" 2>/dev/null || true); do
+            HTTP_STATUS=$(curl -sf -o /dev/null -w "%{http_code}" \
+              "https://registry.npmjs.org/${PKG}" || true)
+            if [ "$HTTP_STATUS" != "200" ]; then
+              echo "::error::PHANTOM PACKAGE: '${PKG}' returned HTTP ${HTTP_STATUS} from npm — possible hallucinated package. BLOCKING MERGE."
+              PHANTOM=1
+            fi
+          done
+          [ "$PHANTOM" -eq 0 ] || exit 1
+
+      # ── Secret scanning — BLOCKING ───────────────────────────────────────
+      - name: Secret scanning (gitleaks)
+        run: |
+          # Pull pinned gitleaks image and scan full branch history
+          docker run --rm \
+            -v "$PWD:/path" \
+            zricethezav/gitleaks:v8.18.4 \
+            detect --source /path --log-opts "origin/main..HEAD" \
+            --exit-code 1 \
+            --redact
+        # non-zero exit code blocks the step — any detected secret blocks merge
+
+      # ── Post security-gate status comment ───────────────────────────────
       - name: Comment — security stage
+        if: always()
         uses: actions/github-script@v7
         with:
           script: |
+            const success = '${{ job.status }}' === 'success';
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.payload.pull_request.number,
-              body: [
-                '## 🔒 Stage: Security Review',
+              body: success ? [
+                '## 🔒 Stage: Security — Automated Pre-checks Passed',
                 '',
-                '**Security Engineer Agent** — your turn.',
+                '**Security Engineer Agent** — your turn for the manual review.',
                 '',
-                'Run in VS Code Copilot chat:',
+                'The automated gates have passed:',
+                '- ✅ SAST (bandit)',
+                '- ✅ Dependency CVE audit (pip-audit / npm audit)',
+                '- ✅ Lockfile hash pinning verified',
+                '- ✅ Phantom package check (PyPI / npm)',
+                '- ✅ Secret scanning (gitleaks)',
+                '',
+                'Run the full security review in VS Code Copilot chat:',
                 '```',
-                '/opsx:verify  ← runs security review + code review',
+                '/opsx:verify  ← runs security review + OWASP + supply chain + code review',
                 '```',
                 '',
                 'Security gate: no CRITICAL or HIGH findings to merge.',
+              ].join('\n') : [
+                '## 🔒 Stage: Security — ❌ AUTOMATED GATE FAILED',
+                '',
+                '**Merge is BLOCKED.** One or more automated security checks failed.',
+                '',
+                'Check the workflow run logs for details:',
+                `- Bandit SAST, pip-audit, npm audit, lockfile pinning, phantom package check, or gitleaks`,
+                '',
+                '**Developer Agent** — remediate all flagged issues and re-push.',
+                '',
+                '> No manual security review will be started until the automated gate passes.',
               ].join('\n')
             });
 
@@ -270,7 +363,7 @@ jobs:
       (github.event.action == 'labeled' || github.event.action == 'ready_for_review')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Validate spec/openspec structure
         run: |

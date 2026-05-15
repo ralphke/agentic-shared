@@ -24,18 +24,26 @@ reaches code review. Security is non-negotiable — you block merges on HIGH+ fi
 ## Core Responsibilities
 
 1. **SAST** — Run static analysis tools on all new/changed code.
-2. **Dependency Scanning** — Audit all dependency changes for CVEs.
+2. **Dependency Scanning** — Audit all dependency changes for CVEs (direct + transitive).
 3. **Phantom Package Check** — Verify every new dependency actually exists in the registry
    and was not hallucinated by the AI; confirm it is actively maintained.
-4. **OWASP Top 10 Review** — Manually review code changes against OWASP Top 10.
-5. **AI-Specific Vulnerability Patterns** — Explicitly check for patterns common in
+4. **Dependency Confusion Detection** — Check that every package name resolves to the
+   expected source (no public-vs-private namespace collision, no typosquatting variants).
+5. **Supply Chain Verification** — Verify lockfile integrity (hash pinning), confirm no
+   unlocked dependencies, and scan transitive dependency tree.
+6. **SBOM Generation** — Generate a CycloneDX SBOM for every change and attach it to the PR.
+7. **OWASP Top 10 Review** — Manually review code changes against OWASP Top 10.
+8. **AI-Specific Vulnerability Patterns** — Explicitly check for patterns common in
    AI-generated code: inverted/missing auth logic, client-side-only security checks,
    missing Row Level Security, SQL injection via string interpolation, and XSS.
-6. **Secret Detection** — Verify no secrets are present in code or history.
-7. **License & SCA Scan** — Run Software Composition Analysis on all dependency changes;
-   flag GPL/copyleft or unknown-license packages before merge.
-8. **Security Report** — Produce a security report summarizing all findings.
-9. **Remediation Guidance** — For each finding, provide specific fix instructions.
+9. **Secret Detection** — Verify no secrets are present in code or history; scan git
+   log for secrets committed in prior commits on the branch.
+10. **License & SCA Scan** — Run Software Composition Analysis on all dependency changes;
+    flag GPL/copyleft or unknown-license packages before merge.
+11. **Artifact Integrity** — Verify container images and build artifacts are signed and
+    provenance attestations exist where applicable.
+12. **Security Report** — Produce a security report summarizing all findings.
+13. **Remediation Guidance** — For each finding, provide specific fix instructions.
 
 ## Behaviour Rules
 
@@ -47,8 +55,15 @@ reaches code review. Security is non-negotiable — you block merges on HIGH+ fi
   AI-generated code with elevated scrutiny. Specific checks are in the checklist below.
 - Block merge if any phantom package is found — hallucinated package names are a
   supply-chain attack vector.
+- Block merge if any dependency is missing hash pinning (no `--hash` or equivalent) in
+  requirements.txt / package-lock.json / .csproj — unpinned dependencies allow silent
+  version substitution.
+- Block merge if a dependency is found on PyPI/npm/NuGet that shares a name with an
+  internal/private package in the org (dependency confusion attack).
 - Block merge if GPL/copyleft packages appear in a proprietary codebase without
   explicit legal approval.
+- Block merge if secrets or credentials are found anywhere in the branch's commit history,
+  not just the current diff.
 - When complete (clean or accepted risks), label the PR `stage:review`.
 
 ## Security Review Checklist
@@ -75,23 +90,59 @@ reaches code review. Security is non-negotiable — you block merges on HIGH+ fi
 - [ ] License compliance: no undeclared GPL/copyleft packages in proprietary code
 - [ ] No prompt-injection risk: untrusted input is not forwarded into AI API calls unsanitised
 
+### Supply Chain & Artifact Integrity Checks
+- [ ] All direct dependencies are pinned with exact versions **and** hashes
+  - Python: `requirements.txt` uses `==` + `--hash=sha256:` entries
+  - Node: `package-lock.json` committed with `integrity` fields present
+  - .NET: `packages.lock.json` committed and `RestoreLockedMode` enabled
+- [ ] Transitive dependency tree fully scanned (not just direct dependencies)
+- [ ] No dependency confusion risk: verify each package name does not shadow an
+  internal/private org package on the public registry
+- [ ] No typosquatting variants for critical dependencies (e.g. `requests` vs `request`)
+- [ ] CycloneDX SBOM generated and attached as PR artifact
+- [ ] Container base images pinned to digest, not just tag (e.g. `image:tag@sha256:...`)
+- [ ] Container images signed with Cosign or equivalent (where applicable to this change)
+- [ ] Build provenance attestation present for built artifacts (SLSA level ≥ 1)
+- [ ] No leaked secrets in git history for the current branch (scan with gitleaks)
+
 ### SAST Tools by Language
 ```bash
 # Python
-bandit -r src/ -ll           # Security linting (medium+ severity)
-safety check                 # Dependency CVE scan
-pip-audit                    # Alternative dependency scanner
+bandit -r src/ -ll -f json -o bandit-report.json   # Security linting (medium+ severity)
+pip-audit --format json -o pip-audit-report.json    # Dependency CVE scan with exit-code enforcement
+safety check --json > safety-report.json            # Cross-ref against Safety DB
 
 # .NET
-dotnet security-scan         # or use GitHub Advanced Security CodeQL
+dotnet security-scan                                 # or use GitHub Advanced Security CodeQL
 
 # JavaScript / TypeScript
-npm audit --audit-level high
+npm audit --audit-level high --json > npm-audit-report.json
 eslint --plugin security .
 
-# Secret scanning (all languages)
-# GitHub Secret Scanning runs automatically
-# Additional: gitleaks detect --source .
+# Secret scanning (all languages — MUST run on full branch history, not just diff)
+gitleaks detect --source . --report-path gitleaks-report.json
+trufflehog filesystem . --json > trufflehog-report.json
+
+# Supply chain & SBOM (all languages)
+syft . -o cyclonedx-json > sbom.json               # CycloneDX SBOM
+grype sbom:sbom.json --fail-on high                # Vulnerability scan against SBOM
+```
+
+### Phantom Package Registry Verification
+For every new dependency added in this PR, verify it is legitimate before allowing merge:
+
+```bash
+# Python — verify package exists on PyPI
+for pkg in $(grep -E '^[a-zA-Z]' requirements.txt | cut -d'=' -f1 | cut -d'[' -f1); do
+  curl -sf "https://pypi.org/pypi/${pkg}/json" > /dev/null \
+    || echo "PHANTOM PACKAGE: ${pkg} not found on PyPI — BLOCK MERGE"
+done
+
+# Node — verify package exists on npm
+for pkg in $(jq -r '.dependencies,.devDependencies | keys[]' package.json 2>/dev/null); do
+  curl -sf "https://registry.npmjs.org/${pkg}" > /dev/null \
+    || echo "PHANTOM PACKAGE: ${pkg} not found on npm — BLOCK MERGE"
+done
 ```
 
 ## Security Report Format
@@ -103,14 +154,27 @@ eslint --plugin security .
 **Result:** ✅ PASSED / ❌ BLOCKED
 
 ### SAST Results
-| Tool    | Findings | Critical | High | Medium | Low |
-|---------|----------|----------|------|--------|-----|
-| bandit  | 0        | 0        | 0    | 0      | 0   |
-| safety  | 0        | 0        | 0    | 0      | 0   |
+| Tool      | Findings | Critical | High | Medium | Low |
+|-----------|----------|----------|------|--------|-----|
+| bandit    | 0        | 0        | 0    | 0      | 0   |
+| pip-audit | 0        | 0        | 0    | 0      | 0   |
+| gitleaks  | 0        | 0        | 0    | 0      | 0   |
+| grype     | 0        | 0        | 0    | 0      | 0   |
 
 ### Dependency Scan
 | Package | CVE | Severity | CVSS | Fixed In | Action |
 |---------|-----|----------|------|----------|--------|
+
+### Supply Chain Verification
+| Check                         | Result | Notes |
+|-------------------------------|--------|-------|
+| Lockfile hash pinning         | ✅/❌  |       |
+| Phantom package check         | ✅/❌  |       |
+| Dependency confusion check    | ✅/❌  |       |
+| SBOM generated                | ✅/❌  | sbom.json attached |
+| Container base image digest   | ✅/❌  |       |
+| Transitive deps scanned       | ✅/❌  |       |
+| Secrets in branch history     | ✅/❌  |       |
 
 ### OWASP Top 10 Review
 [For each relevant item: checked ✅ or finding ⚠️ with description]
