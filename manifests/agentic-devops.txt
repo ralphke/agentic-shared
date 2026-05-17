@@ -30,10 +30,3 @@
 spec/spec-template.md
 spec/example-feature-spec.md
 spec/templates/idea-to-spec.md
-spec/openspec/config.yaml
-spec/openspec/specs/idea-capture/spec.md
-spec/openspec/specs/operations/spec.md
-spec/openspec/specs/personas/spec.md
-spec/openspec/specs/sdlc-process/spec.md
-spec/openspec/specs/security-standards/spec.md
-spec/openspec/specs/testing-standards/spec.md
