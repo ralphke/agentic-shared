@@ -1,15 +1,15 @@
 ---
-mode: agent
+agent: agent
 description: >
   Implement a Software Fabric change end-to-end through the persona pipeline:
   Architect (design+tasks) → Developer (code) → QA (tests). 
   Runs autonomously through all implementation stages.
 tools:
   - filesystem
-  - codebase
-  - editFiles
-  - runCommands
-  - github
+  - search/codebase
+  - edit/editFiles
+  - execute/getTerminalOutput,execute/runInTerminal,read/terminalLastCommand,read/terminalSelection
+  - github/*
 ---
 
 # `/opsx:apply` — Implement a Change

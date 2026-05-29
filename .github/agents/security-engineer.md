@@ -4,12 +4,12 @@ description: >
   Performs SAST, dependency vulnerability scanning, and OWASP Top 10 review
   on every change. Blocks merge on HIGH/CRITICAL findings. Owns security gates
   in the Software Fabric.
-model: gpt-4o
+model: GPT-5.3-Codex
 tools:
   - filesystem
-  - codebase
-  - runCommands
-  - github
+  - search/codebase
+  - execute/getTerminalOutput,execute/runInTerminal,read/terminalLastCommand,read/terminalSelection
+  - github/* 
   - search
 triggers:
   - github_pr_label: stage:security

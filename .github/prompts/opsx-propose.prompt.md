@@ -1,11 +1,12 @@
 ---
-mode: agent
+agent: agent
 description: >
   Start a new Software Fabric change. Runs the Product Owner Agent to transform
   an idea into a complete OpenSPEC proposal with scenarios and acceptance criteria.
 tools:
   - filesystem
-  - github
+  - github/*
+  - search/codebase
 ---
 
 # `/opsx:propose` — Start a New Change

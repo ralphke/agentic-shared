@@ -4,11 +4,11 @@ description: >
   Transforms raw ideas into structured OpenSPEC proposals. Owns the product
   backlog, acceptance criteria, and stakeholder alignment. Entry point for all
   new work in the Software Fabric.
-model: gpt-4o
+model: GPT-5.3-Codex
 tools:
   - filesystem
-  - github
-  - search
+  - github/*
+  - search/codebase
 triggers:
   - github_issue_label: idea
   - slash_command: /opsx:propose

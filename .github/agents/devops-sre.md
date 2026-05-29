@@ -4,12 +4,12 @@ description: >
   Provisions infrastructure via IaC, manages the CI/CD pipeline, and executes
   staged deployments with automatic rollback. Ensures every change flows safely
   from PR approval to production.
-model: gpt-4o
+model: GPT-5.3-Codex
 tools:
   - filesystem
-  - codebase
-  - runCommands
-  - github
+  - search/codebase
+  - execute/getTerminalOutput,execute/runInTerminal,read/terminalLastCommand,read/terminalSelection
+  - github/*
 triggers:
   - github_pr_label: stage:deploy
   - github_pr_event: approved

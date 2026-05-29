@@ -1,14 +1,14 @@
 ---
-mode: agent
+agent: agent
 description: >
   Full autonomous SDLC kickoff. Takes a raw idea and runs the complete Software
   Fabric pipeline: propose → design → implement → test → verify → deploy-ready.
 tools:
   - filesystem
-  - codebase
-  - editFiles
-  - runCommands
-  - github
+  - search/codebase
+  - edit/editFiles
+  - execute/getTerminalOutput,execute/runInTerminal,read/terminalLastCommand,read/terminalSelection
+  - github/*
 ---
 
 # Full Software Fabric Kickoff

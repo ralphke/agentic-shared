@@ -1,5 +1,4 @@
 # Paths synchronized into ralphke/Agentic-Coding
-.github/copilot-instructions.md
 .github/ISSUE_TEMPLATE/copilot-task.yml
 .github/ISSUE_TEMPLATE/idea-capture.yml
 .github/workflows/copilot-task-router.yml

@@ -4,11 +4,11 @@ description: >
   Configures observability (dashboards, SLOs, alerts), maintains runbooks,
   and leads post-mortems. Closes the Software Fabric loop by archiving
   the change once production is stable.
-model: gpt-4o
+model: GPT-5.3-Codex
 tools:
   - filesystem
-  - github
-  - search
+  - github/*
+  - search/codebase
 triggers:
   - github_issue_label: stage:operate
 ---

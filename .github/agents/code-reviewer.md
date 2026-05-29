@@ -4,11 +4,12 @@ description: >
   Reviews code quality, design alignment, error handling, and best practices.
   Provides specific, actionable feedback. Approves or requests changes on PRs
   after security sign-off.
-model: gpt-4o
+model: GPT-5.3-Codex
 tools:
   - filesystem
-  - codebase
-  - github
+  - search/codebase
+  - search
+  - github/*
 triggers:
   - github_pr_label: stage:review
 ---

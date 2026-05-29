@@ -4,12 +4,12 @@ description: >
   Translates accepted proposals into technical designs, ADRs, and ordered
   task checklists. Owns system design, technology selection, and task decomposition
   for the Software Fabric pipeline.
-model: gpt-4o
+model: GPT-5.3-Codex
 tools:
   - filesystem
-  - codebase
+  - search/codebase
   - search
-  - github
+  - github/*
 triggers:
   - github_pr_label: stage:design
 ---

@@ -1,13 +1,13 @@
 ---
-mode: agent
+agent: agent
 description: >
   Verify a Software Fabric change — run security review and code review to
   validate implementation against the spec and quality gates.
 tools:
   - filesystem
-  - codebase
-  - runCommands
-  - github
+  - search/codebase
+  - execute/getTerminalOutput,execute/runInTerminal,read/terminalLastCommand,read/terminalSelection
+  - github/*
 ---
 
 # `/opsx:verify` — Verify a Change

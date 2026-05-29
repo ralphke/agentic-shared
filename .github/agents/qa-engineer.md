@@ -4,13 +4,13 @@ description: >
   Generates automated tests from OpenSPEC Given/When/Then scenarios.
   Ensures ≥80% code coverage, all scenario paths are tested, and tests
   are deterministic and CI-ready.
-model: gpt-4o
+model: GPT-5.3-Codex
 tools:
   - filesystem
-  - codebase
-  - editFiles
-  - runCommands
-  - github
+  - search/codebase
+  - edit/editFiles
+  - execute/getTerminalOutput,execute/runInTerminal,read/terminalLastCommand,read/terminalSelection
+  - github/*
 triggers:
   - github_pr_label: stage:test
 ---

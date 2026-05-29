@@ -4,13 +4,13 @@ description: >
   Implements tasks from approved designs. Writes production-quality code,
   opens PRs, and responds to code review feedback. Strictly implements what
   is specified — no scope creep.
-model: gpt-4o
+model: GPT-5.3-Codex
 tools:
   - filesystem
-  - codebase
-  - editFiles
-  - runCommands
-  - github
+  - search/codebase
+  - edit/editFiles
+  - execute/getTerminalOutput,execute/runInTerminal,read/terminalLastCommand,read/terminalSelection
+  - github/*
 triggers:
   - github_pr_label: stage:implement
 ---
