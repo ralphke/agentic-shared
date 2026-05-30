@@ -1,0 +1,76 @@
+# OpenSpec Configuration — Software Fabric Autonomous SDLC
+# https://github.com/Fission-AI/OpenSpec
+version: 1
+
+project:
+  name: Software Fabric — Autonomous SDLC
+  description: >
+    A spec-driven autonomous software development lifecycle where
+    specialized AI agent personas collaborate to transform a raw idea
+    into a fully tested, secure, and autonomously operated application.
+  homepage: https://github.com/Fission-AI/OpenSpec
+
+# Active OpenSpec profile
+profile: spec-driven
+
+# Domain ownership — each domain maps to a responsible persona
+domains:
+  idea-capture:
+    owner: product-owner
+    description: Captures raw ideas and refines them into structured proposals
+  sdlc-process:
+    owner: architect
+    description: The end-to-end autonomous SDLC workflow and handoff protocol
+  personas:
+    owner: architect
+    description: Agent personas, skills, and collaboration contracts
+  security-standards:
+    owner: security-engineer
+    description: OWASP alignment, threat modelling, and security gate rules
+  testing-standards:
+    owner: qa-engineer
+    description: Testing strategy, coverage minimums, and quality gates
+  operations:
+    owner: devops-sre
+    description: Deployment patterns, monitoring SLOs, and runbooks
+
+# Path overrides (relative to repo root)
+# OpenSpec CLI: openspec init --specs-dir spec/openspec
+paths:
+  specs:   spec/openspec/specs
+  changes: spec/openspec/changes
+  archive: spec/openspec/changes/archive
+
+# Quality gates — ALL must pass before /opsx:archive is allowed
+gates:
+  require_tests:           true   # pytest / dotnet test must be green
+  require_security_review: true   # no HIGH or CRITICAL CVEs
+  require_code_review:     true   # at least one review approval
+  require_ci_pass:         true   # GitHub Actions CI workflow green
+  min_coverage_pct:        80     # new code coverage floor
+
+# Persona roster — referenced by agent files in .github/agents/
+personas:
+  - id: product-owner
+    file: .github/agents/product-owner.md
+  - id: architect
+    file: .github/agents/architect.md
+  - id: developer
+    file: .github/agents/developer.md
+  - id: qa-engineer
+    file: .github/agents/qa-engineer.md
+  - id: security-engineer
+    file: .github/agents/security-engineer.md
+  - id: devops-sre
+    file: .github/agents/devops-sre.md
+  - id: code-reviewer
+    file: .github/agents/code-reviewer.md
+  - id: operations-sre
+    file: .github/agents/operations-sre.md
+
+# MCP servers used by this project — see .vscode/mcp.json for runtime config
+mcp_servers:
+  - id: openspec-filesystem
+    description: Filesystem access scoped to spec/openspec for spec management
+  - id: github-mcp
+    description: GitHub API access for issues, PRs, and workflow triggers
