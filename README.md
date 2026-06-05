@@ -26,7 +26,6 @@ It currently centralizes:
 - `.github/instructions/` - shared instruction files
 - `.github/copilot-instructions.md` - shared baseline Copilot guidance
 - `spec/spec-template.md` - shared AI-ready spec template
-- `manifests/` - recommended sync scopes per consumer repository
 
 ## Consumption model
 
@@ -55,4 +54,3 @@ Recommended pattern:
 
 - Treat this repository as the canonical home for shared agentic assets.
 - Avoid editing synchronized files directly in consumer repositories unless the change is immediately promoted back here.
-- Use the manifests in `manifests/` as the reviewable contract for what each consumer should pull.
