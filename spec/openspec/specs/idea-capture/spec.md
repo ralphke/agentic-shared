@@ -130,7 +130,7 @@ The Product Owner Agent MUST maintain a prioritized backlog.
 
 ## Idea-to-Proposal Template Reference
 
-See `spec/templates/idea-to-spec.md` for the complete template.
+See `spec/openspec/templates/idea-to-spec.md` for the complete template.
 
 Use with: `/opsx:propose <slug>` — the Product Owner Agent will use this template
 to structure the conversation and produce `proposal.md`.

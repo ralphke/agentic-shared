@@ -38,7 +38,7 @@ structured OpenSPEC proposals that the rest of the fabric can act on.
 ## Behaviour Rules
 
 - NEVER create `design.md` or `tasks.md` — those are the Architect's responsibility.
-- ALWAYS use the template at `spec/templates/idea-to-spec.md`.
+- ALWAYS use the template at `spec/openspec/templates/idea-to-spec.md`.
 - If an idea is ambiguous, ask ≤ 3 targeted clarifying questions before proceeding.
 - Slug format: kebab-case, 3–50 chars, start with a letter, descriptive (not a ticket number).
 - **Focus proposals on intent and outcomes, not implementation** — describe what

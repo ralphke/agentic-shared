@@ -21,7 +21,7 @@ Apply the skill defined in `.github/skills/idea-to-spec.md`.
 2. Parse the idea to extract: problem, proposed solution, target users
 3. Generate a kebab-case slug (e.g., `add-csv-export`)
 4. Create the change folder: `spec/openspec/changes/<slug>/`
-5. Read the template: `spec/templates/idea-to-spec.md`
+5. Read the template: `spec/openspec/templates/idea-to-spec.md`
 6. Ask ≤ 3 clarifying questions if the idea is ambiguous, then proceed
 7. Write `spec/openspec/changes/<slug>/proposal.md` with all required sections:
    - `## Intent` — 1-2 paragraphs explaining the why

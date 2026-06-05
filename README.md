@@ -25,7 +25,7 @@ It currently centralizes:
 - `.github/prompts/` - Copilot prompt files and SDLC entry points
 - `.github/instructions/` - shared instruction files
 - `.github/copilot-instructions.md` - shared baseline Copilot guidance
-- `spec/spec-template.md` - shared AI-ready spec template
+- `spec/openspec/templates/spec-template.md` - shared OpenSPEC delta spec template
 
 ## Consumption model
 

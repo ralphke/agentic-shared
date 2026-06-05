@@ -31,7 +31,7 @@ It is not a standalone application or workshop runtime. It provides shared defin
 - `.github/workflows/` — shared workflow definitions for consumer repos
 - `.github/instructions/` — shared instruction files and policy guidance
 - `.github/copilot-instructions.md` — shared Copilot guidance
-- `specs/openspec/templates/idea-to-spec.md` — shared OpenSPEC-compatible spec template
+- `spec/openspec/templates/idea-to-spec.md` — shared OpenSPEC-compatible spec template
 
 ## Recommended usage
 

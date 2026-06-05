@@ -25,7 +25,7 @@ Use this skill when a user submits:
 2. **Generate slug** — Convert title to kebab-case (e.g., "add csv export" → `add-csv-export`)
 3. **Validate slug** — Ensure kebab-case, 3–50 chars, starts with letter
 4. **Create change folder** — `spec/openspec/changes/<slug>/`
-5. **Load template** — Read `spec/templates/idea-to-spec.md`
+5. **Load template** — Read `spec/openspec/templates/idea-to-spec.md`
 6. **Clarify if needed** — Ask ≤ 3 focused questions if intent is ambiguous
 7. **Write proposal.md** — Fill in all required sections:
    - `## Intent` — 1-2 paragraphs explaining why (what users need, not how to build it)
