@@ -1,7 +1,11 @@
 # Skill: Idea to OpenSPEC Proposal
 
-**Persona:** Product Owner Agent  
-**Input:** Raw idea text (natural language)  
+**Description**
+- **USE FOR:** turning ambiguous ideas into actionable `proposal.md` artifacts with clear scope and acceptance criteria.
+- **DO NOT USE FOR:** implementation planning (`design.md`/`tasks.md`) or code delivery.
+
+**Persona:** Product Owner Agent
+**Input:** Raw idea text (natural language)
 **Output:** `spec/openspec/changes/<slug>/proposal.md`
 
 ---
@@ -65,3 +69,11 @@ Created: spec/openspec/changes/add-csv-export/proposal.md
 ✓ Affected Domains — idea-capture, testing-standards
 Labelled: stage:design
 ```
+
+---
+
+## Collaboration & Iteration Loop
+
+- Review the latest workflow-improvement report issue before drafting new proposals.
+- If issue/PR history is sparse, use baseline defaults and record assumptions in `proposal.md`.
+- Feed recurring ambiguity patterns (missing scope, weak acceptance criteria, unclear actors) back into this skill.

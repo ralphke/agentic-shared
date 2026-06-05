@@ -14,6 +14,7 @@ It currently centralizes:
 - Copilot prompts and instructions
 - Event-driven GitHub workflow definitions
 - Agent-ready spec templates
+- Workflow retrospective automation for continuous process improvement
 
 ## Repository layout
 
