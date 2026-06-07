@@ -1,7 +1,11 @@
 # Skill: Deploy Pipeline Execution
 
-**Persona:** DevOps/SRE Agent  
-**Input:** Approved PR, infrastructure spec, IaC templates  
+**Description**
+- **USE FOR:** controlled multi-environment deployment with rollback criteria and reporting.
+- **DO NOT USE FOR:** approving unreviewed PRs or bypassing test/security gates.
+
+**Persona:** DevOps/SRE Agent
+**Input:** Approved PR, infrastructure spec, IaC templates
 **Output:** Deployed application, deployment report, smoke test results
 
 ---
@@ -87,10 +91,10 @@ kubectl rollout undo deployment/$DEPLOYMENT -n $NAMESPACE  # rollback
 ```markdown
 ## Deployment Report — <change-slug>
 
-**Deployed by:** DevOps/SRE Agent  
-**Date:** YYYY-MM-DD HH:MM UTC  
-**Environment:** production  
-**Version:** <git-sha>  
+**Deployed by:** DevOps/SRE Agent
+**Date:** YYYY-MM-DD HH:MM UTC
+**Environment:** production
+**Version:** <git-sha>
 **Result:** ✅ SUCCESS / ❌ ROLLED BACK
 
 ### Stage Results
@@ -119,3 +123,11 @@ kubectl rollout undo deployment/$DEPLOYMENT -n $NAMESPACE  # rollback
 - [ ] Rollback procedure tested (staging verified)
 - [ ] Deployment report posted to PR
 - [ ] Issue labelled `stage:operate`
+
+---
+
+## Collaboration & Iteration Loop
+
+- Use deployment incident and rollback patterns from issue/PR history to refine gates.
+- If history is sparse, keep strict baseline rollback thresholds and capture first-deploy telemetry.
+- Feed recurring deployment friction into workflow automation and stage handoff guidance.

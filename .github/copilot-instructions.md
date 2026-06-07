@@ -7,8 +7,6 @@ This repository is a shared library of reusable agentic SDLC assets intended for
 Primary shared artifacts:
 
 - `README.md`
-- `manifests/agentic-coding.txt`
-- `manifests/agentic-devops.txt`
 - `.github/ISSUE_TEMPLATE/`
 - `.github/agents/`
 - `.github/skills/`
@@ -16,7 +14,7 @@ Primary shared artifacts:
 - `.github/workflows/`
 - `.github/instructions/`
 - `.github/copilot-instructions.md`
-- `spec/spec-template.md`
+- `specs/openspec/`
 
 ## Purpose
 
@@ -33,8 +31,7 @@ It is not a standalone application or workshop runtime. It provides shared defin
 - `.github/workflows/` — shared workflow definitions for consumer repos
 - `.github/instructions/` — shared instruction files and policy guidance
 - `.github/copilot-instructions.md` — shared Copilot guidance
-- `spec/spec-template.md` — shared OpenSPEC-compatible spec template
-- `manifests/` — recommended sync scopes for consumer repositories
+- `spec/openspec/templates/idea-to-spec.md` — shared OpenSPEC-compatible spec template
 
 ## Recommended usage
 
@@ -44,8 +41,6 @@ It is not a standalone application or workshop runtime. It provides shared defin
 
 ## Consumer guidance
 
-- `manifests/agentic-coding.txt` describes a full Software Fabric consumer sync scope.
-- `manifests/agentic-devops.txt` describes a selective DevOps-focused sync scope.
 - Treat this repository as the authoritative source for shared agentic SDLC content.
 
 ## Notes
@@ -53,4 +48,3 @@ It is not a standalone application or workshop runtime. It provides shared defin
 - If a consumer repo adds new tooling, update this file only when the shared guidance changes.
 - The README is the best source for repository purpose and current contents.
 - This repo focuses on shared artifact definitions, not implementation runtime tooling.
-

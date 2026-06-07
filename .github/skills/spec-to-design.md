@@ -1,7 +1,11 @@
 # Skill: Spec to Technical Design
 
-**Persona:** Systems Architect Agent  
-**Input:** `spec/openspec/changes/<slug>/proposal.md` + existing codebase  
+**Description**
+- **USE FOR:** converting approved proposals into executable design and task decomposition.
+- **DO NOT USE FOR:** writing production code or bypassing proposal requirements.
+
+**Persona:** Systems Architect Agent
+**Input:** `spec/openspec/changes/<slug>/proposal.md` + existing codebase
 **Output:** `design.md`, `tasks.md` in the change folder
 
 ---
@@ -77,3 +81,11 @@ Use when a PR/issue is labelled `stage:design` by the Product Owner Agent.
 - [ ] S1 [S] Verify user can only export their own data (no IDOR)
 - [ ] S2 [S] Confirm no PII appears in export audit logs
 ```
+
+---
+
+## Collaboration & Iteration Loop
+
+- Use recent workflow-improvement findings to adjust task granularity and stage handoff quality.
+- If issue/PR history is sparse, prefer conservative decomposition and explicit dependency ordering.
+- Add one process improvement note to each design cycle when repeated friction appears.

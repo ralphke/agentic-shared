@@ -1,7 +1,11 @@
 # Skill: PR Code Review
 
-**Persona:** Code Reviewer Agent  
-**Input:** PR diff, design.md, coding standards  
+**Description**
+- **USE FOR:** design-aligned, actionable PR review decisions with explicit blocking guidance.
+- **DO NOT USE FOR:** architecture planning, deployment execution, or security sign-off replacement.
+
+**Persona:** Code Reviewer Agent
+**Input:** PR diff, design.md, coding standards
 **Output:** GitHub PR review (APPROVE / REQUEST_CHANGES) with inline comments
 
 ---
@@ -40,7 +44,7 @@ Use when a PR is labelled `stage:review` (security passed) and awaits code revie
 - [ ] Null/empty-input guards present where expected
 - [ ] SCA/license findings from Security Agent reviewed and resolved
 
-### Code Quality  
+### Code Quality
 - [ ] Functions ≤ 30 lines (flag longer ones with refactor suggestion)
 - [ ] Cyclomatic complexity ≤ 10 per function
 - [ ] No duplicate code blocks (DRY principle)
@@ -98,7 +102,7 @@ Reference: design.md §Error Handling
 ```markdown
 ## Code Review Summary — add-csv-export
 
-**Reviewer:** Code Reviewer Agent  
+**Reviewer:** Code Reviewer Agent
 **Result:** 🔄 REQUEST_CHANGES (2 blocking, 3 suggestions)
 
 ### Blocking Issues
@@ -112,3 +116,11 @@ Reference: design.md §Error Handling
 
 Please address blocking issues and re-request review.
 ```
+
+---
+
+## Collaboration & Iteration Loop
+
+- Use repository review history to update comment quality patterns and common blocking checks.
+- If issue/PR history is sparse, apply the full baseline checklist and document assumptions in summary comments.
+- Promote repeated review failure modes into skills and workflow gate automation.

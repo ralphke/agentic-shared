@@ -1,7 +1,11 @@
 # Skill: Security Review
 
-**Persona:** Security Engineer Agent  
-**Input:** PR diff, dependency manifest, codebase  
+**Description**
+- **USE FOR:** blocking or passing PRs based on security evidence, supply-chain checks, and OWASP review.
+- **DO NOT USE FOR:** non-security code quality decisions or bypassing required remediation.
+
+**Persona:** Security Engineer Agent
+**Input:** PR diff, dependency manifest, codebase
 **Output:** Security report comment on PR; block or pass gate
 
 ---
@@ -87,8 +91,8 @@ Post as a PR comment:
 
 ```markdown
 ## 🔒 Security Review — <change-slug>
-**Agent:** Security Engineer  
-**Date:** YYYY-MM-DD  
+**Agent:** Security Engineer
+**Date:** YYYY-MM-DD
 **Result:** ✅ PASSED / ❌ BLOCKED (N HIGH, M CRITICAL findings)
 
 ### SAST Results
@@ -127,3 +131,11 @@ No vulnerable dependencies detected.
 - [ ] Security report posted on PR
 - [ ] Correct gate decision made (CRITICAL/HIGH block; MEDIUM warn)
 - [ ] Remediation issues opened for all blocking findings
+
+---
+
+## Collaboration & Iteration Loop
+
+- Reconcile every blocking finding with historical recurrence from issues/PRs to prioritize prevention.
+- If history is sparse, enforce strict baseline controls and capture first-incident signatures for future loops.
+- Feed repeated findings into workflow automation and upstream skill checklists.

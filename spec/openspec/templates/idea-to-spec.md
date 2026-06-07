@@ -135,11 +135,11 @@ Scenario: [Boundary / edge case]
 ## Delta Spec References
 
 > *List the spec domains this change will modify. The Architect Agent creates
-> delta spec files in `specs/<domain>/spec.md` within this change folder.*
+> delta spec files in `spec/openspec/changes/<slug>/specs/<domain>/spec.md`.*
 
 Domains to update:
-- `specs/idea-capture/spec.md` — [what changes]
-- `specs/<other-domain>/spec.md` — [what changes]
+- `spec/openspec/changes/<slug>/specs/idea-capture/spec.md` — [what changes]
+- `spec/openspec/changes/<slug>/specs/<other-domain>/spec.md` — [what changes]
 
 ---
 

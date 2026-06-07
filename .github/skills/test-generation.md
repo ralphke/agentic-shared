@@ -1,7 +1,11 @@
 # Skill: Test Generation from Spec Scenarios
 
-**Persona:** QA Engineer Agent  
-**Input:** `spec.md` scenarios + source code from Developer Agent  
+**Description**
+- **USE FOR:** generating deterministic, scenario-mapped tests with clear coverage expectations.
+- **DO NOT USE FOR:** replacing exploratory QA or approving security gates.
+
+**Persona:** QA Engineer Agent
+**Input:** `spec.md` scenarios + source code from Developer Agent
 **Output:** Test suites with ≥ 80% coverage on new code
 
 ---
@@ -75,3 +79,11 @@ ExportToCsv_WithEmptyDataset_ReturnsEmptyCsv
 - [ ] No `time.sleep()` or wall-clock dependencies
 - [ ] Tests pass deterministically (run 3x to verify)
 - [ ] Tests run in < 30s for unit suite, < 5min for integration suite
+
+---
+
+## Collaboration & Iteration Loop
+
+- Incorporate recurring defect patterns from recent PR/issue history into regression tests.
+- If history is sparse, seed baseline negative tests for auth, null-input, and error propagation paths.
+- Publish flaky/failing-pattern insights for downstream skill and workflow updates.

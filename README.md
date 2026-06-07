@@ -14,6 +14,7 @@ It currently centralizes:
 - Copilot prompts and instructions
 - Event-driven GitHub workflow definitions
 - Agent-ready spec templates
+- Workflow retrospective automation for continuous process improvement
 
 ## Repository layout
 
@@ -24,8 +25,7 @@ It currently centralizes:
 - `.github/prompts/` - Copilot prompt files and SDLC entry points
 - `.github/instructions/` - shared instruction files
 - `.github/copilot-instructions.md` - shared baseline Copilot guidance
-- `spec/spec-template.md` - shared AI-ready spec template
-- `manifests/` - recommended sync scopes per consumer repository
+- `spec/openspec/templates/spec-template.md` - shared OpenSPEC delta spec template
 
 ## Consumption model
 
@@ -54,4 +54,3 @@ Recommended pattern:
 
 - Treat this repository as the canonical home for shared agentic assets.
 - Avoid editing synchronized files directly in consumer repositories unless the change is immediately promoted back here.
-- Use the manifests in `manifests/` as the reviewable contract for what each consumer should pull.
