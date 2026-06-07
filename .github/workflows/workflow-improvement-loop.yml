@@ -47,8 +47,7 @@ jobs:
 
             const historyPrs = pulls.filter(pr => new Date(pr.created_at) >= since);
             const mergedPrs = historyPrs.filter(pr => pr.merged_at);
-            const historyIssues = issues.filter(i => !i.pull_request);
-
+            const historyIssues = issues.filter(i => !i.pull_request && new Date(i.created_at) >= since);
             const stageLabelCoverage = mergedPrs.length === 0
               ? 0
               : mergedPrs.filter(pr => (pr.labels || []).some(l => l.name && l.name.startsWith("stage:"))).length / mergedPrs.length;
