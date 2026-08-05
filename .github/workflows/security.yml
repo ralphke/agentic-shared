@@ -28,8 +28,9 @@ permissions:
   packages: read
 
 env:
-  # Keep the scanner version reviewable and reproducible. Update deliberately.
-  GRYPE_IMAGE: anchore/grype:v0.79.0
+  # Pin the current Grype release by digest; update deliberately when the
+  # supported vulnerability database schema changes.
+  GRYPE_IMAGE: anchore/grype@sha256:1e71065c0a4cff3e6bd3b8add525ffac4343eb4971694eb90a31cf6d4d3e85db
 
 jobs:
   # ─── CODE SCANNING AVAILABILITY PROBE ─────────────────────────────────────
@@ -82,11 +83,20 @@ jobs:
           path: sbom.cyclonedx.json
           retention-days: 90
 
-      # The Chainguard image is rebuilt daily so its bundled DB is always
-      # within Grype's 5-day max-age limit — no manual db update needed.
+      - name: Refresh Grype vulnerability database
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/grype-cache"
+          docker run --rm \
+            -v "$RUNNER_TEMP/grype-cache:/.cache/grype" \
+            "$GRYPE_IMAGE" \
+            db update
+
       - name: Vulnerability scan (grype) — BLOCKING on HIGH+
         run: |
+          set -euo pipefail
           docker run --rm \
+            -v "$RUNNER_TEMP/grype-cache:/.cache/grype" \
             -v "$PWD/sbom.cyclonedx.json:/sbom.cyclonedx.json:ro" \
             "$GRYPE_IMAGE" \
             sbom:/sbom.cyclonedx.json \
@@ -106,6 +116,7 @@ jobs:
         if: always()
         run: |
           docker run --rm \
+            -v "$RUNNER_TEMP/grype-cache:/.cache/grype" \
             -v "$PWD/sbom.cyclonedx.json:/sbom.cyclonedx.json:ro" \
             "$GRYPE_IMAGE" \
             sbom:/sbom.cyclonedx.json \
