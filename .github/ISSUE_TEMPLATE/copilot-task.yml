@@ -1,5 +1,5 @@
 name: Copilot Task
-about: Request GitHub Copilot to implement a bug fix or feature
+description: Request GitHub Copilot to implement a bug fix or feature
 title: "[copilot-task] "
 labels:
   - copilot-task

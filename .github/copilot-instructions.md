@@ -29,6 +29,7 @@ It is not a standalone application or workshop runtime. It provides shared defin
 - `.github/skills/` — reusable playbooks for agent personas
 - `.github/prompts/` — Copilot entry points and prompt templates
 - `.github/workflows/` — shared workflow definitions for consumer repos
+- `.github/scripts/` — manifest validation and synchronization tools
 - `.github/instructions/` — shared instruction files and policy guidance
 - `.github/copilot-instructions.md` — shared Copilot guidance
 - `spec/openspec/templates/idea-to-spec.md` — shared OpenSPEC-compatible spec template
@@ -36,12 +37,15 @@ It is not a standalone application or workshop runtime. It provides shared defin
 ## Recommended usage
 
 1. Update shared artifacts in this repository.
-2. Sync compatible files into consumer repositories instead of editing them there.
-3. Keep consumer-specific code, infrastructure, and runtime docs in the consuming repo.
+2. Pin consumer repositories to a tagged release and sync compatible files through a reviewable pull request.
+3. Put consumer-specific agents, skills, prompts, and instructions under their reserved `local/` directories.
+4. Keep consumer-specific code, infrastructure, runtime docs, and local specs in the consuming repo.
 
 ## Consumer guidance
 
 - Treat this repository as the authoritative source for shared agentic SDLC content.
+- Use `.agentic-shared.yml` to declare the shared release, asset groups, ownership modes, and protected paths.
+- Managed synchronization conflicts must be resolved by promoting the change upstream or explicitly reviewing the consumer override.
 
 ## Notes
 

@@ -25,6 +25,7 @@ It currently centralizes:
 - `.github/prompts/` - Copilot prompt files and SDLC entry points
 - `.github/instructions/` - shared instruction files
 - `.github/copilot-instructions.md` - shared baseline Copilot guidance
+- `.github/scripts/` - manifest validation and consumer synchronization tools
 - `spec/openspec/templates/spec-template.md` - shared OpenSPEC delta spec template
 
 ## Consumption model
@@ -36,6 +37,35 @@ Recommended pattern:
 1. Edit shared artifacts here.
 2. Sync them into consumer repositories through automation PRs.
 3. Keep product-specific code, infrastructure, runtime docs, and local specs in the consuming repo.
+
+## Consumer manifest
+
+Consumer repositories should copy `.agentic-shared.example.yml` to
+`.agentic-shared.yml` and pin a tagged release. The manifest declares which
+asset groups are shared and whether each group is `managed`, `extended`, or
+`local`.
+
+Validate a manifest before opening a synchronization PR:
+
+```bash
+python .github/scripts/validate_agentic_shared_manifest.py .agentic-shared.yml
+```
+
+Copy `.github/workflows/agentic-shared-sync.yml` into the consumer repository.
+Run it manually with a tagged `target_version`. It checks out the installed and
+target releases, performs a three-way update, and opens a pull request. A
+managed-path conflict fails the workflow before any consumer file is changed.
+
+Use reserved `local/` directories for consumer-only extensions:
+
+- `.github/agents/local/`
+- `.github/skills/local/`
+- `.github/prompts/local/`
+- `.github/instructions/local/`
+
+Consumer changes to shared behavior should be proposed here through an issue
+or OpenSpec change. Consumer-specific behavior belongs in a local extension
+path and must not edit synchronized files in place.
 
 ## Current consumers
 
@@ -53,4 +83,7 @@ Recommended pattern:
 ## Update policy
 
 - Treat this repository as the canonical home for shared agentic assets.
+- Pin consumers to tagged releases rather than a moving branch.
+- Deliver updates through consumer pull requests so local CI and human review run before merge.
+- Managed-path conflicts must fail closed; never overwrite consumer changes automatically.
 - Avoid editing synchronized files directly in consumer repositories unless the change is immediately promoted back here.

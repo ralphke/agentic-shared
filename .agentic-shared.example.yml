@@ -1,0 +1,19 @@
+source:
+  repository: ralphke/agentic-shared
+  version: v1.0.0
+
+assets:
+  agents: managed
+  skills: extended
+  prompts: extended
+  instructions: extended
+  workflows: managed
+  issue_templates: extended
+  specs: local
+
+protected_paths:
+  - .github/agents/local/**
+  - .github/skills/local/**
+  - .github/prompts/local/**
+  - .github/instructions/local/**
+  - spec/openspec/changes/**

@@ -28,9 +28,8 @@ permissions:
   packages: read
 
 env:
-  # Chainguard rebuilds this image daily so the bundled vulnerability DB is
-  # always fresh (well within Grype's 5-day max-age limit).
-  GRYPE_IMAGE: cgr.dev/chainguard/grype:latest
+  # Keep the scanner version reviewable and reproducible. Update deliberately.
+  GRYPE_IMAGE: anchore/grype:v0.79.0
 
 jobs:
   # ─── CODE SCANNING AVAILABILITY PROBE ─────────────────────────────────────
@@ -217,7 +216,10 @@ jobs:
               echo "  ✅ ${req_file} — hash pinning present"
             fi
           done < <(find . -name 'requirements*.txt' -not -path '*/.venv*' -not -path '*/node_modules*')
-          [ "$WARNINGS" -eq 0 ] || exit 1
+          if [ "$WARNINGS" -ne 0 ]; then
+            echo "::error::Production requirements file(s) lack hash pinning. Merge is blocked."
+            exit 1
+          fi
 
       - name: Verify Node package-lock.json is committed
         if: hashFiles('**/package.json') != ''
@@ -245,8 +247,9 @@ jobs:
             fi
           done < <(find . -name '*.csproj' -not -path '*/obj/*')
           if [ "$FOUND_LOCK" -eq 0 ]; then
-            echo "::warning::No packages.lock.json found for .NET projects."
+            echo "::error::No packages.lock.json found for .NET projects. Merge is blocked."
             echo "  Consider enabling: <RestoreLockedMode>true</RestoreLockedMode> and running: dotnet restore --lock-file-path packages.lock.json"
+            exit 1
           fi
 
   # ─── CONTAINER BASE IMAGE DIGEST PINNING CHECK ────────────────────────────
@@ -289,7 +292,8 @@ jobs:
           fi
 
           if [ "$UNPINNED" -eq 1 ]; then
-            echo "::warning::One or more container images are not digest-pinned. See warnings above."
+            echo "::error::One or more container images are not digest-pinned. Merge is blocked."
+            exit 1
           else
             echo "✅ All container base images are pinned to digest"
           fi
