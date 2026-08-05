@@ -88,7 +88,6 @@ jobs:
             -v "$PWD/sbom.cyclonedx.json:/sbom.cyclonedx.json:ro" \
             "$GRYPE_IMAGE" \
             sbom:/sbom.cyclonedx.json \
-            --update-db \
             --fail-on high \
             --output json > grype-report.json
           echo "✅ Grype scan passed — no HIGH or CRITICAL vulnerabilities"
@@ -108,7 +107,6 @@ jobs:
             -v "$PWD/sbom.cyclonedx.json:/sbom.cyclonedx.json:ro" \
             "$GRYPE_IMAGE" \
             sbom:/sbom.cyclonedx.json \
-            --update-db \
             --output sarif > grype-results.sarif || true
 
       - name: Upload Grype SARIF to GitHub Code Scanning
