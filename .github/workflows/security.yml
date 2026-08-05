@@ -28,9 +28,9 @@ permissions:
   packages: read
 
 env:
-  # Chainguard rebuilds this image daily so the bundled vulnerability DB is
-  # always fresh (well within Grype's 5-day max-age limit).
-  GRYPE_IMAGE: cgr.dev/chainguard/grype:latest
+  # Pin the current Grype release by digest; update deliberately when the
+  # supported vulnerability database schema changes.
+  GRYPE_IMAGE: anchore/grype@sha256:1e71065c0a4cff3e6bd3b8add525ffac4343eb4971694eb90a31cf6d4d3e85db
 
 jobs:
   # ─── CODE SCANNING AVAILABILITY PROBE ─────────────────────────────────────
@@ -83,11 +83,20 @@ jobs:
           path: sbom.cyclonedx.json
           retention-days: 90
 
-      # The Chainguard image is rebuilt daily so its bundled DB is always
-      # within Grype's 5-day max-age limit — no manual db update needed.
+      - name: Refresh Grype vulnerability database
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/grype-cache"
+          docker run --rm \
+            -v "$RUNNER_TEMP/grype-cache:/.cache/grype" \
+            "$GRYPE_IMAGE" \
+            db update
+
       - name: Vulnerability scan (grype) — BLOCKING on HIGH+
         run: |
+          set -euo pipefail
           docker run --rm \
+            -v "$RUNNER_TEMP/grype-cache:/.cache/grype" \
             -v "$PWD/sbom.cyclonedx.json:/sbom.cyclonedx.json:ro" \
             "$GRYPE_IMAGE" \
             sbom:/sbom.cyclonedx.json \
@@ -107,6 +116,7 @@ jobs:
         if: always()
         run: |
           docker run --rm \
+            -v "$RUNNER_TEMP/grype-cache:/.cache/grype" \
             -v "$PWD/sbom.cyclonedx.json:/sbom.cyclonedx.json:ro" \
             "$GRYPE_IMAGE" \
             sbom:/sbom.cyclonedx.json \
@@ -217,7 +227,10 @@ jobs:
               echo "  ✅ ${req_file} — hash pinning present"
             fi
           done < <(find . -name 'requirements*.txt' -not -path '*/.venv*' -not -path '*/node_modules*')
-          [ "$WARNINGS" -eq 0 ] || echo "::warning::Production requirements file(s) lack hash pinning. Advisory-only check."
+          if [ "$WARNINGS" -ne 0 ]; then
+            echo "::error::Production requirements file(s) lack hash pinning. Merge is blocked."
+            exit 1
+          fi
 
       - name: Verify Node package-lock.json is committed
         if: hashFiles('**/package.json') != ''
@@ -245,8 +258,9 @@ jobs:
             fi
           done < <(find . -name '*.csproj' -not -path '*/obj/*')
           if [ "$FOUND_LOCK" -eq 0 ]; then
-            echo "::warning::No packages.lock.json found for .NET projects."
+            echo "::error::No packages.lock.json found for .NET projects. Merge is blocked."
             echo "  Consider enabling: <RestoreLockedMode>true</RestoreLockedMode> and running: dotnet restore --lock-file-path packages.lock.json"
+            exit 1
           fi
 
   # ─── CONTAINER BASE IMAGE DIGEST PINNING CHECK ────────────────────────────
@@ -289,7 +303,8 @@ jobs:
           fi
 
           if [ "$UNPINNED" -eq 1 ]; then
-            echo "::warning::One or more container images are not digest-pinned. See warnings above."
+            echo "::error::One or more container images are not digest-pinned. Merge is blocked."
+            exit 1
           else
             echo "✅ All container base images are pinned to digest"
           fi

@@ -1,0 +1,97 @@
+name: Sync Agentic Shared Assets
+
+# Copy this workflow into a consumer repository after adding .agentic-shared.yml.
+# Updates are always proposed as a pull request; the default branch is never
+# modified directly by this workflow.
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_version:
+        description: Tagged agentic-shared release to install, for example v1.1.0
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    name: Synchronize shared assets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout consumer repository
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          path: consumer
+          fetch-depth: 1
+
+      - name: Read and validate consumer manifest
+        id: manifest
+        working-directory: consumer
+        env:
+          TARGET_VERSION: ${{ inputs.target_version }}
+        run: |
+          python -m pip install --disable-pip-version-check --quiet PyYAML
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          import yaml
+
+          manifest_path = Path('.agentic-shared.yml')
+          with manifest_path.open(encoding='utf-8') as manifest_file:
+              manifest = yaml.safe_load(manifest_file)
+          source = manifest['source']
+          print(f"source repository: {source['repository']}")
+          print(f"installed version: {source['version']}")
+          print(f"target version: {os.environ['TARGET_VERSION']}")
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write(f"repository={source['repository']}\n")
+              output.write(f"old_version={source['version']}\n")
+          PY
+
+      - name: Checkout installed shared release
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          repository: ${{ steps.manifest.outputs.repository }}
+          ref: ${{ steps.manifest.outputs.old_version }}
+          path: shared-old
+          fetch-depth: 1
+
+      - name: Checkout target shared release
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          repository: ${{ steps.manifest.outputs.repository }}
+          ref: ${{ inputs.target_version }}
+          path: shared-new
+          fetch-depth: 1
+
+      - name: Validate and synchronize assets
+        run: |
+          python -m pip install --disable-pip-version-check --quiet PyYAML
+          python shared-new/.github/scripts/validate_agentic_shared_manifest.py consumer/.agentic-shared.yml
+          PYTHONPATH=shared-new/.github/scripts python shared-new/.github/scripts/sync_agentic_shared.py \
+            --manifest consumer/.agentic-shared.yml \
+            --old-source shared-old \
+            --new-source shared-new \
+            --destination consumer \
+            --target-version '${{ inputs.target_version }}'
+
+      - name: Open synchronization pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          path: consumer
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: chore/agentic-shared-${{ inputs.target_version }}
+          delete-branch: true
+          commit-message: "chore: sync agentic-shared ${{ inputs.target_version }}"
+          title: "chore: sync agentic-shared ${{ inputs.target_version }}"
+          body: |
+            Updates shared agentic assets to `${{ inputs.target_version }}`.
+
+            The sync validator ran with three-way conflict detection. Review the
+            generated diff and run consumer CI before merging.
+          labels: |
+            dependencies
+            agentic-shared-sync
