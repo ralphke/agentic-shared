@@ -82,14 +82,13 @@ jobs:
           path: sbom.cyclonedx.json
           retention-days: 90
 
-      # The Chainguard image is rebuilt daily so its bundled DB is always
-      # within Grype's 5-day max-age limit — no manual db update needed.
       - name: Vulnerability scan (grype) — BLOCKING on HIGH+
         run: |
           docker run --rm \
             -v "$PWD/sbom.cyclonedx.json:/sbom.cyclonedx.json:ro" \
             "$GRYPE_IMAGE" \
             sbom:/sbom.cyclonedx.json \
+            --update-db \
             --fail-on high \
             --output json > grype-report.json
           echo "✅ Grype scan passed — no HIGH or CRITICAL vulnerabilities"
@@ -109,6 +108,7 @@ jobs:
             -v "$PWD/sbom.cyclonedx.json:/sbom.cyclonedx.json:ro" \
             "$GRYPE_IMAGE" \
             sbom:/sbom.cyclonedx.json \
+            --update-db \
             --output sarif > grype-results.sarif || true
 
       - name: Upload Grype SARIF to GitHub Code Scanning
