@@ -85,6 +85,13 @@ def synchronize(
             new_exists = new_path.exists()
             destination_exists = destination_path.exists()
 
+            if not old_exists:
+                if new_exists and (
+                    not destination_exists or not _same_file(destination_path, new_path)
+                ):
+                    operations.append(("copy", destination_path, new_path))
+                continue
+
             if old_exists and not destination_exists:
                 if new_exists:
                     conflicts.append(relative_path)
