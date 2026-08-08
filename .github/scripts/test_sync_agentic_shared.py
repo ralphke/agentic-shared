@@ -53,6 +53,24 @@ class SyncAgenticSharedTests(unittest.TestCase):
                 "consumer",
             )
 
+    def test_copies_file_new_in_shared_release(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            old_source = root / "old"
+            new_source = root / "new"
+            destination = root / "destination"
+            self.write(new_source, ".github/skills/new.md", "new")
+
+            changed = synchronize(
+                self.manifest(), old_source, new_source, destination, "v1.1.0"
+            )
+
+            self.assertEqual(changed, [Path(".github/skills/new.md")])
+            self.assertEqual(
+                (destination / ".github/skills/new.md").read_text(encoding="utf-8"),
+                "new",
+            )
+
     def test_blocks_conflict_without_partial_changes(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
