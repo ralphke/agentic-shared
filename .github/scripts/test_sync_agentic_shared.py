@@ -76,7 +76,7 @@ class SyncAgenticSharedTests(unittest.TestCase):
                 "old-a",
             )
 
-    def test_blocks_local_deletion_of_managed_file(self) -> None:
+    def test_recovers_missing_managed_file(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             old_source = root / "old"
@@ -85,10 +85,15 @@ class SyncAgenticSharedTests(unittest.TestCase):
             self.write(old_source, ".github/skills/shared.md", "old")
             self.write(new_source, ".github/skills/shared.md", "new")
 
-            with self.assertRaises(SyncConflictError):
-                synchronize(
-                    self.manifest(), old_source, new_source, destination, "v1.1.0"
-                )
+            changed = synchronize(
+                self.manifest(), old_source, new_source, destination, "v1.1.0"
+            )
+
+            self.assertEqual(changed, [Path(".github/skills/shared.md")])
+            self.assertEqual(
+                (destination / ".github/skills/shared.md").read_text(encoding="utf-8"),
+                "new",
+            )
 
 
 if __name__ == "__main__":
