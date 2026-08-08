@@ -124,6 +124,8 @@ def synchronize(
         if operation == "delete":
             destination_path.unlink()
         else:
+            if source_path is None:
+                raise RuntimeError("copy operation is missing its source path")
             destination_path.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(source_path, destination_path)
         changed_paths.append(destination_path.relative_to(destination_root))
