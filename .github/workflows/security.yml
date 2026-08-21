@@ -34,8 +34,6 @@ env:
 
 jobs:
   # ─── CODE SCANNING AVAILABILITY PROBE ─────────────────────────────────────
-  # Single shared probe eliminates the duplicate step that previously existed
-  # in every job of both supply-chain-verification.yml and security-scan.yml.
   code-scanning-probe:
     name: "🔍 Code Scanning Probe"
     runs-on: ubuntu-latest
