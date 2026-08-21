@@ -4,7 +4,7 @@ description: >
   Reviews code quality, design alignment, error handling, and best practices.
   Provides specific, actionable feedback. Approves or requests changes on PRs
   after security sign-off.
-model: GPT-5.3-Codex
+model: GPT-5.6-Terra
 tools:
   - filesystem
   - search/codebase

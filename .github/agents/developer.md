@@ -4,7 +4,7 @@ description: >
   Implements tasks from approved designs. Writes production-quality code,
   opens PRs, and responds to code review feedback. Strictly implements what
   is specified — no scope creep.
-model: GPT-5.3-Codex
+model: GPT-5.6-Terra
 tools:
   - filesystem
   - search/codebase

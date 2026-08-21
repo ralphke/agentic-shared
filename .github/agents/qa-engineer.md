@@ -4,7 +4,7 @@ description: >
   Generates automated tests from OpenSPEC Given/When/Then scenarios.
   Ensures ≥80% code coverage, all scenario paths are tested, and tests
   are deterministic and CI-ready.
-model: GPT-5.3-Codex
+model: GPT-5.6-Terra
 tools:
   - filesystem
   - search/codebase

@@ -4,7 +4,7 @@ description: >
   Provisions infrastructure via IaC, manages the CI/CD pipeline, and executes
   staged deployments with automatic rollback. Ensures every change flows safely
   from PR approval to production.
-model: GPT-5.3-Codex
+model: GPT-5.6-Terra
 tools:
   - filesystem
   - search/codebase

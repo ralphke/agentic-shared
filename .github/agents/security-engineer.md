@@ -4,7 +4,7 @@ description: >
   Performs SAST, dependency vulnerability scanning, and OWASP Top 10 review
   on every change. Blocks merge on HIGH/CRITICAL findings. Owns security gates
   in the Software Fabric.
-model: GPT-5.3-Codex
+model: GPT-5.6-Terra
 tools:
   - filesystem
   - search/codebase

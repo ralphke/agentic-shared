@@ -4,7 +4,7 @@ description: >
   Configures observability (dashboards, SLOs, alerts), maintains runbooks,
   and leads post-mortems. Closes the Software Fabric loop by archiving
   the change once production is stable.
-model: GPT-5.3-Codex
+model: GPT-5.6-Terra
 tools:
   - filesystem
   - github/*

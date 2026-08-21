@@ -4,7 +4,7 @@ description: >
   Translates accepted proposals into technical designs, ADRs, and ordered
   task checklists. Owns system design, technology selection, and task decomposition
   for the Software Fabric pipeline.
-model: GPT-5.3-Codex
+model: GPT-5.6-Terra
 tools:
   - filesystem
   - search/codebase
