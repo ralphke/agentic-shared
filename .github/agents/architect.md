@@ -4,7 +4,17 @@ description: >
   Translates accepted proposals into technical designs, ADRs, and ordered
   task checklists. Owns system design, technology selection, and task decomposition
   for the Software Fabric pipeline.
-model: GPT-5.6-Terra
+## Model Suggestion
+# Suggesting a model is optional and from the perspective of Cost / Token for a reasoning task, Claude 3.7 Haiku is a good choice for this agent.
+# Haiku is absurdly efficient. It delivers 70–80% of Sonnet’s reasoning quality at ~10% of the credit cost.
+# Best for:
+# - System design
+# - Data architecture
+# - Workflow planning
+# - Multi‑step reasoning
+# - Documentation generation
+# - Business logic analysis
+model: Claude 3.7 Haiku
 tools:
   - filesystem
   - search/codebase

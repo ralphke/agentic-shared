@@ -4,7 +4,15 @@ description: >
   Provisions infrastructure via IaC, manages the CI/CD pipeline, and executes
   staged deployments with automatic rollback. Ensures every change flows safely
   from PR approval to production.
-model: GPT-5.6-Terra
+## Model suggestion
+# GPT-5.4 mini is extremely cheap and surprisingly strong at tasks like:
+# shell scripting, YAML, CI/CD pipelines, config analysis, log interpretation
+# Best for:
+# - CI/CD pipeline creation
+# - Infrastructure scripts
+# - Log analysis
+# - Deployment automation
+model: GPT-5.4 mini
 tools:
   - filesystem
   - search/codebase
