@@ -60,7 +60,7 @@ jobs:
     needs: code-scanning-probe
     steps:
       - name: Checkout
-        uses: actions/checkout@v7 # v4.1.7
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -123,7 +123,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v7 # v4.1.7
+        uses: actions/checkout@v7
 
       - name: Check PyPI for dependency confusion (Python)
         if: hashFiles('**/requirements*.txt') != ''
@@ -194,7 +194,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v7 # v4.1.7
+        uses: actions/checkout@v7
 
       - name: Verify Python requirements use hash pinning
         if: hashFiles('**/requirements*.txt') != ''
@@ -253,7 +253,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v7 # v4.1.7
+        uses: actions/checkout@v7
 
       - name: Check Dockerfiles for digest-pinned base images
         if: hashFiles('**/Dockerfile', '**/*.dockerfile', '**/docker-compose*.yml') != ''

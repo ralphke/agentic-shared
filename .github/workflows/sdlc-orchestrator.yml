@@ -78,7 +78,7 @@ jobs:
       github.event.label.name == 'stage:design'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7 # v4.1.7
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -140,7 +140,7 @@ jobs:
       github.event.label.name == 'stage:test'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7 # v4.1.7
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -205,7 +205,7 @@ jobs:
       github.event.label.name == 'stage:security'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7 # v4.1.7
+      - uses: actions/checkout@v7
 
       - name: Verify security automation checks are present and green
         env:
@@ -349,7 +349,7 @@ jobs:
       (github.event.action == 'labeled' || github.event.action == 'ready_for_review')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7 # v4.1.7
+      - uses: actions/checkout@v7
 
       - name: Validate spec/openspec structure
         run: |

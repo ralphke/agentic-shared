@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout consumer repository
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@v7
         with:
           path: consumer
           fetch-depth: 1
@@ -52,7 +52,7 @@ jobs:
           PY
 
       - name: Checkout installed shared release
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@v7
         with:
           repository: ${{ steps.manifest.outputs.repository }}
           ref: ${{ steps.manifest.outputs.old_version }}
@@ -60,7 +60,7 @@ jobs:
           fetch-depth: 1
 
       - name: Checkout target shared release
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@v7
         with:
           repository: ${{ steps.manifest.outputs.repository }}
           ref: ${{ inputs.target_version }}
