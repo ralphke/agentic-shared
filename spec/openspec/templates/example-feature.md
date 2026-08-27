@@ -4,7 +4,7 @@ This example shows a minimal compliant change set.
 
 ---
 
-## Example proposal (`changes/add-csv-export/proposal.md`)
+## Example proposal (`spec/openspec/changes/add-csv-export/proposal.md`)
 
 # Proposal: Add CSV Export
 
@@ -56,7 +56,7 @@ Add one API endpoint and reuse existing query filters so exported data matches w
 
 ---
 
-## Example delta spec (`changes/add-csv-export/specs/testing-standards/spec.md`)
+## Example delta spec (`spec/openspec/changes/add-csv-export/specs/testing-standards/spec.md`)
 
 # Delta for testing-standards
 

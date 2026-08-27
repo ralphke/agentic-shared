@@ -4,7 +4,15 @@ description: >
   Reviews code quality, design alignment, error handling, and best practices.
   Provides specific, actionable feedback. Approves or requests changes on PRs
   after security sign-off.
-model: GPT-5.3-Codex
+## Model suggestion
+# Haiku is the best small model for adversarial reasoning and edge case detection
+# The dedicated Code Review model is expensive. Haiku gives 90% of the review quality at 10–20% of the cost.
+# Best for:
+# - PR review
+# - Code smell detection
+# - Architecture critique
+# - Security hints
+model: Claude 3.7 Haiku
 tools:
   - filesystem
   - search/codebase

@@ -4,7 +4,17 @@ description: >
   Performs SAST, dependency vulnerability scanning, and OWASP Top 10 review
   on every change. Blocks merge on HIGH/CRITICAL findings. Owns security gates
   in the Software Fabric.
-model: GPT-5.3-Codex
+## Model suggestion
+# Haiku is the best small model for Security analysis which requires:
+# Threat modeling, Vulnerability reasoning, Attack path simulation
+# Best for:
+# - Threat modeling
+# - Security review
+# - Risk analysis
+# - Policy generation
+# Fallback model (only when needed): GPT‑5.6 Terra
+# Use Terra only when the task requires massive context or deep cryptographic analysis.
+model: Claude 3.7 Haiku
 tools:
   - filesystem
   - search/codebase

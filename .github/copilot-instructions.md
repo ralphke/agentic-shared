@@ -14,7 +14,7 @@ Primary shared artifacts:
 - `.github/workflows/`
 - `.github/instructions/`
 - `.github/copilot-instructions.md`
-- `specs/openspec/`
+- `spec/openspec/`
 
 ## Purpose
 

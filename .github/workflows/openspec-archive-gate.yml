@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout change
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@v7
 
       - name: Validate OpenSpec artifacts and completed tasks
         run: python3 .github/scripts/validate_openspec_change.py '${{ inputs.change_slug }}'

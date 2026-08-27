@@ -78,6 +78,35 @@ jobs:
       github.event.label.name == 'stage:design'
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Validate required design artifacts
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          mapfile -t change_dirs < <(
+            git diff --name-only "$BASE_SHA" "$HEAD_SHA" \
+              | grep -E '^spec/openspec/changes/[^/]+/' \
+              | cut -d/ -f1-4 \
+              | sort -u
+          )
+
+          if [ "${#change_dirs[@]}" -eq 0 ]; then
+            echo "::error::stage:design requires a change folder under spec/openspec/changes/<slug>/."
+            exit 1
+          fi
+
+          for dir in "${change_dirs[@]}"; do
+            if [ ! -f "$dir/design.md" ] || [ ! -f "$dir/tasks.md" ]; then
+              echo "::error file=$dir::Missing required design stage artifact(s). Expected design.md and tasks.md."
+              exit 1
+            fi
+          done
+
       - name: Comment — design stage started
         uses: actions/github-script@v7
         with:
@@ -111,7 +140,22 @@ jobs:
       github.event.label.name == 'stage:test'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Validate test stage artifacts
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          changed_files="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"
+
+          if ! printf '%s\n' "$changed_files" | grep -Eq '(^|/)(tests?|testdata)/|(^|/)(test_.*\.py|.*_test\.py|.*Tests?\.cs)$|^spec/openspec/changes/[^/]+/(tasks\.md|specs/testing-standards/spec\.md)$'; then
+            echo "::error::stage:test requires test artifacts or test-stage spec/task evidence in the PR."
+            exit 1
+          fi
 
       - name: Require a supported test project
         if: hashFiles('**/pytest.ini', '**/pyproject.toml', '**/setup.cfg', '**/*.csproj') == ''
@@ -128,7 +172,7 @@ jobs:
 
       - name: Run tests (.NET)
         if: hashFiles('**/*.csproj') != ''
-        run: dotnet test --no-build -q
+        run: dotnet test --no-build --collect:"XPlat Code Coverage" -q
 
       - name: Comment — test stage
         uses: actions/github-script@v7
@@ -161,98 +205,33 @@ jobs:
       github.event.label.name == 'stage:security'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
-        with:
-          fetch-depth: 0  # full history needed for secrets scan
+      - uses: actions/checkout@v7
 
-      # ── Python SAST — BLOCKING ──────────────────────────────────────────
-      - name: Python SAST (bandit)
-        if: hashFiles('**/*.py') != ''
-        run: |
-          pip install -q bandit
-          # Exit 1 on MEDIUM+ (severity level -ll); fail the build
-          bandit -r src/ -ll -f txt
-        # NOTE: intentionally no continue-on-error — HIGH/CRITICAL findings BLOCK merge
-
-      # ── Dependency CVE audit — BLOCKING ────────────────────────────────
-      - name: Dependency audit (pip-audit)
-        if: hashFiles('**/requirements*.txt', '**/pyproject.toml') != ''
-        run: |
-          pip install -q pip-audit
-          # --fail-on-vuln exits non-zero when any vulnerability is found
-          pip-audit --format columns --fail-on-vuln
-
-      - name: npm audit
-        if: hashFiles('**/package.json') != ''
-        run: |
-          # --audit-level high: exit non-zero only on HIGH or CRITICAL findings
-          npm audit --audit-level high
-
-      # ── Lockfile hash pinning check ─────────────────────────────────────
-      - name: Verify dependency hash pinning (Python)
-        if: hashFiles('**/requirements*.txt') != ''
+      - name: Verify security automation checks are present and green
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           set -euo pipefail
-          UNPINNED=0
-          while IFS= read -r req_file; do
-            # Warn on any dependency missing both a pinned version and a hash
-            if grep -Eq '^[a-zA-Z]' "$req_file"; then
-              if ! grep -q '\-\-hash=' "$req_file"; then
-                echo "::warning file=${req_file}::No hash pinning found. Consider using pip-compile --generate-hashes."
-                UNPINNED=1
-              fi
-            fi
-          done < <(find . -name 'requirements*.txt' -not -path '*/.venv*' -not -path '*/node_modules*')
-          # Treat unpinned deps as a HIGH finding — block merge
-          [ "$UNPINNED" -eq 0 ] || { echo "::error::One or more requirements files lack hash pinning. See warnings above."; exit 1; }
+          security_checks_json="$(gh pr checks "$PR_NUMBER" --json name,state)"
 
-      # ── Phantom package detection — BLOCKING ────────────────────────────
-      - name: Phantom package check (PyPI)
-        if: hashFiles('**/requirements*.txt') != ''
-        run: |
-          set -euo pipefail
-          PHANTOM=0
-          while IFS= read -r req_file; do
-            while IFS= read -r pkg; do
-              # Strip version specifier and extras
-              CLEAN=$(echo "$pkg" | sed 's/[>=<!\[].*//' | tr -d ' ')
-              [ -z "$CLEAN" ] && continue
-              HTTP_STATUS=$(curl -sf -o /dev/null -w "%{http_code}" \
-                "https://pypi.org/pypi/${CLEAN}/json" || true)
-              if [ "$HTTP_STATUS" != "200" ]; then
-                echo "::error::PHANTOM PACKAGE: '${CLEAN}' returned HTTP ${HTTP_STATUS} from PyPI — possible hallucinated package. BLOCKING MERGE."
-                PHANTOM=1
-              fi
-            done < <(grep -E '^[a-zA-Z]' "$req_file" | sed '/^#/d')
-          done < <(find . -name 'requirements*.txt' -not -path '*/.venv*' -not -path '*/node_modules*')
-          [ "$PHANTOM" -eq 0 ] || exit 1
+          matched_count="$(printf '%s' "$security_checks_json" | jq '[.[] | select((.name | ascii_downcase) | test("security|sbom|grype|dependency confusion|lockfile integrity"))] | length')"
+          if [ "$matched_count" -eq 0 ]; then
+            echo "::error::No security automation checks were found on this PR. Ensure Security workflow checks are configured."
+            exit 1
+          fi
 
-      - name: Phantom package check (npm)
-        if: hashFiles('**/package.json') != ''
-        run: |
-          set -euo pipefail
-          PHANTOM=0
-          for PKG in $(node -e "const p=require('./package.json'); console.log(Object.keys({...p.dependencies,...p.devDependencies}).join('\n'))" 2>/dev/null || true); do
-            HTTP_STATUS=$(curl -sf -o /dev/null -w "%{http_code}" \
-              "https://registry.npmjs.org/${PKG}" || true)
-            if [ "$HTTP_STATUS" != "200" ]; then
-              echo "::error::PHANTOM PACKAGE: '${PKG}' returned HTTP ${HTTP_STATUS} from npm — possible hallucinated package. BLOCKING MERGE."
-              PHANTOM=1
-            fi
-          done
-          [ "$PHANTOM" -eq 0 ] || exit 1
+          failing_checks="$(printf '%s' "$security_checks_json" | jq -r '.[] | select((.name | ascii_downcase) | test("security|sbom|grype|dependency confusion|lockfile integrity")) | select(.state != "SUCCESS") | "\(.name): \(.state)"')"
+          if [ -n "$failing_checks" ]; then
+            echo "::error::Security automation checks are not green:"
+            echo "$failing_checks"
+            exit 1
+          fi
 
-      # ── Secret scanning — BLOCKING ───────────────────────────────────────
-      - name: Secret scanning (gitleaks)
+      - name: Confirm automated security workflow ownership
         run: |
-          # Pull pinned gitleaks image and scan full branch history
-          docker run --rm \
-            -v "$PWD:/path" \
-            zricethezav/gitleaks:v8.18.4 \
-            detect --source /path --log-opts "origin/main..HEAD" \
-            --exit-code 1 \
-            --redact
-        # non-zero exit code blocks the step — any detected secret blocks merge
+          echo "Automated security checks are owned by the standalone Security workflow."
+          echo "Require the Security workflow to pass in branch protection before stage:security."
 
       # ── Post security-gate status comment ───────────────────────────────
       - name: Comment — security stage
@@ -266,16 +245,17 @@ jobs:
               repo: context.repo.repo,
               issue_number: context.payload.pull_request.number,
               body: success ? [
-                '## 🔒 Stage: Security — Automated Pre-checks Passed',
+                '## 🔒 Stage: Security — Automated Check Handoff',
                 '',
                 '**Security Engineer Agent** — your turn for the manual review.',
                 '',
-                'The automated gates have passed:',
-                '- ✅ SAST (bandit)',
-                '- ✅ Dependency CVE audit (pip-audit / npm audit)',
-                '- ✅ Lockfile hash pinning verified',
-                '- ✅ Phantom package check (PyPI / npm)',
-                '- ✅ Secret scanning (gitleaks)',
+                'The standalone `Security` workflow owns the automated security checks:',
+                '- ✅ SAST and dependency vulnerability checks',
+                '- ✅ SBOM generation and Grype scanning',
+                '- ✅ Lockfile integrity and phantom package checks',
+                '- ✅ Secret scanning and container image pinning',
+                '',
+                'The `Security` workflow must pass through branch protection before merge.',
                 '',
                 'Run the full security review in VS Code Copilot chat:',
                 '```',
@@ -288,8 +268,7 @@ jobs:
                 '',
                 '**Merge is BLOCKED.** One or more automated security checks failed.',
                 '',
-                'Check the workflow run logs for details:',
-                `- Bandit SAST, pip-audit, npm audit, lockfile pinning, phantom package check, or gitleaks`,
+                'Check the `Security` workflow run logs for details.',
                 '',
                 '**Developer Agent** — remediate all flagged issues and re-push.',
                 '',
@@ -370,7 +349,7 @@ jobs:
       (github.event.action == 'labeled' || github.event.action == 'ready_for_review')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - uses: actions/checkout@v7
 
       - name: Validate spec/openspec structure
         run: |

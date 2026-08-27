@@ -4,7 +4,15 @@ description: >
   Configures observability (dashboards, SLOs, alerts), maintains runbooks,
   and leads post-mortems. Closes the Software Fabric loop by archiving
   the change once production is stable.
-model: GPT-5.3-Codex
+## Model suggestion
+# Ops‑SRE requires strong reasoning: incident analysis, root cause identification, system behavior modeling
+# Haiku is the best small model for adversarial reasoning and scenario analysis.
+# Best for:
+# - RCA
+# - Incident simulation
+# - Operational runbooks
+# - Monitoring strategy
+model: Claude 3.7 Haiku
 tools:
   - filesystem
   - github/*

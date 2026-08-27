@@ -4,7 +4,14 @@ description: >
   Transforms raw ideas into structured OpenSPEC proposals. Owns the product
   backlog, acceptance criteria, and stakeholder alignment. Entry point for all
   new work in the Software Fabric.
-model: GPT-5.3-Codex
+## Model suggestion
+# Mini is the king of cost‑efficiency. It’s shockingly capable for its size and costs almost nothing per request.
+# Best for:
+# - User stories
+# - Acceptance criteria
+# - Roadmaps
+# - Feature breakdowns
+model: GPT-5.4 mini
 tools:
   - filesystem
   - github/*
