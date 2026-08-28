@@ -24,7 +24,7 @@ Skill optimization changes SHALL include baseline and post-change evaluation art
 Persona files under `.github/agents/` SHALL follow a consistent layout so stage handoffs and execution expectations remain predictable.
 
 #### Scenario: Persona layout audit enforces consistency
-- GIVEN persona files in `.github/agents/*.md`
+- GIVEN persona files in `.github/agents/*.agent.md`
 - WHEN a standards alignment change is prepared
 - THEN each persona file includes consistent sections for role intent, core responsibilities, behavior rules, execution/checklist guidance, and handoff protocol
 - AND deviations are captured as tasks before implementation completion

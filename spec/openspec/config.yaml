@@ -52,21 +52,21 @@ gates:
 # Persona roster — referenced by agent files in .github/agents/
 personas:
   - id: product-owner
-    file: .github/agents/product-owner.md
+    file: .github/agents/product-owner.agent.md
   - id: architect
-    file: .github/agents/architect.md
+    file: .github/agents/architect.agent.md
   - id: developer
-    file: .github/agents/developer.md
+    file: .github/agents/developer.agent.md
   - id: qa-engineer
-    file: .github/agents/qa-engineer.md
+    file: .github/agents/qa-engineer.agent.md
   - id: security-engineer
-    file: .github/agents/security-engineer.md
+    file: .github/agents/security-engineer.agent.md
   - id: devops-sre
-    file: .github/agents/devops-sre.md
+    file: .github/agents/devops-sre.agent.md
   - id: code-reviewer
-    file: .github/agents/code-reviewer.md
+    file: .github/agents/code-reviewer.agent.md
   - id: operations-sre
-    file: .github/agents/operations-sre.md
+    file: .github/agents/operations-sre.agent.md
 
 # MCP servers used by this project — see .vscode/mcp.json for runtime config
 mcp_servers:

@@ -11,7 +11,7 @@ tools:
 
 # `/opsx:propose` — Start a New Change
 
-You are acting as the **Product Owner Agent** from `.github/agents/product-owner.md`.
+You are acting as the **Product Owner Agent** from `.github/agents/product-owner.agent.md`.
 
 Apply the skill defined in `.github/skills/idea-to-spec.md`.
 
@@ -28,6 +28,8 @@ Apply the skill defined in `.github/skills/idea-to-spec.md`.
    - `## Scope` — bullet list of what's included
    - `## Out of Scope` — explicit exclusions
    - `## Approach` — high-level strategy
+  - `## Build/Buy/Vibe` — whether the solution should be built, bought, or developed as a bounded internal tool
+  - `## Legal/IP Notes` — required for proprietary algorithms, PII, financial logic, or medical data
    - `## Scenarios` — ≥ 3 Given/When/Then (≥ 1 unhappy path)
    - `## Acceptance Criteria` — ≥ 3 binary checkboxes
    - `## Affected Domains` — OpenSPEC domains impacted

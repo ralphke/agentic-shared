@@ -39,7 +39,8 @@ Use this skill when a user submits:
    - `## Scenarios` — ≥3 Given/When/Then (≥1 unhappy path)
    - `## Acceptance Criteria` — binary checkboxes (≥3)
    - `## Affected Domains` — OpenSPEC domains impacted
-8. **Label issue** — Apply `stage:design` label
+8. **Hand off to Architect** — Label the proposal PR `stage:design`; keep the
+  source idea issue labelled `stage:proposal`
 9. **Confirm** — Comment with link to `proposal.md`
 
 ---
@@ -67,7 +68,7 @@ Created: spec/openspec/changes/add-csv-export/proposal.md
 ✓ Scenarios — 4 scenarios (3 happy, 1 unhappy: empty dataset)
 ✓ Acceptance Criteria — 5 binary checks
 ✓ Affected Domains — idea-capture, testing-standards
-Labelled: stage:design
+Handoff PR labelled: stage:design
 ```
 
 ---

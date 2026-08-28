@@ -13,7 +13,7 @@ AI agent personas collaborate in an ordered pipeline. Every artifact feeds the
 next stage; no stage may be skipped without explicit Product Owner approval.
 
 ```
-[Idea] ──► [Proposal] ──► [Spec + Design] ──► [Tasks] ──► [Implementation]
+[Idea] ──► [Proposal] ──► [Delta Spec + Design] ──► [Tasks] ──► [Implementation]
    ──► [Tests] ──► [Security Review] ──► [Code Review]
    ──► [CI/CD Pipeline] ──► [Deploy] ──► [Monitor & Operate]
 ```
@@ -51,11 +51,13 @@ any implementation task is assigned.
 - THEN the PR is blocked if tasks.md is missing or has no checked-off items
 - AND the PR receives a `spec-required` label
 
-#### Scenario: Spec triggers design and tasks
-- GIVEN a complete `specs/<domain>/spec.md` delta with ≥3 scenarios
+#### Scenario: Accepted proposal produces spec, design, and tasks
+- GIVEN an accepted `proposal.md` with ≥3 scenarios
 - WHEN the Architect Agent reviews it
-- THEN `design.md` is produced with ADRs and a component diagram
+- THEN a `specs/<domain>/spec.md` delta is produced for each affected domain
+- AND `design.md` is produced with ADRs and a component diagram
 - AND `tasks.md` is produced with numbered, atomic, ordered tasks
+- AND implementation cannot begin until all three artifact types exist
 
 ---
 
@@ -147,7 +149,7 @@ flowchart TD
     A([💡 Idea]) --> B[Product Owner\nproposal.md]
     B --> C{Accepted?}
     C -- No --> A
-    C -- Yes --> D[Architect\ndesign.md + tasks.md]
+    C -- Yes --> D[Architect\ndelta specs + design.md + tasks.md]
     D --> E[Developer\nImplementation PR]
     E --> F[QA Engineer\nTest Suites]
     F --> G{Coverage ≥ 80%?}

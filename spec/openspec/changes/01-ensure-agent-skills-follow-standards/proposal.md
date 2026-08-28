@@ -17,7 +17,7 @@ Skill definitions in `.github/skills/` and persona definitions in `.github/agent
 - Evaluate existing skill files in `.github/skills/` against agentskills.io specification and best-practice guidance.
 - Targeted skills in scope: `idea-to-spec.md`, `spec-to-design.md`, `test-generation.md`, `security-review.md`, `pr-review.md`, `deploy-pipeline.md`.
 - Evaluate persona files in `.github/agents/` for the same standard layout expectations (front matter + role, responsibilities, behavior rules, process/checklist, handoff protocol).
-- Targeted personas in scope: all files in `.github/agents/*.md`.
+- Targeted personas in scope: all files in `.github/agents/*.agent.md`.
 - Update skill descriptions and structure to improve clarity, actionability, and optimization quality.
 - Keep scope focused on `.github` skill-related assets plus supporting `scripts/` and `test/` artifacts for measurable evaluation.
 - Define baseline vs post-change evaluation and summary reporting.

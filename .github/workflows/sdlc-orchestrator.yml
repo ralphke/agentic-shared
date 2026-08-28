@@ -82,7 +82,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Validate required design artifacts
+      - name: Validate proposal artifact
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
@@ -101,8 +101,8 @@ jobs:
           fi
 
           for dir in "${change_dirs[@]}"; do
-            if [ ! -f "$dir/design.md" ] || [ ! -f "$dir/tasks.md" ]; then
-              echo "::error file=$dir::Missing required design stage artifact(s). Expected design.md and tasks.md."
+            if [ ! -f "$dir/proposal.md" ]; then
+              echo "::error file=$dir::Missing proposal stage artifact. Expected proposal.md before the Architect stage."
               exit 1
             fi
           done
@@ -127,6 +127,7 @@ jobs:
                 '',
                 'Expected outputs:',
                 '- `spec/openspec/changes/<slug>/design.md`',
+                '- `spec/openspec/changes/<slug>/specs/<domain>/spec.md` (delta spec)',
                 '- `spec/openspec/changes/<slug>/tasks.md`',
               ].join('\n')
             });
@@ -152,8 +153,8 @@ jobs:
           set -euo pipefail
           changed_files="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"
 
-          if ! printf '%s\n' "$changed_files" | grep -Eq '(^|/)(tests?|testdata)/|(^|/)(test_.*\.py|.*_test\.py|.*Tests?\.cs)$|^spec/openspec/changes/[^/]+/(tasks\.md|specs/testing-standards/spec\.md)$'; then
-            echo "::error::stage:test requires test artifacts or test-stage spec/task evidence in the PR."
+          if ! printf '%s\n' "$changed_files" | grep -Eq '(^|/)(tests?|testdata)/|(^|/)(test_.*\.py|.*_test\.py|.*Tests?\.cs)$|^spec/openspec/changes/[^/]+/(tasks\.md|specs/[^/]+/spec\.md)$'; then
+            echo "::error::stage:test requires test artifacts or change delta/task evidence in the PR."
             exit 1
           fi
 

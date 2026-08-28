@@ -22,14 +22,14 @@ Stages are gated by GitHub PR labels (`stage:*`).
 
 | Persona              | File                                  | Stage Label      |
 |----------------------|---------------------------------------|------------------|
-| Product Owner        | `.github/agents/product-owner.md`     | `stage:design`   |
-| Systems Architect    | `.github/agents/architect.md`         | `stage:implement`|
-| Developer            | `.github/agents/developer.md`         | `stage:test`     |
-| QA Engineer          | `.github/agents/qa-engineer.md`       | `stage:security` |
-| Security Engineer    | `.github/agents/security-engineer.md` | `stage:review`   |
-| Code Reviewer        | `.github/agents/code-reviewer.md`     | `stage:deploy`   |
-| DevOps/SRE           | `.github/agents/devops-sre.md`        | `stage:operate`  |
-| Operations SRE       | `.github/agents/operations-sre.md`    | `archived`       |
+| Product Owner        | `.github/agents/product-owner.agent.md` | `stage:proposal` |
+| Systems Architect    | `.github/agents/architect.agent.md`           | `stage:design`   |
+| Developer            | `.github/agents/developer.agent.md`           | `stage:implement`|
+| QA Engineer          | `.github/agents/qa-engineer.agent.md`         | `stage:test`     |
+| Security Engineer    | `.github/agents/security-engineer.agent.md`  | `stage:security` |
+| Code Reviewer        | `.github/agents/code-reviewer.agent.md`      | `stage:review`   |
+| DevOps/SRE           | `.github/agents/devops-sre.agent.md`         | `stage:deploy`   |
+| Operations SRE       | `.github/agents/operations-sre.agent.md`    | `archived`       |
 
 ## To Start a New Feature
 

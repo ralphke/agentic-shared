@@ -28,10 +28,10 @@ The Product Owner (PO) Agent is the entry point for all new work.
 - Maintain the overall product backlog and prioritization
 
 **Input:** Raw idea text, user story, business requirement, customer feedback  
-**Output:** `proposal.md`, initial delta `specs/<domain>/spec.md`  
+**Output:** `proposal.md`  
 **Triggers:** GitHub issue with label `idea`, `/opsx:propose <slug>` command  
 **Handoff:** Labels PR/issue `stage:design` when proposal is accepted  
-**Agent file:** `.github/agents/product-owner.md`
+**Agent file:** `.github/agents/product-owner.agent.md`
 
 #### Scenario: Idea to structured proposal
 - GIVEN a raw idea: "Users should be able to export their data as CSV"
@@ -58,12 +58,13 @@ The Architect Agent translates accepted proposals into technical designs.
 - Identify all integration points, API contracts, and data model changes
 - Decompose design into atomic, ordered, estimated tasks in `tasks.md`
 - Ensure non-functional requirements (performance, scalability) are addressed
+- Translate the accepted proposal into OpenSpec delta specs for affected domains
 
 **Input:** `proposal.md`, existing system specs, codebase structure  
-**Output:** `design.md`, `tasks.md`, Architecture Decision Records (ADRs)  
+**Output:** `design.md`, delta specs in `specs/<domain>/spec.md`, `tasks.md`, Architecture Decision Records (ADRs)
 **Triggers:** Proposal labelled `stage:design`  
 **Handoff:** Labels PR `stage:implement` when design is accepted  
-**Agent file:** `.github/agents/architect.md`
+**Agent file:** `.github/agents/architect.agent.md`
 
 #### Scenario: Proposal to technical design
 - GIVEN a complete `proposal.md` with ≥3 scenarios
@@ -95,7 +96,7 @@ The Developer Agent implements tasks from the approved design.
 **Output:** Source code, PR with description linking to change folder  
 **Triggers:** Tasks labelled `stage:implement`  
 **Handoff:** Labels PR `stage:test` when all implementation tasks are checked off  
-**Agent file:** `.github/agents/developer.md`
+**Agent file:** `.github/agents/developer.agent.md`
 
 #### Scenario: Tasks to code without scope creep
 - GIVEN `tasks.md` with 5 unchecked implementation tasks
@@ -122,12 +123,13 @@ The QA Engineer Agent creates and validates automated tests from spec scenarios.
 - Achieve ≥ 80% code coverage on all new code
 - Include negative, boundary, and performance tests
 - Ensure all tests are automated and run in CI without manual steps
+- Update only the Testing Tasks section in the Architect-owned `tasks.md`
 
 **Input:** `spec.md` scenarios, source code from Developer Agent  
-**Output:** Test suites, coverage report, updated `tasks.md`  
+**Output:** Test suites, coverage report, testing-task updates in `tasks.md`  
 **Triggers:** PR labelled `stage:test`  
 **Handoff:** Labels PR `stage:security` when coverage gate passes  
-**Agent file:** `.github/agents/qa-engineer.md`
+**Agent file:** `.github/agents/qa-engineer.agent.md`
 
 #### Scenario: Spec scenarios become test cases
 - GIVEN `spec.md` with N Given/When/Then scenarios
@@ -159,7 +161,7 @@ The Security Engineer Agent ensures every change is free of exploitable vulnerab
 **Output:** Security report, vulnerability list with CVSS scores, remediation tasks  
 **Triggers:** PR labelled `stage:security`  
 **Handoff:** Labels PR `stage:review` when security gate passes  
-**Agent file:** `.github/agents/security-engineer.md`
+**Agent file:** `.github/agents/security-engineer.agent.md`
 
 #### Scenario: Clean security scan allows progression
 - GIVEN a PR with no HIGH or CRITICAL vulnerabilities
@@ -191,7 +193,7 @@ The Code Reviewer Agent validates code quality, design alignment, and best pract
 **Output:** PR review (APPROVE / REQUEST_CHANGES), inline comments  
 **Triggers:** PR labelled `stage:review`  
 **Handoff:** Approves PR to trigger `stage:deploy`  
-**Agent file:** `.github/agents/code-reviewer.md`
+**Agent file:** `.github/agents/code-reviewer.agent.md`
 
 #### Scenario: Review produces actionable comments
 - GIVEN a PR with unclear variable names and missing error handling
@@ -221,7 +223,7 @@ The DevOps/SRE Agent automates infrastructure provisioning and staged deployment
 **Output:** Deployed application, deployment report, updated runbooks  
 **Triggers:** PR approved by Code Reviewer (label: `stage:deploy`)  
 **Handoff:** Labels issue `stage:operate` after successful production deploy  
-**Agent file:** `.github/agents/devops-sre.md`
+**Agent file:** `.github/agents/devops-sre.agent.md`
 
 #### Scenario: Successful staged deployment
 - GIVEN an approved PR
@@ -253,7 +255,7 @@ The Operations SRE Agent ensures the deployed application is observable and resi
 **Output:** Monitoring dashboards, alert policies, runbooks, post-mortem reports  
 **Triggers:** Successful production deployment (label: `stage:operate`)  
 **Handoff:** Invokes `/opsx:archive` when SLOs are configured and stable  
-**Agent file:** `.github/agents/operations-sre.md`
+**Agent file:** `.github/agents/operations-sre.agent.md`
 
 #### Scenario: New endpoint gets SLO and alerting
 - GIVEN a new API endpoint deployed to production

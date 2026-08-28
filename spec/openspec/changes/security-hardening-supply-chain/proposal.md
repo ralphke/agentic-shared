@@ -77,5 +77,5 @@ to assess the baseline before enabling on all PRs.
 
 **Rollback:** Revert the three changed files:
 - `.github/workflows/sdlc-orchestrator.yml`
-- `.github/agents/security-engineer.md`
+- `.github/agents/security-engineer.agent.md`
 - `.github/workflows/supply-chain-verification.yml` (delete)

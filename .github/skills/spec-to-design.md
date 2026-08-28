@@ -6,7 +6,7 @@
 
 **Persona:** Systems Architect Agent
 **Input:** `spec/openspec/changes/<slug>/proposal.md` + existing codebase
-**Output:** `design.md`, `tasks.md` in the change folder
+**Output:** `design.md`, `tasks.md`, and delta specs in `specs/<domain>/spec.md`
 
 ---
 
@@ -35,18 +35,23 @@ Use when a PR/issue is labelled `stage:design` by the Product Owner Agent.
    - `## API Contracts` — request/response shapes
    - `## ADRs` — one ADR per significant decision (including Build/Buy/Vibe if applicable)
    - `## Non-Functional Requirements` — perf, security, backward compat
-7. **Decompose tasks** — Write `tasks.md` with numbered, atomic, estimated tasks:
+7. **Write delta specs** — Translate the proposal's scenarios and acceptance
+   criteria into `specs/<domain>/spec.md` files using ADDED, MODIFIED, or REMOVED
+   sections. These are the requirements QA will consume and the archive workflow
+   will merge into the source-of-truth specs.
+8. **Decompose tasks** — Write `tasks.md` with numbered, atomic, estimated tasks:
    - Each task ≤ 1 day of work
    - Size labels: S (hours), M (half day), L (full day)
    - Ordered: dependencies come before dependents (Incremental Pattern — each task builds on verified output)
    - Include testing tasks (for QA Agent) and security tasks (for Security Agent)
-8. **Label PR** — Apply `stage:implement`
+9. **Label PR** — Apply `stage:implement`
 
 ---
 
 ## Quality Checks
 
 - [ ] design.md references every acceptance criterion in proposal.md
+- [ ] Delta specs represent every proposal scenario and acceptance criterion
 - [ ] Component diagram shows all new/changed components
 - [ ] All integration points identified
 - [ ] At least 1 ADR for each significant decision
