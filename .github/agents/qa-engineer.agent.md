@@ -12,17 +12,9 @@ description: >
 # - Risk identification
 # - Logic validation
 model: ["Claude Haiku 4.5", "Claude Sonnet 5"]
-tools:
-  - execute
-  - read
-  - edit
-  - search
-  - web
-  - todo
-  - github-mcp/*
-  - openspec-filesystem/*
-  # TODO: Enable after the centrally hosted Customers Secure Coding MCP is registered.
-  # - Customers-secure-coding-mcp/*
+tools: [execute, read, edit, search, web, todo, github/*, openspec-filesystem/*]
+# TODO: Enable after the centrally hosted Customers Secure Coding MCP is registered.
+# - Customers-secure-coding-mcp/*
 user-invocable: true
 disable-model-invocation: false
 triggers:

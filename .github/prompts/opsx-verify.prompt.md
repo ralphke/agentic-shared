@@ -3,11 +3,7 @@ agent: agent
 description: >
   Verify a Software Fabric change — run security review and code review to
   validate implementation against the spec and quality gates.
-tools:
-  - filesystem
-  - search/codebase
-  - execute/getTerminalOutput,execute/runInTerminal,read/terminalLastCommand,read/terminalSelection
-  - github/*
+tools: [execute/getTerminalOutput, execute/sendToTerminal, execute/runInTerminal, read, search, web, azure-mcp/search, 'openspec-filesystem/*', 'github/*', todo]
 ---
 
 # `/opsx:verify` — Verify a Change

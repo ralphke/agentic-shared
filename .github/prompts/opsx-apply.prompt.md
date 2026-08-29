@@ -4,12 +4,7 @@ description: >
   Implement a Software Fabric change end-to-end through the persona pipeline:
   Architect (design+tasks) → Developer (code) → QA (tests). 
   Runs autonomously through all implementation stages.
-tools:
-  - filesystem
-  - search/codebase
-  - edit/editFiles
-  - execute/getTerminalOutput,execute/runInTerminal,read/terminalLastCommand,read/terminalSelection
-  - github/*
+tools: [execute/getTerminalOutput, execute/sendToTerminal, execute/runInTerminal, read, edit/createDirectory, edit/createFile, edit/editFiles, search, web, azure-mcp/search, 'openspec-filesystem/*', 'github/*', todo]
 ---
 
 # `/opsx:apply` — Implement a Change

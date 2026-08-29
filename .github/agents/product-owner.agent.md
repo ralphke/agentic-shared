@@ -9,14 +9,7 @@ description: >
 # GPT-5.6 Luna is the king of cost‑efficiency. It’s shockingly capable for its size and costs almost nothing per request.
 # Best for: User stories, Acceptance criteria, Roadmaps, Feature breakdowns
 model: ["GPT-5.6 Luna", "GPT-5.4 mini"]
-tools:
-  - read
-  - edit
-  - search
-  - web
-  - todo
-  - github-mcp/*
-  - openspec-filesystem/*
+tools: [read, edit, search, web, todo, github/*, openspec-filesystem/*]
   # TODO: Enable after the centrally hosted Customers Secure Coding MCP is registered.
   # - Customers-secure-coding-mcp/*
 user-invocable: true

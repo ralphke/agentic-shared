@@ -13,21 +13,9 @@ description: >
 # - Operational runbooks
 # - Monitoring strategy
 model: ["Claude Haiku 4.5", "Claude Sonnet 5"]
-tools:
-  - execute
-  - read
-  - edit
-  - search
-  - web
-  - todo
-  - github-mcp/*
-  - openspec-filesystem/*
-  # TODO: Enable after the centrally hosted Customers Secure Coding MCP is registered.
-  # - Customers-secure-coding-mcp/*
-  - azure-mcp/monitor/*
-  - azure-mcp/applicationinsights/*
-  - azure-mcp/resourcehealth/*
-  - azure-mcp/workbooks/*
+tools: [execute, read, edit, search, web, 'azure-mcp/*', 'openspec-filesystem/*', 'github/*', todo]
+# TODO: Enable after the centrally hosted Customers Secure Coding MCP is registered.
+# - Customers-secure-coding-mcp/*
 user-invocable: false
 disable-model-invocation: false
 triggers:

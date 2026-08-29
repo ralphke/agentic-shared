@@ -15,16 +15,17 @@ description: >
 # Fallback model (only when needed): GPT‑5.6 Terra
 # Use Terra only when the task requires massive context or deep cryptographic analysis.
 model: ["Claude Haiku 4.5", "Claude Sonnet 5", "GPT-5.6 Terra"]
-tools:
-  - execute
-  - read
-  - search
-  - web
-  - todo
-  - github-mcp/*
-  - openspec-filesystem/*
-  # TODO: Enable after the centrally hosted Customers Secure Coding MCP is registered.
-  # - Customers-secure-coding-mcp/*
+tools: [execute, read, search, web, todo, github/*, openspec-filesystem/*]
+# TODO: Enable after the centrally hosted Customers Secure Coding MCP is registered.
+# - Customers-secure-coding-mcp/*
+custom-mcp:
+  - name: "Customers Secure Coding MCP"
+    type: 'local'
+    command: 'python -m mcp_server --port 8080'
+    args: []
+    tools: ["*"]
+    env:
+      MCP_SERVER_PORT: 8080
 user-invocable: false
 disable-model-invocation: false
 triggers:

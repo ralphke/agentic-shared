@@ -13,18 +13,9 @@ description: >
 # - Log analysis
 # - Deployment automation
 model: ["GPT-5.4 mini", "GPT-5.6 Luna"]
-tools:
-  - execute
-  - read
-  - edit
-  - search
-  - web
-  - todo
-  - github-mcp/*
-  - openspec-filesystem/*
-  # TODO: Enable after the centrally hosted Customers Secure Coding MCP is registered.
-  # - Customers-secure-coding-mcp/*
-  - azure-mcp/*
+tools: [execute, read, edit, search, web, 'azure-mcp/*', 'openspec-filesystem/*', 'github/*', todo]
+# TODO: Enable after the centrally hosted Customers Secure Coding MCP is registered.
+# - Customers-secure-coding-mcp/*
 user-invocable: false
 disable-model-invocation: false
 triggers:

@@ -8,17 +8,9 @@ description: >
 # Codex is tuned for code. It’s significantly cheaper than Terra/Sonnet and produces high‑precision code changes with minimal hallucination.
 # It is well-suited for implementing new code, refactoring, debugging, complex transformations and API usage.
 model: ["GPT-5.3-Codex", "GPT-5.6 Luna"]
-tools:
-  - execute
-  - read
-  - edit
-  - search
-  - web
-  - todo
-  - github-mcp/*
-  - openspec-filesystem/*
-  # TODO: Enable after the centrally hosted Customers Secure Coding MCP is registered.
-  # - Customers-secure-coding-mcp/*
+tools: [execute, read, edit, search, web, todo, github/*, openspec-filesystem/*]
+# TODO: Enable after the centrally hosted Customers Secure Coding MCP is registered.
+# - Customers-secure-coding-mcp/*
 user-invocable: true
 disable-model-invocation: false
 triggers:
