@@ -13,7 +13,7 @@ AI agent personas collaborate in an ordered pipeline. Every artifact feeds the
 next stage; no stage may be skipped without explicit Product Owner approval.
 
 ```
-[Idea] ──► [Proposal] ──► [Spec + Design] ──► [Tasks] ──► [Implementation]
+[Idea] ──► [Proposal] ──► [Delta Spec + Design] ──► [Tasks] ──► [Implementation]
    ──► [Tests] ──► [Security Review] ──► [Code Review]
    ──► [CI/CD Pipeline] ──► [Deploy] ──► [Monitor & Operate]
 ```
@@ -51,16 +51,22 @@ any implementation task is assigned.
 - THEN the PR is blocked if tasks.md is missing or has no checked-off items
 - AND the PR receives a `spec-required` label
 
-#### Scenario: Spec triggers design and tasks
-- GIVEN a complete `specs/<domain>/spec.md` delta with ≥3 scenarios
+#### Scenario: Accepted proposal produces spec, design, and tasks
+- GIVEN an accepted `proposal.md` with ≥3 scenarios
 - WHEN the Architect Agent reviews it
-- THEN `design.md` is produced with ADRs and a component diagram
+- THEN a `specs/<domain>/spec.md` delta is produced for each affected domain
+- AND `design.md` is produced with ADRs and a component diagram
 - AND `tasks.md` is produced with numbered, atomic, ordered tasks
+- AND implementation cannot begin until all three artifact types exist
 
 ---
 
 ### Requirement: Ordered Agent Handoffs
 Each agent stage MUST complete before the next begins, signalled by PR labels.
+Legal review is a conditional gate after security review and before code review.
+A change with legal-risk triggers MUST receive `stage:legal`; it may advance to
+`stage:review` only after a `legal:approved` disposition is present. A change
+labelled `legal:blocked` MUST NOT advance to code review or deployment.
 
 | Stage Label              | Responsible Persona     | Next Stage           |
 |--------------------------|-------------------------|----------------------|
@@ -68,7 +74,8 @@ Each agent stage MUST complete before the next begins, signalled by PR labels.
 | `stage:design`           | Architect               | `stage:implement`    |
 | `stage:implement`        | Developer               | `stage:test`         |
 | `stage:test`             | QA Engineer             | `stage:security`     |
-| `stage:security`         | Security Engineer       | `stage:review`       |
+| `stage:security`         | Security Engineer       | `stage:legal` or `stage:review` |
+| `stage:legal`            | Legal & Compliance      | `stage:review`       |
 | `stage:review`           | Code Reviewer           | `stage:deploy`       |
 | `stage:deploy`           | DevOps/SRE              | `stage:operate`      |
 | `stage:operate`          | Operations SRE          | `archived`           |
@@ -78,6 +85,18 @@ Each agent stage MUST complete before the next begins, signalled by PR labels.
 - WHEN a merge is attempted
 - THEN the merge is blocked by a branch protection rule
 - AND a comment lists the incomplete stages
+
+#### Scenario: Legal stage is required for high-risk work
+- GIVEN a change identified as having legal-risk triggers
+- WHEN it completes security review
+- THEN it is routed to `stage:legal` before code review
+- AND `stage:review` is rejected until `legal:approved` is recorded
+
+#### Scenario: Legal block prevents deployment
+- GIVEN a pull request labelled `legal:blocked`
+- WHEN `stage:deploy` is applied
+- THEN the SDLC orchestrator fails the deployment gate
+- AND the pull request remains blocked pending remediation or counsel sign-off
 
 ---
 
@@ -147,7 +166,7 @@ flowchart TD
     A([💡 Idea]) --> B[Product Owner\nproposal.md]
     B --> C{Accepted?}
     C -- No --> A
-    C -- Yes --> D[Architect\ndesign.md + tasks.md]
+    C -- Yes --> D[Architect\ndelta specs + design.md + tasks.md]
     D --> E[Developer\nImplementation PR]
     E --> F[QA Engineer\nTest Suites]
     F --> G{Coverage ≥ 80%?}
@@ -155,18 +174,22 @@ flowchart TD
     G -- Yes --> H[Security Engineer\nSecurity Report]
     H --> I{Clean?}
     I -- No, fix --> E
-    I -- Yes --> J[Code Reviewer\nPR Review]
-    J --> K{Approved?}
-    K -- No --> E
-    K -- Yes --> L[CI/CD Pipeline]
-    L --> M{Gates Pass?}
+    I -- Yes, legal risk --> J[Legal & Compliance\nLegal Risk Assessment]
+    I -- Yes, no legal risk --> K[Code Reviewer\nPR Review]
+    J --> L{Legal approved?}
+    L -- No, remediate or counsel --> E
+    L -- Yes --> K
+    K --> M{Approved?}
     M -- No --> E
-    M -- Yes --> N[DevOps/SRE\nDeploy to Staging]
-    N --> O{Smoke Tests?}
-    O -- Fail --> P[Auto-Rollback]
-    P --> E
-    O -- Pass --> Q[Deploy to Production]
-    Q --> R[Operations SRE\nMonitor & SLOs]
-    R --> S[/opsx:archive]
-    S --> T([✅ Production Feature])
+    M -- Yes --> N[CI/CD Pipeline]
+    N --> O{Gates Pass?}
+    O -- No --> E
+    O -- Yes --> P[DevOps/SRE\nDeploy to Staging]
+    P --> Q{Smoke Tests?}
+    Q -- Fail --> R[Auto-Rollback]
+    R --> E
+    Q -- Pass --> S[Deploy to Production]
+    S --> T[Operations SRE\nMonitor & SLOs]
+    T --> U[/opsx:archive]
+    U --> V([✅ Production Feature])
 ```

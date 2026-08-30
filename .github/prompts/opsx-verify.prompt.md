@@ -3,11 +3,7 @@ agent: agent
 description: >
   Verify a Software Fabric change — run security review and code review to
   validate implementation against the spec and quality gates.
-tools:
-  - filesystem
-  - search/codebase
-  - execute/getTerminalOutput,execute/runInTerminal,read/terminalLastCommand,read/terminalSelection
-  - github/*
+tools: [execute/getTerminalOutput, execute/sendToTerminal, execute/runInTerminal, read, search, web, azure-mcp/search, 'openspec-filesystem/*', 'github/*', todo]
 ---
 
 # `/opsx:verify` — Verify a Change
@@ -16,7 +12,7 @@ Run the verification pipeline: Security → Code Review → Gate Check.
 
 ## Stage 1: Security Review
 
-Act as **Security Engineer Agent** (`.github/agents/security-engineer.md`).
+Act as **Security Engineer Agent** (`.github/agents/security-engineer.agent.md`).
 Apply skill: `.github/skills/security-review.md`
 
 1. Run SAST tools for the project's languages:
@@ -35,7 +31,7 @@ Apply skill: `.github/skills/security-review.md`
 
 ## Stage 2: Code Review
 
-Act as **Code Reviewer Agent** (`.github/agents/code-reviewer.md`).
+Act as **Code Reviewer Agent** (`.github/agents/code-reviewer.agent.md`).
 Apply skill: `.github/skills/pr-review.md`
 
 1. Read `design.md` and `proposal.md` for the change

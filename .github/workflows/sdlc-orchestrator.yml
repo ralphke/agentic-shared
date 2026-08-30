@@ -52,9 +52,10 @@ jobs:
                 '3. 💻 Implementation (Developer)',
                 '4. 🧪 Tests (QA Engineer)',
                 '5. 🔒 Security Review (Security Engineer)',
-                '6. 👁️ Code Review (Code Reviewer)',
-                '7. 🚀 Deploy (DevOps/SRE)',
-                '8. 📊 Monitor + Archive (Operations SRE)',
+                '6. ⚖️ Legal Review when risk requires it (Legal & Compliance)',
+                '7. 👁️ Code Review (Code Reviewer)',
+                '8. 🚀 Deploy (DevOps/SRE)',
+                '9. 📊 Monitor + Archive (Operations SRE)',
               ].join('\n')
             });
 
@@ -82,7 +83,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Validate required design artifacts
+      - name: Validate proposal artifact
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
@@ -101,8 +102,8 @@ jobs:
           fi
 
           for dir in "${change_dirs[@]}"; do
-            if [ ! -f "$dir/design.md" ] || [ ! -f "$dir/tasks.md" ]; then
-              echo "::error file=$dir::Missing required design stage artifact(s). Expected design.md and tasks.md."
+            if [ ! -f "$dir/proposal.md" ]; then
+              echo "::error file=$dir::Missing proposal stage artifact. Expected proposal.md before the Architect stage."
               exit 1
             fi
           done
@@ -127,6 +128,7 @@ jobs:
                 '',
                 'Expected outputs:',
                 '- `spec/openspec/changes/<slug>/design.md`',
+                '- `spec/openspec/changes/<slug>/specs/<domain>/spec.md` (delta spec)',
                 '- `spec/openspec/changes/<slug>/tasks.md`',
               ].join('\n')
             });
@@ -152,8 +154,8 @@ jobs:
           set -euo pipefail
           changed_files="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"
 
-          if ! printf '%s\n' "$changed_files" | grep -Eq '(^|/)(tests?|testdata)/|(^|/)(test_.*\.py|.*_test\.py|.*Tests?\.cs)$|^spec/openspec/changes/[^/]+/(tasks\.md|specs/testing-standards/spec\.md)$'; then
-            echo "::error::stage:test requires test artifacts or test-stage spec/task evidence in the PR."
+          if ! printf '%s\n' "$changed_files" | grep -Eq '(^|/)(tests?|testdata)/|(^|/)(test_.*\.py|.*_test\.py|.*Tests?\.cs)$|^spec/openspec/changes/[^/]+/(tasks\.md|specs/[^/]+/spec\.md)$'; then
+            echo "::error::stage:test requires test artifacts or change delta/task evidence in the PR."
             exit 1
           fi
 
@@ -276,6 +278,38 @@ jobs:
               ].join('\n')
             });
 
+  # ─── STAGE GATE: SECURITY → LEGAL (WHEN REQUIRED) → REVIEW ──────────────
+  stage-legal-gate:
+    name: "⚖️ Stage: Legal Review"
+    if: |
+      github.event_name == 'pull_request' &&
+      github.event.action == 'labeled' &&
+      github.event.label.name == 'stage:legal'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comment — legal review stage
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: [
+                '## ⚖️ Stage: Legal Review',
+                '',
+                '**Legal & Compliance Agent** — review the change using `.github/skills/legal-compliance-review.md`.',
+                '',
+                'Required output: post a Legal Risk Assessment comment with the decision, risk rating, evidence, and any remediation or counsel escalation.',
+                '',
+                'Disposition labels:',
+                '- `legal:approved` — all required legal review and sign-off are complete; apply `stage:review` to continue.',
+                '- `legal:blocked` — unresolved legal risk; review and deployment are blocked.',
+                '',
+                'A PR carrying `stage:legal` cannot enter review or deployment without `legal:approved`.',
+              ].join('\n')
+            });
+
   # ─── STAGE GATE: SECURITY → REVIEW ───────────────────────────────────────
   stage-review-gate:
     name: "👁️ Stage: Review"
@@ -285,7 +319,23 @@ jobs:
       github.event.label.name == 'stage:review'
     runs-on: ubuntu-latest
     steps:
+      - name: Verify legal disposition
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labels = context.payload.pull_request.labels.map(({ name }) => name);
+            const legalBlocked = labels.includes('legal:blocked');
+            const legalReviewRequired = labels.includes('stage:legal');
+            const legalApproved = labels.includes('legal:approved');
+
+            if (legalBlocked) {
+              core.setFailed('stage:review is blocked while legal:blocked is present. Resolve the legal review before proceeding.');
+            } else if (legalReviewRequired && !legalApproved) {
+              core.setFailed('stage:review requires legal:approved when stage:legal is present. Post the Legal Risk Assessment and record a disposition.');
+            }
+
       - name: Comment — review stage
+        if: success()
         uses: actions/github-script@v7
         with:
           script: |
@@ -317,7 +367,23 @@ jobs:
       github.event.label.name == 'stage:deploy'
     runs-on: ubuntu-latest
     steps:
+      - name: Verify legal disposition
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labels = context.payload.pull_request.labels.map(({ name }) => name);
+            const legalBlocked = labels.includes('legal:blocked');
+            const legalReviewRequired = labels.includes('stage:legal');
+            const legalApproved = labels.includes('legal:approved');
+
+            if (legalBlocked) {
+              core.setFailed('stage:deploy is blocked while legal:blocked is present. Resolve the legal review before proceeding.');
+            } else if (legalReviewRequired && !legalApproved) {
+              core.setFailed('stage:deploy requires legal:approved when stage:legal is present. Post the Legal Risk Assessment and record a disposition.');
+            }
+
       - name: Comment — deploy stage
+        if: success()
         uses: actions/github-script@v7
         with:
           script: |
@@ -359,7 +425,7 @@ jobs:
           [ -f "spec/openspec/config.yaml" ] && echo "✅ config.yaml present" || echo "❌ config.yaml missing"
           
           # Check domain specs exist
-          for domain in sdlc-process personas idea-capture security-standards testing-standards operations; do
+          for domain in sdlc-process personas idea-capture security-standards testing-standards operations legal-compliance; do
             [ -f "spec/openspec/specs/$domain/spec.md" ] \
               && echo "✅ specs/$domain/spec.md present" \
               || echo "⚠️  specs/$domain/spec.md missing"
