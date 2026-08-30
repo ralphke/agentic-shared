@@ -115,6 +115,11 @@ jobs:
               "### Skill to apply",
               "- `.github/skills/workflow-retrospective.md`",
               "",
+              "### Maintainer Follow-Up",
+              "- Run `/chronicle tips` in VS Code to review local developer-workflow friction.",
+              "- Run `/chronicle cost-tips` in VS Code to identify local context and model-cost patterns.",
+              "- Chronicle findings are local and voluntary; do not publish private session content or token data in this issue.",
+              "",
               "### Maintainer policy",
               "- Create improvement PRs from a feature branch.",
               "- Do not merge process changes to `main` without human review."
