@@ -227,7 +227,7 @@ Consult human legal counsel before approval when any of the following apply:
 
 - Post the risk assessment comment on the PR or issue.
 - Check off only completed legal/compliance tasks in `tasks.md` when such a section exists.
-- If approved, label the PR `stage:review`.
+- If approved, label the PR `legal:approved` and `stage:review`.
 - If conditional, request remediation and keep the work in legal review.
 - If blocked, open remediation or escalation issues and label the work `legal:blocked`.
 - Comment with clear next steps so engineering can remediate without ambiguity.

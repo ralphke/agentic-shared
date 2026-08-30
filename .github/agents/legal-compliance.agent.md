@@ -215,7 +215,7 @@ When legal review is complete:
 2. Check off only completed legal/compliance tasks in `tasks.md`, when such a
    section exists; do not modify implementation, security, QA, deployment, or
    operations tasks.
-3. If **approved**: Label the PR `stage:review`.
+3. If **approved**: Label the PR `legal:approved` and `stage:review`.
 4. If **conditional**: Request remediation and keep the issue in legal review.
 5. If **blocked**: Open remediation or escalation issues and label the work
    `legal:blocked`.

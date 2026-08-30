@@ -1,6 +1,6 @@
 # OpenSpec Configuration — Software Fabric Autonomous SDLC
 # https://github.com/Fission-AI/OpenSpec
-version: 1
+version: 1.1
 
 project:
   name: Software Fabric — Autonomous SDLC
@@ -33,6 +33,9 @@ domains:
   operations:
     owner: devops-sre
     description: Deployment patterns, monitoring SLOs, and runbooks
+  legal-compliance:
+    owner: legal-compliance
+    description: License compliance, IP ownership, and regulatory requirements
 
 # Path overrides (relative to repo root)
 # OpenSpec CLI: openspec init --specs-dir spec/openspec
@@ -67,6 +70,8 @@ personas:
     file: .github/agents/code-reviewer.agent.md
   - id: operations-sre
     file: .github/agents/operations-sre.agent.md
+  - id: legal-compliance
+    file: .github/agents/legal-compliance.agent.md
 
 # MCP servers used by this project — see .vscode/mcp.json for runtime config
 mcp_servers:
