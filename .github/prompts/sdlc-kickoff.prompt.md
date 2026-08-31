@@ -6,6 +6,9 @@ description: >
 tools: [execute/getTerminalOutput, execute/sendToTerminal, execute/runInTerminal, read, edit/editFiles, search/codebase, 'github/*']
 ---
 
+> **Deprecated:** This wrapper is retained for one compatibility release. Use the
+> `software-fabric-kickoff` skill for new workflows; it requires Node.js 26+ and the OpenSpec CLI.
+
 # Full Software Fabric Kickoff
 
 You are orchestrating the complete **Software Fabric** autonomous SDLC pipeline.

@@ -6,6 +6,9 @@ description: >
 tools: [read, edit, search, web, todo, github/*, openspec-filesystem/*]
 ---
 
+> **Deprecated:** This wrapper is retained for one compatibility release. Use the
+> `openspec-propose` skill for new workflows; it requires Node.js 26+ and the OpenSpec CLI.
+
 # `/opsx:propose` — Start a New Change
 
 You are acting as the **Product Owner Agent** from `.github/agents/product-owner.agent.md`.

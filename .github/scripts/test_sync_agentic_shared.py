@@ -71,6 +71,46 @@ class SyncAgenticSharedTests(unittest.TestCase):
                 "new",
             )
 
+    def test_copies_command_skill_and_preserves_local_prompt_extension(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            old_source = root / "old"
+            new_source = root / "new"
+            destination = root / "destination"
+            manifest = self.manifest()
+            manifest["assets"] = {"skills": "managed", "prompts": "extended"}
+            manifest["protected_paths"].append(".github/prompts/local/**")
+            self.write(
+                new_source,
+                ".github/skills/openspec-propose/SKILL.md",
+                "replacement skill",
+            )
+            self.write(
+                destination,
+                ".github/prompts/local/custom.prompt.md",
+                "consumer prompt",
+            )
+
+            changed = synchronize(
+                manifest, old_source, new_source, destination, "v1.1.0"
+            )
+
+            self.assertEqual(
+                changed, [Path(".github/skills/openspec-propose/SKILL.md")]
+            )
+            self.assertEqual(
+                (destination / ".github/skills/openspec-propose/SKILL.md").read_text(
+                    encoding="utf-8"
+                ),
+                "replacement skill",
+            )
+            self.assertEqual(
+                (destination / ".github/prompts/local/custom.prompt.md").read_text(
+                    encoding="utf-8"
+                ),
+                "consumer prompt",
+            )
+
     def test_blocks_conflict_without_partial_changes(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

@@ -2,10 +2,13 @@
 agent: agent
 description: >
   Implement a Software Fabric change end-to-end through the persona pipeline:
-  Architect (design+tasks) → Developer (code) → QA (tests). 
+  Architect (design+tasks) → Developer (code) → QA (tests).
   Runs autonomously through all implementation stages.
 tools: [execute/getTerminalOutput, execute/sendToTerminal, execute/runInTerminal, read, edit/createDirectory, edit/createFile, edit/editFiles, search, web, azure-mcp/search, 'openspec-filesystem/*', 'github/*', todo]
 ---
+
+> **Deprecated:** This wrapper is retained for one compatibility release. Use the
+> `openspec-apply-change` skill for new workflows; it requires Node.js 26+ and the OpenSpec CLI.
 
 # `/opsx:apply` — Implement a Change
 
@@ -64,7 +67,7 @@ Apply skill: `.github/skills/test-generation.md`
 ✓ Tasks: spec/openspec/changes/<slug>/tasks.md (N tasks)
 ✓ Implementation: N tasks completed
 ✓ Tests: N tests, XX% coverage
-  
+
 Ready for: Security review → run /opsx:verify <slug>
            Or create a PR for manual review
 ```
