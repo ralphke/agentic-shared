@@ -1,6 +1,6 @@
 source:
   repository: ralphke/agentic-shared
-  version: v1.0.0
+  version: v1.0.3
 
 assets:
   agents: managed
@@ -17,3 +17,5 @@ protected_paths:
   - .github/prompts/local/**
   - .github/instructions/local/**
   - spec/openspec/changes/**
+  - .github/workflows/agentic-shared-sync.yml
+  - .github/workflows/sdlc-orchestrator.yml
