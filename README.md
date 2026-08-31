@@ -22,7 +22,7 @@ It currently centralizes:
 - `.github/ISSUE_TEMPLATE/` - shared issue intake forms
 - `.github/agents/` - persona definitions used by the Software Fabric flow
 - `.github/skills/` - reusable task playbooks for those personas
-- `.github/prompts/` - Copilot prompt files and SDLC entry points
+- `.github/prompts/` - deprecated Copilot prompt wrappers retained for one compatibility release
 - `.github/instructions/` - shared instruction files
 - `.github/copilot-instructions.md` - shared baseline Copilot guidance
 - `.github/scripts/` - manifest validation and consumer synchronization tools
@@ -66,6 +66,33 @@ Use reserved `local/` directories for consumer-only extensions:
 Consumer changes to shared behavior should be proposed here through an issue
 or OpenSpec change. Consumer-specific behavior belongs in a local extension
 path and must not edit synchronized files in place.
+
+## OpenSpec command skills
+
+The shared OpenSpec entry points are skills, not prompt files. Consumers that use the
+command skills require Node.js 26 or later and the OpenSpec CLI:
+
+```powershell
+npm install -g @fission-ai/openspec@latest
+openspec init
+openspec context --json
+```
+
+Run `openspec init` in the consumer repository and retain its existing `spec/openspec/`
+configuration. `openspec context --json` must resolve the repository's OpenSpec root
+before a command skill can create or modify artifacts.
+
+| Deprecated prompt | Replacement skill |
+| --- | --- |
+| `opsx-propose.prompt.md` | `openspec-propose` |
+| `opsx-apply.prompt.md` | `openspec-apply-change` |
+| `opsx-verify.prompt.md` | `openspec-verify-change` |
+| `sdlc-kickoff.prompt.md` | `software-fabric-kickoff` |
+
+Shared prompt wrappers remain available for the release that introduces their replacement
+skills. A subsequent, separately reviewed breaking release may remove only shared prompt
+wrappers after consumer adoption is confirmed. Consumer-owned `.github/prompts/local/`
+files remain outside this retirement path.
 
 ## Current consumers
 

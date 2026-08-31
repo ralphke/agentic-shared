@@ -7,6 +7,28 @@ applyTo: "spec/openspec/**"
 When working with files in `spec/openspec/`, always follow the OpenSpec
 workflow (https://github.com/Fission-AI/OpenSpec).
 
+## Command Skills
+
+Use the shared OpenSpec command skills for new workflows. They require Node.js 26 or
+later and a working OpenSpec CLI. Before use, install and initialize the CLI:
+
+```powershell
+npm install -g @fission-ai/openspec@latest
+openspec init
+openspec context --json
+```
+
+Retain the repository's `spec/openspec/` configuration during initialization. If the CLI
+or root resolution is unavailable, stop without modifying artifacts and report the setup
+requirement; do not fall back to a deprecated prompt wrapper.
+
+| Legacy prompt | Command skill |
+|---|---|
+| `opsx-propose.prompt.md` | `openspec-propose` |
+| `opsx-apply.prompt.md` | `openspec-apply-change` |
+| `opsx-verify.prompt.md` | `openspec-verify-change` |
+| `sdlc-kickoff.prompt.md` | `software-fabric-kickoff` |
+
 ## Core Commands
 
 | Command                        | Effect                                                    |

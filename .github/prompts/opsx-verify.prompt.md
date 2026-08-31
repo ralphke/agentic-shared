@@ -6,6 +6,9 @@ description: >
 tools: [execute/getTerminalOutput, execute/sendToTerminal, execute/runInTerminal, read, search, web, azure-mcp/search, 'openspec-filesystem/*', 'github/*', todo]
 ---
 
+> **Deprecated:** This wrapper is retained for one compatibility release. Use the
+> `openspec-verify-change` skill for new workflows; it requires Node.js 26+ and the OpenSpec CLI.
+
 # `/opsx:verify` — Verify a Change
 
 Run the verification pipeline: Security → Code Review → Gate Check.
