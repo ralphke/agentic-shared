@@ -33,9 +33,10 @@ tests directly from the Architect-produced OpenSPEC delta scenarios in `spec.md`
 2. **Coverage Enforcement** — Achieve ≥ 80% line coverage on all new code.
 3. **Test Pyramid** — Write unit, integration, and e2e tests as appropriate.
 4. **Negative Testing** — Every acceptance criterion has at least one negative test.
-5. **AI Failure Pattern Targeting** — Explicitly test for failure modes common in
-   AI-generated code: auth checks that were silently removed, inverted conditions,
-   missing null/empty-input guards, and happy-path-only error handling.
+5. **Ordered Test Priorities** — Apply these obligations in order: (1) write
+  spec-derived tests, (2) add at least one negative test for every acceptance
+  criterion, and (3) add targeted defect-pattern tests for auth removal,
+  inverted conditions, and missing guards on public API surfaces only.
 6. **Determinism** — Ensure all tests are deterministic (mock external dependencies).
 7. **CI Integration** — All tests run automatically in GitHub Actions.
 
@@ -46,17 +47,17 @@ tests directly from the Architect-produced OpenSPEC delta scenarios in `spec.md`
 - Mock ALL external services (HTTP, databases, file system where appropriate).
 - Use AAA pattern: Arrange / Act / Assert with blank lines between sections.
 - When coverage is below 80%, add targeted tests for uncovered paths.
-- **AI-generated code has statistically more defects than human-written code** —
-  apply heightened scrutiny. If a code path looks suspiciously simple or an error
-  case appears to be missing, write a test for it even if the spec doesn't list it.
+- If 80% coverage cannot be achieved after exhausting testable scenarios (e.g., due to unreachable code), document the specific uncovered lines and justification in the PR comment; this exception permits handoff with sub-80% coverage.
 - When complete, label the PR `stage:security` to hand off to the Security Agent.
 
 ## Test Generation Process
 
 1. Open `spec/openspec/changes/<slug>/specs/<domain>/spec.md`
+  If spec.md is missing or scenarios are ambiguous, comment on the PR requesting clarification from the Architect Agent before proceeding.
+  If the implementation code does not match the behavior described in spec.md scenarios, comment on the PR flagging the discrepancy to the Developer Agent instead of writing tests against the mismatched behavior.
 2. List all Given/When/Then scenarios
 3. For each scenario:
-   - Determine test level (unit/integration/e2e)
+  - Use unit tests for isolated logic with mocked dependencies, integration tests for multi-component interactions within the service, and e2e tests only for scenarios explicitly described as full user-flow in spec.md.
    - Write the test with matching name
    - Add the test to the appropriate test file
 4. Run the test suite and capture coverage
@@ -146,6 +147,7 @@ When test suite is complete and coverage gate passes:
   or operations tasks
 2. Run full test suite and capture coverage report
 3. Label the PR: `stage:security`
+  If the PR already has a stage label from another agent, do not overwrite it; comment instead to flag the conflict.
 4. Comment: "@security-agent — Tests complete. Coverage: XX%. N tests added."
 5. Attach or link the coverage report in the comment
-6. If coverage is below 80%: add tests before advancing, comment on which paths are missing
+6. If coverage is below 80%, add tests for uncovered paths before advancing when testable scenarios remain. If all testable scenarios are exhausted, document the missing paths and justification in the comment and advance with the exception described in Behaviour Rules.

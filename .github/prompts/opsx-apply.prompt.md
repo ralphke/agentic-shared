@@ -1,73 +1,180 @@
 ---
-agent: agent
-description: >
-  Implement a Software Fabric change end-to-end through the persona pipeline:
-  Architect (design+tasks) → Developer (code) → QA (tests).
-  Runs autonomously through all implementation stages.
-tools: [execute/getTerminalOutput, execute/sendToTerminal, execute/runInTerminal, read, edit/createDirectory, edit/createFile, edit/editFiles, search, web, azure-mcp/search, 'openspec-filesystem/*', 'github/*', todo]
+description: "Implement tasks from an OpenSpec change (Experimental)"
 ---
 
-> **Deprecated:** This wrapper is retained for one compatibility release. Use the
-> `openspec-apply-change` skill for new workflows; it requires Node.js 26+ and the OpenSpec CLI.
+Implement tasks from an OpenSpec change.
 
-# `/opsx:apply` — Implement a Change
+**Store selection:** If the user names a store (a store is a standalone OpenSpec repo registered on this machine) or the work lives in one, run `openspec store list --json` to discover registered store ids, then pass `--store <id>` on the commands that read or write specs and changes (`new change`, `status`, `instructions`, `list`, `show`, `validate`, `archive`, `doctor`, `context`, `schemas`, `view`). Once selected, treat `--store <id>` as sticky for the rest of the workflow. Every unscoped example of those commands below is shorthand: before running it, append the flag. For example, run `openspec status --change "<name>" --json --store "<id>"`, not the unscoped form shown below. Other commands do not take the flag. Hints printed by commands already carry the flag; keep it on follow-ups. Without a store, commands act on the nearest local `openspec/` root.
 
-Work through the full implementation pipeline for a change.
-Check which stage the change is currently in and continue from there.
+**Input**: Optionally specify a change name (e.g., `/opsx-apply add-auth`). If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
 
-## Stage Detection
+**Steps**
 
-1. Check `spec/openspec/changes/<slug>/` for existing artifacts
-2. If only `proposal.md` → start with Architect (design + tasks)
-3. If `design.md` exists but no code → start with Developer
-4. If code exists but no tests → start with QA Engineer
-5. If tests exist → run QA coverage check, then proceed to security prompt
+1. **Select the change**
 
-## Stage 1: Architect (if `design.md` missing)
+   If a name is provided, use it. Otherwise:
+   - Infer from conversation context if the user mentioned a change
+   - Auto-select if only one active change exists
+   - If ambiguous, run `openspec list --json` to get available changes and ask the user to select one
 
-Act as **Systems Architect Agent** (`.github/agents/architect.agent.md`).
-Apply skill: `.github/skills/spec-to-design.md`
+   Always announce: "Using change: <name>" and how to override (e.g., `/opsx-apply <other>`).
 
-- Read `proposal.md` and existing codebase structure
-- Produce `design.md` with component diagram, ADRs, API contracts
-- Produce `tasks.md` with numbered, atomic, estimated tasks
-- Echo: "✓ Design complete. N tasks created."
+2. **Check status to understand the schema**
+   ```bash
+   openspec status --change "<name>" --json
+   ```
+   Parse the JSON to understand:
+   - `schemaName`: The workflow being used (e.g., "spec-driven")
+   - `planningHome`, `changeRoot`, and `actionContext`: planning scope and edit constraints
+   - Which artifact contains the tasks (typically "tasks" for spec-driven, check status for others)
 
-## Stage 2: Developer (if implementation tasks unchecked)
+3. **Get apply instructions**
 
-Act as **Developer Agent** (`.github/agents/developer.agent.md`).
+   ```bash
+   openspec instructions apply --change "<name>" --json
+   ```
 
-- Read `design.md` and `tasks.md`
-- Implement each unchecked implementation task in order
-- Check off each task as it is completed
-- Echo: "✓ Task 1.1 [S] done" for each completed task
-- Run existing tests to confirm nothing is broken
+   This returns:
+   - `contextFiles`: artifact ID -> array of concrete file paths (varies by schema - could be proposal/specs/design/tasks or spec/tests/implementation/docs)
+   - Progress (total, complete, remaining)
+   - Task list with status
+   - Dynamic instruction based on current state
+   - Optional `context`: current required project instruction input from the selected root
+   - Optional `operationGuidance`: current advisory guidance for apply
 
-## Stage 3: QA Engineer (if testing tasks unchecked)
+   **Handle states:**
+   - If `state: "blocked"` (missing artifacts): show message, suggest using `/opsx-continue` (if it is not installed, run `openspec status --change "<name>" --json` to see the next artifact and `openspec instructions <artifact-id> --change "<name>" --json` for how to create it)
+   - If `state: "all_done"`: congratulate, suggest archive
+   - Otherwise: proceed to implementation
 
-Act as **QA Engineer Agent** (`.github/agents/qa-engineer.agent.md`).
-Apply skill: `.github/skills/test-generation.md`
+   Treat `context` as a required prompt-level input. Read and consider it, and
+   apply relevant project facts, conventions, and constraints while implementing.
+   Treat `operationGuidance` as optional additive advice. Read and consider every
+   entry, and follow entries that are applicable and compatible with the built-in
+   workflow.
 
-- Read all spec scenarios from `specs/<domain>/spec.md`
-- Generate tests: ≥ 1 per scenario, covering all acceptance criteria
-- Run test suite and check coverage ≥ 80%
-- Echo: "✓ Tests: N passing. Coverage: XX%."
+   Keep both fields separate from CLI-returned state, missing artifacts, tasks,
+   progress, `contextFiles`, and the built-in `instruction`. They are not
+   evidence of task completion, do not replace the built-in instruction, and do
+   not permit bypassing a blocked state. If context conflicts with the built-in
+   instruction, an explicit user choice, or a CLI-controlled value, report the
+   conflict and preserve the controlling value. If guidance is inapplicable or
+   conflicts with those controlling inputs, do not follow it and explain why.
+   These are prompt-level behavior contracts, not enforceable checks.
 
-## Usage
+4. **Read context files**
+
+   Read every file path listed under `contextFiles` from the apply instructions output.
+   The files depend on the schema being used:
+   - **spec-driven**: proposal, specs, design, tasks
+   - Other schemas: follow the contextFiles from CLI output
+
+   Do not copy `context` or `operationGuidance` verbatim into implementation
+   files or planning artifacts unless the user separately asks for that content.
+
+5. **Show current progress**
+
+   Display:
+   - Schema being used
+   - Progress: "N/M tasks complete"
+   - Remaining tasks overview
+   - Dynamic instruction from CLI
+
+6. **Implement tasks (loop until done or blocked)**
+
+   For each pending task:
+   - Show which task is being worked on
+   - Make the code changes required
+   - Keep changes minimal and focused
+   - Mark task complete in the tasks file: `- [ ]` → `- [x]`
+   - Continue to next task
+
+   **Pause if:**
+   - Task is unclear → ask for clarification
+   - Implementation reveals a design issue → suggest updating artifacts
+   - A task needs work beyond what the spec and tasks describe, or you are tempted to drop, narrow, defer, or accept exceptions to specified behavior to make it fit → surface the added scope and ask; do not absorb it silently
+   - Error or blocker encountered → report and wait for guidance
+   - User interrupts
+
+7. **On completion or pause, show status**
+
+   Display:
+   - Tasks completed this session
+   - Overall progress: "N/M tasks complete"
+   - If all done: suggest archive
+   - If paused: explain why and wait for guidance
+
+**Output During Implementation**
 
 ```
-/opsx:apply add-csv-export         ← apply a specific change
-/opsx:apply                        ← apply the most recent in-flight change
+## Implementing: <change-name> (schema: <schema-name>)
+
+Working on task 3/7: <task description>
+[...implementation happening...]
+✓ Task complete
+
+Working on task 4/7: <task description>
+[...implementation happening...]
+✓ Task complete
 ```
 
-## Completion Output
+**Output On Completion**
 
 ```
-✓ Design: spec/openspec/changes/<slug>/design.md
-✓ Tasks: spec/openspec/changes/<slug>/tasks.md (N tasks)
-✓ Implementation: N tasks completed
-✓ Tests: N tests, XX% coverage
+## Implementation Complete
 
-Ready for: Security review → run /opsx:verify <slug>
-           Or create a PR for manual review
+**Change:** <change-name>
+**Schema:** <schema-name>
+**Progress:** 7/7 tasks complete ✓
+
+### Completed This Session
+- [x] Task 1
+- [x] Task 2
+...
+
+All tasks complete! You can archive this change with `/opsx-archive`.
 ```
+
+**Output On Pause (Issue Encountered)**
+
+```
+## Implementation Paused
+
+**Change:** <change-name>
+**Schema:** <schema-name>
+**Progress:** 4/7 tasks complete
+
+### Issue Encountered
+<description of the issue>
+
+**Options:**
+1. <option 1>
+2. <option 2>
+3. Other approach
+
+What would you like to do?
+```
+
+**Guardrails**
+- Keep going through tasks until done or blocked
+- Always read context files before starting (from the apply instructions output)
+- If task is ambiguous, pause and ask before implementing
+- If implementation reveals issues, pause and suggest artifact updates
+- Keep code changes minimal and scoped to each task
+- Update task checkbox immediately after completing each task
+- Pause on errors, blockers, or unclear requirements - don't guess
+- When a task needs work beyond what the spec describes, surface the added scope and pause - never silently narrow, defer, or simplify away specified behavior
+- Only mark a task `- [x]` when its specified behavior is fully implemented, not when it is partially done or deferred
+- Use contextFiles from CLI output, don't assume specific file names
+- Do not use context or operation guidance as proof that a task is complete
+- Apply relevant project context; report conflicts with controlling workflow inputs
+- Consider every guidance entry; explain any inapplicable or conflicting advice
+- Do not copy runtime context or operation guidance into implementation files or planning artifacts
+- Preserve CLI-controlled blocked/ready/all-done behavior and completion criteria
+
+**Fluid Workflow Integration**
+
+This skill supports the "actions on a change" model:
+
+- **Can be invoked anytime**: Before all artifacts are done (if tasks exist), after partial implementation, interleaved with other actions
+- **Allows artifact updates**: If implementation reveals design issues, suggest updating artifacts - not phase-locked, work fluidly

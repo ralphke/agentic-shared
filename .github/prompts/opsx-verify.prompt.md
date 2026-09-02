@@ -16,7 +16,7 @@ Run the verification pipeline: Security → Code Review → Gate Check.
 ## Stage 1: Security Review
 
 Act as **Security Engineer Agent** (`.github/agents/security-engineer.agent.md`).
-Apply skill: `.github/skills/security-review.md`
+Apply skill: `.github/skills/security-review/SKILL.md`
 
 1. Run SAST tools for the project's languages:
    ```bash
@@ -35,7 +35,7 @@ Apply skill: `.github/skills/security-review.md`
 ## Stage 2: Code Review
 
 Act as **Code Reviewer Agent** (`.github/agents/code-reviewer.agent.md`).
-Apply skill: `.github/skills/pr-review.md`
+Apply skill: `.github/skills/pr-review/SKILL.md`
 
 1. Read `design.md` and `proposal.md` for the change
 2. Review all changed files against the review checklist

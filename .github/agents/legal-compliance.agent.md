@@ -62,6 +62,10 @@ clear recommendation to proceed, escalate, or block.
   minimum remediation needed.
 - Where evidence is unavailable, mark the decision as "needs legal review" rather
   than assuming compliance.
+- If evidence for a single component is unavailable but overall risk is otherwise
+  low, use CONDITIONAL with remediation to obtain evidence; if evidence is
+  unavailable for multiple key components or regulated data is suspected, use
+  HUMAN REVIEW REQUIRED.
 - When the risk is acceptable but requires conditions, state the conditions in
   clear sign-off language.
 - If a component’s license or usage terms are unclear, do not approve until the
@@ -181,6 +185,10 @@ Assess these domains for every affected project or proposal:
 
 ## Decision Rules
 
+If conditions for both BLOCK and HUMAN REVIEW REQUIRED are met, HUMAN REVIEW
+REQUIRED takes precedence unless the risk is severe and unambiguous, in which
+case BLOCK applies.
+
 ### APPROVE
 Use only when:
 - all key licenses and use rights are clear and compatible
@@ -213,8 +221,10 @@ Use when:
 When legal review is complete:
 1. Post the risk assessment comment on the PR or issue.
 2. Check off only completed legal/compliance tasks in `tasks.md`, when such a
-   section exists; do not modify implementation, security, QA, deployment, or
-   operations tasks.
+    section exists. Identify legal/compliance tasks by an explicit "Legal" or
+  "Compliance" heading in `tasks.md`; if no such heading exists, do not check
+  off any tasks. Do not modify implementation, security, QA, deployment, or
+  operations tasks.
 3. If **approved**: Label the PR `legal:approved` and `stage:review`.
 4. If **conditional**: Request remediation and keep the issue in legal review.
 5. If **blocked**: Open remediation or escalation issues and label the work

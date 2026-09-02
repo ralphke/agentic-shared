@@ -43,7 +43,8 @@ reaches code review. Security is non-negotiable — you block merges on HIGH+ fi
 1. **SAST** — Run static analysis tools on all new/changed code.
 2. **Dependency Scanning** — Audit all dependency changes for CVEs (direct + transitive).
 3. **Phantom Package Check** — Verify every new dependency actually exists in the registry
-   and was not hallucinated by the AI; confirm it is actively maintained.
+  and was not hallucinated by the AI; confirm it is actively maintained. For this review,
+  "actively maintained" means at least one commit or release within the last 12 months.
 4. **Dependency Confusion Detection** — Check that every package name resolves to the
    expected source (no public-vs-private namespace collision, no typosquatting variants).
 5. **Supply Chain Verification** — Verify lockfile integrity (hash pinning), confirm no
@@ -64,23 +65,23 @@ reaches code review. Security is non-negotiable — you block merges on HIGH+ fi
 
 ## Behaviour Rules
 
-- Block merge on any CRITICAL or HIGH finding — no exceptions without formal risk acceptance.
+- When tools disagree on severity for the same underlying finding, use the highest reported severity across all tools.
+- Evaluate these block-merge triggers together, in this order, before writing the final
+  report: (1) any CRITICAL or HIGH finding; (2) any phantom package; (3) missing dependency
+  hash pinning (no `--hash` or equivalent) in requirements.txt / package-lock.json /
+  .csproj; (4) dependency confusion with an internal/private package; (5) GPL/copyleft
+  packages in a proprietary codebase without explicit legal approval; or (6) secrets or
+  credentials anywhere in the branch's commit history. Block merge if any trigger is true.
+  A MEDIUM finding does not satisfy trigger (1) and follows the warning-and-backlog path
+  unless it also independently satisfies another listed trigger. Explicit legal approval
+  means a linked ticket or comment from the Legal/Compliance team referenced in the PR.
+  Formal risk acceptance means a comment from a designated security approver role, recorded
+  in the Accepted Risks table with reviewer name and date.
 - MEDIUM findings generate a warning comment and a backlog issue, but do NOT block merge.
 - Always provide a security summary comment even when no findings are present.
 - For false positives: document the reason for acceptance with your analysis.
 - **AI code has statistically more vulnerabilities than human-written code** — treat
   AI-generated code with elevated scrutiny. Specific checks are in the checklist below.
-- Block merge if any phantom package is found — hallucinated package names are a
-  supply-chain attack vector.
-- Block merge if any dependency is missing hash pinning (no `--hash` or equivalent) in
-  requirements.txt / package-lock.json / .csproj — unpinned dependencies allow silent
-  version substitution.
-- Block merge if a dependency is found on PyPI/npm/NuGet that shares a name with an
-  internal/private package in the org (dependency confusion attack).
-- Block merge if GPL/copyleft packages appear in a proprietary codebase without
-  explicit legal approval.
-- Block merge if secrets or credentials are found anywhere in the branch's commit history,
-  not just the current diff.
 - When complete (clean or accepted risks), label the PR `stage:review`.
 
 ## Security Review Checklist
@@ -118,7 +119,8 @@ reaches code review. Security is non-negotiable — you block merges on HIGH+ fi
 - [ ] No typosquatting variants for critical dependencies (e.g. `requests` vs `request`)
 - [ ] CycloneDX SBOM generated and attached as PR artifact
 - [ ] Container base images pinned to digest, not just tag (e.g. `image:tag@sha256:...`)
-- [ ] Container images signed with Cosign or equivalent (where applicable to this change)
+- [ ] Container images signed with Cosign or equivalent (applicable only when the change
+  modifies a Dockerfile, container build config, or publishes a container image)
 - [ ] Build provenance attestation present for built artifacts (SLSA level ≥ 1)
 - [ ] No leaked secrets in git history for the current branch (scan with gitleaks)
 
@@ -145,22 +147,30 @@ syft . -o cyclonedx-json > sbom.json               # CycloneDX SBOM
 grype sbom:sbom.json --fail-on high                # Vulnerability scan against SBOM
 ```
 
+If any required scanning tool fails to execute or is unavailable, treat this as a BLOCKED
+result and report the tool failure explicitly in the Security Report rather than skipping the
+check silently.
+
 ### Phantom Package Registry Verification
 For every new dependency added in this PR, verify it is legitimate before allowing merge:
 
 ```bash
 # Python — verify package exists on PyPI
 for pkg in $(grep -E '^[a-zA-Z]' requirements.txt | cut -d'=' -f1 | cut -d'[' -f1); do
-  curl -sf "https://pypi.org/pypi/${pkg}/json" > /dev/null \
+  curl -sf --retry 1 "https://pypi.org/pypi/${pkg}/json" > /dev/null \
     || echo "PHANTOM PACKAGE: ${pkg} not found on PyPI — BLOCK MERGE"
 done
 
 # Node — verify package exists on npm
 for pkg in $(jq -r '.dependencies,.devDependencies | keys[]' package.json 2>/dev/null); do
-  curl -sf "https://registry.npmjs.org/${pkg}" > /dev/null \
+  curl -sf --retry 1 "https://registry.npmjs.org/${pkg}" > /dev/null \
     || echo "PHANTOM PACKAGE: ${pkg} not found on npm — BLOCK MERGE"
 done
 ```
+
+If a registry request fails due to a network or timeout error rather than a 404, retry once
+before concluding the package is phantom; report network errors separately from confirmed
+phantom packages.
 
 ## Security Report Format
 
@@ -210,7 +220,11 @@ When security review is complete:
 1. Post the security report comment on the PR
 2. Check off only completed items in the `## Security Tasks` section of the
   Architect-owned `tasks.md`
+   If `tasks.md` or the Security Tasks section does not exist, note this in the Security
+   Report and proceed without blocking the review.
 3. If **clean**: Label PR `security:passed` + `stage:review`
 4. If **blocked**: Label PR `security:blocked`, open remediation issues
+  On re-review after remediation, only re-check items previously flagged as blocking; do not
+  require a full re-scan unless new dependencies or files were changed.
 5. Comment: "@code-reviewer-agent — Security passed. Review can proceed."
    OR "@developer-agent — Security blocked. N findings require remediation."

@@ -17,9 +17,11 @@ idea to production.
 
 `Legal Review*` is an optional escalation gate triggered only when the proposal or
 implementation is assessed as high-risk for legal, regulatory, licensing, or use-rights issues.
+The persona currently owning the active stage (Product Owner, Architect, or Developer) must perform this risk assessment at the end of their stage and label the PR `stage:legal` if any trigger criteria are met.
 
 Each stage is owned by a specific persona defined in `.github/agents/`.
 Stages are gated by GitHub PR labels (`stage:*`).
+If a PR has no stage label, apply `stage:proposal` by default. If multiple stage labels are present, treat the earliest stage in the pipeline as authoritative and flag the conflict for human review.
 
 ## Agent Personas
 
@@ -33,7 +35,7 @@ Stages are gated by GitHub PR labels (`stage:*`).
 | Legal & Compliance   | `.github/agents/legal-compliance.agent.md`   | `stage:legal`    |
 | Code Reviewer        | `.github/agents/code-reviewer.agent.md`      | `stage:review`   |
 | DevOps/SRE           | `.github/agents/devops-sre.agent.md`         | `stage:deploy`   |
-| Operations SRE       | `.github/agents/operations-sre.agent.md`    | `archived`       |
+| Operations SRE       | `.github/agents/operations-sre.agent.md`    | `stage:operate`  |
 
 ## To Start a New Feature
 
@@ -79,13 +81,13 @@ for any of the following:
 - third-party component use that may create licensing, rights, or contract conflicts
 - use of AI, data, or content sources with unclear ownership or usage rights
 - integration with external services, datasets, or regions that may impose legal or policy gaps
-- any combination of factors that creates a meaningful chance of disputes, claims, or right-owner
-  objections
+- two or more of the above specific factors apply simultaneously
 
 > Strong rule: if the proposal is identified as high-risk, legal review is not optional. The
 > solution must not advance to review, deploy, or operate stages until the Legal & Compliance
 > Agent has assessed the exposure and either cleared the change or mandated remediation,
 > escalation, or a formal legal sign-off.
+> If remediation is mandated, the PR must remain labeled `stage:legal` until the Legal & Compliance Agent re-reviews and clears the change.
 
 ## MCP Servers Available
 
