@@ -91,13 +91,13 @@ jobs:
           set -euo pipefail
           mapfile -t change_dirs < <(
             git diff --name-only "$BASE_SHA" "$HEAD_SHA" \
-              | grep -E '^spec/openspec/changes/[^/]+/' \
+              | grep -E '^openspec/changes/[^/]+/' \
               | cut -d/ -f1-4 \
               | sort -u
           )
 
           if [ "${#change_dirs[@]}" -eq 0 ]; then
-            echo "::error::stage:design requires a change folder under spec/openspec/changes/<slug>/."
+            echo "::error::stage:design requires a change folder under openspec/changes/<slug>/."
             exit 1
           fi
 
@@ -123,13 +123,13 @@ jobs:
                 '',
                 'Run in VS Code Copilot chat:',
                 '```',
-                '/opsx:apply  ← will detect design stage and create design.md + tasks.md',
+                'Use the openspec-apply-change skill; select the registered OpenSpec store when working in one.',
                 '```',
                 '',
                 'Expected outputs:',
-                '- `spec/openspec/changes/<slug>/design.md`',
-                '- `spec/openspec/changes/<slug>/specs/<domain>/spec.md` (delta spec)',
-                '- `spec/openspec/changes/<slug>/tasks.md`',
+                '- `openspec/changes/<slug>/design.md`',
+                '- `openspec/changes/<slug>/specs/<domain>/spec.md` (delta spec)',
+                '- `openspec/changes/<slug>/tasks.md`',
               ].join('\n')
             });
 
@@ -154,7 +154,7 @@ jobs:
           set -euo pipefail
           changed_files="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"
 
-          if ! printf '%s\n' "$changed_files" | grep -Eq '(^|/)(tests?|testdata)/|(^|/)(test_.*\.py|.*_test\.py|.*Tests?\.cs)$|^spec/openspec/changes/[^/]+/(tasks\.md|specs/[^/]+/spec\.md)$'; then
+          if ! printf '%s\n' "$changed_files" | grep -Eq '(^|/)(tests?|testdata)/|(^|/)(test_.*\.py|.*_test\.py|.*Tests?\.cs)$|^openspec/changes/[^/]+/(tasks\.md|specs/[^/]+/spec\.md)$'; then
             echo "::error::stage:test requires test artifacts or change delta/task evidence in the PR."
             exit 1
           fi
@@ -193,7 +193,7 @@ jobs:
                 '',
                 'Run in VS Code Copilot chat:',
                 '```',
-                '/opsx:apply  ← will detect test stage and generate test suites',
+                'Use the openspec-apply-change skill; keep the selected OpenSpec store context active.',
                 '```',
               ].join('\n')
             });
@@ -261,7 +261,7 @@ jobs:
                 '',
                 'Run the full security review in VS Code Copilot chat:',
                 '```',
-                '/opsx:verify  ← runs security review + OWASP + supply chain + code review',
+                'Use the openspec-verify-change skill with the selected OpenSpec store, when applicable.',
                 '```',
                 '',
                 'Security gate: no CRITICAL or HIGH findings to merge.',
@@ -350,7 +350,7 @@ jobs:
                 '',
                 'Run in VS Code Copilot chat:',
                 '```',
-                '/opsx:verify  ← includes code review stage',
+                'Use the openspec-verify-change skill with the selected OpenSpec store, when applicable.',
                 '```',
                 '',
                 'Review against `design.md` requirements and coding standards.',
@@ -417,21 +417,21 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Validate spec/openspec structure
+      - name: Validate openspec structure
         run: |
           echo "Validating OpenSPEC structure..."
           
           # Check config exists
-          [ -f "spec/openspec/config.yaml" ] && echo "✅ config.yaml present" || echo "❌ config.yaml missing"
+          [ -f "openspec/config.yaml" ] && echo "✅ config.yaml present" || echo "❌ config.yaml missing"
           
           # Check domain specs exist
           for domain in sdlc-process personas idea-capture security-standards testing-standards operations legal-compliance; do
-            [ -f "spec/openspec/specs/$domain/spec.md" ] \
+            [ -f "openspec/specs/$domain/spec.md" ] \
               && echo "✅ specs/$domain/spec.md present" \
               || echo "⚠️  specs/$domain/spec.md missing"
           done
           
           # Check changes directory
-          [ -d "spec/openspec/changes" ] && echo "✅ changes/ directory present" || echo "❌ changes/ missing"
+          [ -d "openspec/changes" ] && echo "✅ changes/ directory present" || echo "❌ changes/ missing"
           
           echo "OpenSPEC validation complete."

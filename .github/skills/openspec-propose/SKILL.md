@@ -1,6 +1,6 @@
 ---
 name: openspec-propose
-description: Propose a new change with all artifacts generated in one step. Use when the user wants to quickly describe what they want to build and get a complete proposal with design, specs, and tasks ready for implementation.
+description: Create a complete OpenSpec proposal and planning artifacts from a new idea. Use when the user wants a ready-to-review change. Do not implement code or bypass proposal approval.
 allowed-tools: Bash(openspec:*)
 license: MIT
 compatibility: Requires openspec CLI.
@@ -11,6 +11,10 @@ metadata:
 ---
 
 Propose a new change - create the change and generate all artifacts in one step.
+
+Node.js 26 or later and the OpenSpec CLI are required. Run `openspec --version` and
+`openspec context --json` before changing planning artifacts. If either command fails,
+stop and provide the installation and initialization commands. Do not fall back to a legacy prompt workflow.
 
 **Planning boundary**: This workflow creates planning artifacts only. The user request that selected or triggered this workflow authorizes planning only, even if it asks to build or fix something. Do not edit project code. After the planning artifacts are complete, stop. Do not start implementation in the same response, even if the initial request asks for it. Wait for a new user request after the artifacts are presented; then start the apply workflow.
 
@@ -23,6 +27,11 @@ I'll create a change with the artifacts your schema defines. With the default sp
 `<capability-path>` is the spec directory relative to `specs/` (for example, `user-auth` or `identity/user-auth`). Preserve an existing capability's full path and follow the project's established organization for new capabilities.
 
 When the user is ready to implement, they must start the apply workflow explicitly.
+
+The primary non-developer intake is a GitHub issue labelled `idea`. The Product Owner
+Agent may supply that issue's title, fields, labels, and discussion as proposal input.
+Direct `/opsx:propose <description>` invocation is a valid alternative and does not
+require an issue.
 
 ---
 
@@ -142,6 +151,55 @@ After completing all artifacts, summarize:
 
 **Guardrails**
 - The request that invoked this workflow authorizes planning only. Any implementation or apply instruction in that request does not carry forward. Do NOT implement the change, start the apply workflow, or edit project code during this workflow. After presenting the artifacts, stop and wait for a new user request to start the apply workflow
+## When to Use & Triggers
+
+Use for a new feature or change that needs proposal, design, specs, and tasks. Do not use to implement an existing change.
+
+## Workflows & Steps
+
+1. Select or create the change through OpenSpec.
+2. Generate proposal, design, specs, and tasks in dependency order.
+3. Validate artifacts and stop for review before implementation.
+
+## Scripts & Tools
+
+- Use `openspec new change`, artifact instructions, validation, and status commands.
+- Read dependency artifacts before generating later artifacts.
+
+## Rules & Guidelines
+
+- Keep artifacts scoped, testable, and implementation-ready without writing production code.
+- Identify security, testing, operations, and high-risk legal-review needs during planning.
+
+## Error Handling
+
+| Error | Cause | Fix |
+|---|---|---|
+| Change already exists | The slug is already active | Ask whether to continue it or choose another slug |
+| Missing dependency | An earlier artifact is absent | Create the prerequisite through OpenSpec |
+| Ambiguous requirement | User intent cannot be tested | Ask a focused clarification before writing |
+
+## Scenarios & References
+
+- Use the idea-capture spec, OpenSpec templates, and repository SDLC instructions.
+- Include Given/When/Then scenarios and binary acceptance criteria.
+
+## Quick Reference
+
+| Task | Output |
+|---|---|
+| Capture idea | `proposal.md` |
+| Design behavior | `design.md` and delta specs |
+| Plan work | `tasks.md` ready for review |
+
+## Collaboration & Iteration Loop
+
+- Confirm scope and decisions with the user, then stop for approval before apply work.
+
+## Output Specs, Success, Evaluation & Security
+
+- Report created artifacts, scope, acceptance criteria, approval status, and next command.
+- Success requires coherent artifacts and explicit security, legal, testing, and operations considerations.
 - Create every artifact the apply phase transitively depends on, not just the ids listed in `apply.requires`
 - Always read dependency artifacts before creating a new one - re-read from disk, not from conversation memory (files may have changed since you last saw them)
 - Ask about ambiguities that would materially change scope, externally observable behavior, compatibility, or acceptance criteria; for minor details, make reasonable assumptions and record them

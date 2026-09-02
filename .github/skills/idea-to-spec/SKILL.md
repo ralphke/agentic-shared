@@ -1,12 +1,13 @@
-# Skill: Idea to OpenSPEC Proposal
+---
+name: idea-to-spec
+description: Turn an ambiguous idea into an actionable OpenSpec proposal with scope, scenarios, and acceptance criteria. Use for idea intake and proposal creation. Do not use for design or task implementation or code delivery.
+---
 
-**Description**
-- **USE FOR:** turning ambiguous ideas into actionable `proposal.md` artifacts with clear scope and acceptance criteria.
-- **DO NOT USE FOR:** implementation planning (`design.md`/`tasks.md`) or code delivery.
+# Skill: Idea to OpenSPEC Proposal
 
 **Persona:** Product Owner Agent
 **Input:** Raw idea text (natural language)
-**Output:** `spec/openspec/changes/<slug>/proposal.md`
+**Output:** `openspec/changes/<slug>/proposal.md`
 
 ---
 
@@ -24,8 +25,8 @@ Use this skill when a user submits:
 1. **Parse the idea** — Extract: problem statement, proposed solution, target users
 2. **Generate slug** — Convert title to kebab-case (e.g., "add csv export" → `add-csv-export`)
 3. **Validate slug** — Ensure kebab-case, 3–50 chars, starts with letter
-4. **Create change folder** — `spec/openspec/changes/<slug>/`
-5. **Load template** — Read `spec/openspec/templates/idea-to-spec.md`
+4. **Create change folder** — `openspec/changes/<slug>/`
+5. **Load template** — Read `openspec/templates/idea-to-spec.md`
 6. **Clarify if needed** — Ask ≤ 3 focused questions if intent is ambiguous
 7. **Write proposal.md** — Fill in all required sections:
    - `## Intent` — 1-2 paragraphs explaining why (what users need, not how to build it)
@@ -60,7 +61,7 @@ Use this skill when a user submits:
 ## Example Output
 
 ```
-Created: spec/openspec/changes/add-csv-export/proposal.md
+Created: openspec/changes/add-csv-export/proposal.md
 ✓ Intent — explains the data export problem
 ✓ Scope — 3 user actions included
 ✓ Out of Scope — PDF export, scheduling explicitly excluded
@@ -78,3 +79,35 @@ Handoff PR labelled: stage:design
 - Review the latest workflow-improvement report issue before drafting new proposals.
 - If issue/PR history is sparse, use baseline defaults and record assumptions in `proposal.md`.
 - Feed recurring ambiguity patterns (missing scope, weak acceptance criteria, unclear actors) back into this skill.
+
+## Scripts & Tools
+
+- Use the OpenSpec CLI to create and validate the change artifacts.
+- Use repository issue and PR history as evidence when available; do not invent requirements.
+
+## Rules & Guidelines
+
+- Keep the proposal implementation-agnostic and make acceptance criteria binary.
+- Identify high-risk legal, security, testing, and operations concerns for downstream handoffs.
+- Do not start implementation until the proposal, design, specs, and tasks are approved.
+
+## Error Handling
+
+| Error | Cause | Fix |
+|---|---|---|
+| Missing requirements | The idea is too vague | Record assumptions and ask focused questions before drafting |
+| Invalid slug | Slug is not kebab-case | Normalize it and revalidate with OpenSpec |
+| Conflicting scope | Stakeholders describe incompatible outcomes | Surface the conflict and pause for a decision |
+
+## Scenarios & References
+
+- Use the idea-capture spec and the OpenSpec proposal template as the source of truth.
+- Cover at least one happy path and each known unhappy path in the proposal scenarios.
+
+## Quick Reference
+
+| Task | Action |
+|---|---|
+| Start a proposal | Gather problem, users, scope, scenarios, and acceptance criteria |
+| Validate artifacts | Run `openspec context --json` and the applicable validation command |
+| Handoff | Label the work `stage:design` after review approval |

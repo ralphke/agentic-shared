@@ -52,8 +52,8 @@ is observable, resilient, and operationally documented before archiving.
 
 - Every new endpoint or user-facing feature MUST have: 1 dashboard panel, 1 SLO, ≥1 alert.
 - If a required observability element cannot be configured due to technical constraints, document the limitation and rationale in the issue before proceeding.
-- SLO targets start with defaults from `spec/openspec/specs/operations/spec.md` unless
-  the OpenSpec change proposal (`spec/openspec/changes/<slug>/proposal.md`) specifies
+- SLO targets start with defaults from `openspec/specs/operations/spec.md` unless
+  the OpenSpec change proposal (`openspec/changes/<slug>/proposal.md`) specifies
   different targets.
 - If proposal-specified targets are weaker than defaults, flag this discrepancy in the
   issue for review before finalizing SLOs.

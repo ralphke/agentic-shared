@@ -1,6 +1,6 @@
 ---
 name: openspec-apply-change
-description: Implement tasks from an OpenSpec change. Use when the user wants to start implementing, continue implementation, or work through tasks.
+description: Implement and validate tasks from an OpenSpec change. Use when the user wants to start or continue implementation. Do not bypass planning artifacts, gates, or task-scope constraints.
 allowed-tools: Bash(openspec:*)
 license: MIT
 compatibility: Requires openspec CLI.
@@ -12,6 +12,13 @@ metadata:
 
 Implement tasks from an OpenSpec change.
 
+Node.js 26 or later and the OpenSpec CLI are required. Run `openspec --version` and
+`openspec context --json` before changing artifacts or implementation code. If either
+command fails, stop and provide the installation and initialization commands. Do not fall back to a legacy prompt workflow.
+
+Do not mark partial or deferred work complete; mark a task complete only after its
+specified behavior is fully implemented and validated.
+
 **Store selection:** If the user names a store (a store is a standalone OpenSpec repo registered on this machine) or the work lives in one, run `openspec store list --json` to discover registered store ids, then pass `--store <id>` on the commands that read or write specs and changes (`new change`, `status`, `instructions`, `list`, `show`, `validate`, `archive`, `doctor`, `context`, `schemas`, `view`). Once selected, treat `--store <id>` as sticky for the rest of the workflow. Every unscoped example of those commands below is shorthand: before running it, append the flag. For example, run `openspec status --change "<name>" --json --store "<id>"`, not the unscoped form shown below. Other commands do not take the flag. Hints printed by commands already carry the flag; keep it on follow-ups. Without a store, commands act on the nearest local `openspec/` root.
 
 **Input**: Optionally specify a change name (e.g., `/opsx-apply add-auth`). If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
@@ -22,7 +29,7 @@ Implement tasks from an OpenSpec change.
 
    If a name is provided, use it. Otherwise:
    - Infer from conversation context if the user mentioned a change
-   - Auto-select if only one active change exists
+   - Auto-select if only one change exists that is not yet archived and has remaining tasks
    - If ambiguous, run `openspec list --json` to get available changes and ask the user to select one
 
    Always announce: "Using change: <name>" and how to override (e.g., `/opsx-apply <other>`).
@@ -35,6 +42,8 @@ Implement tasks from an OpenSpec change.
    - `schemaName`: The workflow being used (e.g., "spec-driven")
    - `planningHome`, `changeRoot`, and `actionContext`: planning scope and edit constraints
    - Which artifact contains the tasks (typically "tasks" for spec-driven, check status for others)
+
+   If the JSON output cannot be parsed, stop and report the raw CLI output to the user rather than guessing its structure.
 
 3. **Get apply instructions**
 
@@ -55,20 +64,16 @@ Implement tasks from an OpenSpec change.
    - If `state: "all_done"`: congratulate, suggest archive
    - Otherwise: proceed to implementation
 
-   Treat `context` as a required prompt-level input. Read and consider it, and
-   apply relevant project facts, conventions, and constraints while implementing.
-   Treat `operationGuidance` as optional additive advice. Read and consider every
-   entry, and follow entries that are applicable and compatible with the built-in
-   workflow.
+   Use this decision table for `context` and `operationGuidance`:
+
+   | Input | Required/Optional | Action on conflict with built-in instruction, explicit user choice, or CLI-controlled value | Prohibited |
+   |---|---|---|---|
+   | `context` | Required: read and apply relevant project facts, conventions, and constraints while implementing | Report the conflict and preserve the controlling value | Not evidence of task completion; do not copy verbatim into implementation files or planning artifacts; does not permit bypassing a blocked state |
+   | `operationGuidance` | Optional: read every entry, follow entries that are applicable and compatible with the built-in workflow | Do not follow the conflicting entry and explain why | Not evidence of task completion; do not copy verbatim into implementation files or planning artifacts; does not permit bypassing a blocked state |
 
    Keep both fields separate from CLI-returned state, missing artifacts, tasks,
-   progress, `contextFiles`, and the built-in `instruction`. They are not
-   evidence of task completion, do not replace the built-in instruction, and do
-   not permit bypassing a blocked state. If context conflicts with the built-in
-   instruction, an explicit user choice, or a CLI-controlled value, report the
-   conflict and preserve the controlling value. If guidance is inapplicable or
-   conflicts with those controlling inputs, do not follow it and explain why.
-   These are prompt-level behavior contracts, not enforceable checks.
+   progress, `contextFiles`, and the built-in `instruction`. These are
+   prompt-level behavior contracts, not enforceable checks.
 
 4. **Read context files**
 
@@ -76,6 +81,8 @@ Implement tasks from an OpenSpec change.
    The files depend on the schema being used:
    - **spec-driven**: proposal, specs, design, tasks
    - Other schemas: follow the contextFiles from CLI output
+
+   If a file listed in contextFiles does not exist, report this as a blocker and stop before implementing tasks.
 
    Do not copy `context` or `operationGuidance` verbatim into implementation
    files or planning artifacts unless the user separately asks for that content.
@@ -94,7 +101,7 @@ Implement tasks from an OpenSpec change.
    - Show which task is being worked on
    - Make the code changes required
    - Keep changes minimal and focused
-   - Mark task complete in the tasks file: `- [ ]` → `- [x]`
+   - Mark task complete in the tasks file: `- [ ]` → `- [x]`. If the schema uses a different task-marking format, use the format shown in the tasks artifact instead of assuming markdown checkboxes.
    - Continue to next task
 
    **Pause if:**
@@ -186,3 +193,54 @@ This skill supports the "actions on a change" model:
 
 - **Can be invoked anytime**: Before all artifacts are done (if tasks exist), after partial implementation, interleaved with other actions
 - **Allows artifact updates**: If implementation reveals design issues, suggest updating artifacts - not phase-locked, work fluidly
+
+## When to Use & Triggers
+
+Use when a selected change has a ready `tasks.md` and implementation is explicitly requested. Do not use for proposal or design authoring.
+
+## Workflows & Steps
+
+1. Select the change and read CLI status and context files.
+2. Implement one pending task, validate it, and mark it complete.
+3. Continue until complete or stop on a blocker.
+
+## Scripts & Tools
+
+- Run the OpenSpec version, context, status, and apply-instruction commands before editing.
+- Use the exact context files returned by the CLI.
+
+## Rules & Guidelines
+
+- Implement only approved tasks and mark them complete only after validation.
+- Stop on ambiguity, missing artifacts, failed gates, or scope expansion.
+
+## Error Handling
+
+| Error | Cause | Fix |
+|---|---|---|
+| CLI unavailable | OpenSpec is not installed or initialized | Report setup requirements and stop |
+| Missing context file | Required artifact is absent | Report the blocker and stop |
+| Validation failure | Behavior is incomplete or incorrect | Repair the same task and rerun validation |
+
+## Scenarios & References
+
+- Use proposal, delta specs, design, tasks, and repository instructions as the implementation contract.
+- Preserve scenario behavior and required test, security, legal, and operations handoffs.
+
+## Quick Reference
+
+| Task | Action |
+|---|---|
+| Start | Read CLI status and apply instructions |
+| Implement | Work one pending task at a time |
+| Finish | Validate, update task status, and report evidence |
+
+## Collaboration & Iteration Loop
+
+- Report progress after each validated task and surface blockers immediately.
+- Feed implementation failures back into change artifacts instead of silently narrowing scope.
+
+## Output Specs, Success, Evaluation & Security
+
+- Output completed tasks, remaining tasks, validation evidence, and blockers.
+- Success requires specified behavior and gates to pass without exposing secrets.

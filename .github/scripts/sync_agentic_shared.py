@@ -24,7 +24,7 @@ ASSET_ROOTS = {
     "instructions": Path(".github/instructions"),
     "workflows": Path(".github/workflows"),
     "issue_templates": Path(".github/ISSUE_TEMPLATE"),
-    "specs": Path("spec/openspec"),
+    "specs": Path("openspec"),
 }
 
 

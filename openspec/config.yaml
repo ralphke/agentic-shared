@@ -2,33 +2,62 @@ schema: spec-driven
 githubCopilot:
   cloudAgent: true
 
-# Project context (optional)
-# This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
+context: |
+  Project name: Software Fabric - Autonomous SDLC
+  Project description: A spec-driven autonomous software development lifecycle
+  where specialized AI agent personas collaborate to transform a raw idea into
+  a fully tested, secure, and autonomously operated application.
+  Homepage: https://github.com/Fission-AI/OpenSpec
+  Active profile: spec-driven
+  OpenSpec layout: specs=openspec/specs, changes=openspec/changes,
+  archive=openspec/changes/archive.
 
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always include a "Non-goals" section
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
+  Domain ownership:
+    idea-capture: owner=product-owner; Captures raw ideas and refines them into structured proposals.
+    sdlc-process: owner=architect; The end-to-end autonomous SDLC workflow and handoff protocol.
+    personas: owner=architect; Agent personas, skills, and collaboration contracts.
+    security-standards: owner=security-engineer; OWASP alignment, threat modelling, and security gate rules.
+    testing-standards: owner=qa-engineer; Testing strategy, coverage minimums, and quality gates.
+    operations: owner=devops-sre; Deployment patterns, monitoring SLOs, and runbooks.
+    legal-compliance: owner=legal-compliance; License compliance, IP ownership, and regulatory requirements.
 
-# Per-operation guidance (optional)
-# Add advisory guidance for how apply and archive work should be conducted.
-# This is separate from artifact rules above.
-# Example:
-#   operations:
-#     apply:
-#       guidance:
-#         - Keep test summaries concise
-#     archive:
-#       guidance:
-#         - Summarize the archive outcome before finishing
+  Quality gates, all required before archive:
+    require_tests=true: pytest or dotnet test must be green.
+    require_security_review=true: no HIGH or CRITICAL CVEs.
+    require_code_review=true: at least one review approval.
+    require_ci_pass=true: GitHub Actions CI workflow must be green.
+    min_coverage_pct=80: new code coverage floor.
+
+  Persona roster and files:
+    product-owner=.github/agents/product-owner.agent.md
+    architect=.github/agents/architect.agent.md
+    developer=.github/agents/developer.agent.md
+    qa-engineer=.github/agents/qa-engineer.agent.md
+    security-engineer=.github/agents/security-engineer.agent.md
+    devops-sre=.github/agents/devops-sre.agent.md
+    code-reviewer=.github/agents/code-reviewer.agent.md
+    operations-sre=.github/agents/operations-sre.agent.md
+    legal-compliance=.github/agents/legal-compliance.agent.md
+
+  MCP servers used by this project, configured in .vscode/mcp.json:
+    openspec-filesystem: Filesystem access scoped to openspec/ for spec management.
+    github-mcp: GitHub API access for issues, PRs, and workflow triggers.
+  Persona definitions live under .github/agents/.
+  Runtime MCP configuration lives in .vscode/mcp.json.
+
+rules:
+  proposal:
+    - Include affected domains, scope, non-goals, and acceptance criteria.
+  design:
+    - Record architectural decisions and preserve the repository's persona handoffs.
+  tasks:
+    - Keep tasks independently checkable and aligned with the approved design.
+
+operations:
+  apply:
+    guidance:
+      - Do not archive active changes merely because all tasks are complete.
+      - Keep implementation scoped to the approved change.
+  archive:
+    guidance:
+      - Confirm tests, security review, code review, CI, and coverage gates before archiving.

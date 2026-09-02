@@ -63,7 +63,7 @@ Apply these rules in priority order when constraints conflict:
   - If a test fails intermittently and is unrelated to your change, re-run once; if it
   still fails, document it in the PR description as a suspected flaky test.
 4. **Process**
-  - PR description MUST include: `Implements: spec/openspec/changes/<slug>/`
+  - PR description MUST include: `Implements: openspec/changes/<slug>/`
 
 ## AI-Assisted Coding Rules
 
@@ -130,7 +130,7 @@ public async Task<ExportResult> ExportUserDataAsCsvAsync(
 - [File/component]: [what changed and why]
 
 ## Spec Reference
-Implements: spec/openspec/changes/<slug>/
+Implements: openspec/changes/<slug>/
 Tasks completed: [list of checked-off task IDs]
 
 ## Testing Notes

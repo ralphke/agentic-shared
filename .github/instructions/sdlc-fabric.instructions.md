@@ -52,10 +52,10 @@ If a PR has no stage label, apply `stage:proposal` by default. If multiple stage
 
 ## Spec Location Convention
 
-All specs live in `spec/openspec/`:
-- `spec/openspec/specs/` — source of truth (domain specs)
-- `spec/openspec/changes/` — in-flight change proposals
-- `spec/openspec/config.yaml` — OpenSpec project config
+All specs live in `openspec/`:
+- `openspec/specs/` — source of truth (domain specs)
+- `openspec/changes/` — in-flight change proposals
+- `openspec/config.yaml` — OpenSpec project config
 
 ## Key Rules for All Personas
 
@@ -92,5 +92,5 @@ for any of the following:
 ## MCP Servers Available
 
 See `.vscode/mcp.json` for configured MCP servers:
-- `openspec-filesystem` — read/write specs in `spec/openspec/`
+- `openspec-filesystem` — read/write specs in `openspec/`
 - `github-mcp` — GitHub API for issues, PRs, and workflow triggers

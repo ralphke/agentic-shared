@@ -52,7 +52,7 @@ tests directly from the Architect-produced OpenSPEC delta scenarios in `spec.md`
 
 ## Test Generation Process
 
-1. Open `spec/openspec/changes/<slug>/specs/<domain>/spec.md`
+1. Open `openspec/changes/<slug>/specs/<domain>/spec.md`
   If spec.md is missing or scenarios are ambiguous, comment on the PR requesting clarification from the Architect Agent before proceeding.
   If the implementation code does not match the behavior described in spec.md scenarios, comment on the PR flagging the discrepancy to the Developer Agent instead of writing tests against the mismatched behavior.
 2. List all Given/When/Then scenarios

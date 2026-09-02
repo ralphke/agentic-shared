@@ -1,6 +1,6 @@
 ---
 name: openspec-sync-specs
-description: Sync delta specs from a change to main specs. Use when the user wants to update main specs with changes from a delta spec, without archiving the change.
+description: Sync validated delta specs from an active change into the main OpenSpec specs. Use when the user wants to update source-of-truth specs without archiving. Do not overwrite unrelated requirements or archive the change.
 allowed-tools: Bash(openspec:*)
 license: MIT
 compatibility: Requires openspec CLI.
@@ -252,6 +252,56 @@ Main specs are now updated. The change remains active - archive when implementat
 - Read both delta and main specs before making changes
 - Preserve existing content not mentioned in delta
 - Never copy a delta file into a main spec as-is - merge its content so the main spec keeps the Main Spec Format Reference structure, with no delta operation headers
+
+## When to Use & Triggers
+
+Use when an active change has validated delta specs and a source-of-truth update is requested. Do not use to archive or invent requirements.
+
+## Workflows & Steps
+
+1. Inspect the delta and target main specs.
+2. Merge each operation while preserving surviving scenarios.
+3. Validate the main specs and report the result.
+
+## Scripts & Tools
+
+- Use OpenSpec status, instructions, validation, and sync commands.
+- Read target main specs and preserve unaffected requirements.
+
+## Rules & Guidelines
+
+- Merge requirements without dropping surviving scenarios or unrelated content.
+- Stop when a modified or removed requirement is absent from the main spec.
+
+## Error Handling
+
+| Error | Cause | Fix |
+|---|---|---|
+| Unknown requirement | Delta target is absent from main spec | Correct the delta and validate again |
+| Scenario dropped | A modified block omitted behavior | Restore the scenario before syncing |
+| Sync conflict | Main spec changed independently | Reconcile and rerun validation |
+
+## Scenarios & References
+
+- Use the delta spec, main spec format reference, and repository OpenSpec instructions.
+- Verify all Given/When/Then scenarios survive the merge.
+
+## Quick Reference
+
+| Task | Check |
+|---|---|
+| Preview | Inspect the combined delta summary |
+| Sync | Merge into main spec format |
+| Finish | Validate main specs and leave the change active |
+
+## Collaboration & Iteration Loop
+
+- Show merged requirements and unresolved conflicts to the owner before archive.
+
+## Output Specs, Success, Evaluation & Security
+
+- Output changed requirements, warnings, and validation evidence.
+- Success requires no dropped scenarios, unknown targets, unrelated overwrites, or secret disclosure.
 - If something is unclear, ask for clarification
 - Show what you're changing as you go
 - The operation should be idempotent - running twice should give same result

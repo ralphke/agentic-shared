@@ -46,7 +46,7 @@ Apply skill: `.github/skills/pr-review/SKILL.md`
 
 ## Stage 3: Gate Check
 
-Verify all quality gates from `spec/openspec/config.yaml`:
+Verify all quality gates from `openspec/config.yaml`:
 - [ ] Tests passing (`python3 -m pytest` or `dotnet test`)
 - [ ] Coverage ≥ 80% (from QA stage)
 - [ ] Security scan: no CRITICAL/HIGH

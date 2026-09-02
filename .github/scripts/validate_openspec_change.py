@@ -40,7 +40,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("change_slug")
     parser.add_argument(
-        "--root", type=Path, default=Path("spec/openspec/changes")
+        "--root", type=Path, default=Path("openspec/changes")
     )
     args = parser.parse_args()
 

@@ -1,6 +1,6 @@
 ---
 name: openspec-explore
-description: Enter explore mode - a thinking partner for exploring ideas, investigating problems, and clarifying requirements. Use when the user wants to think through something before or during a change.
+description: Explore ideas, investigate requirements, and clarify OpenSpec changes through grounded discussion. Use before or during planning. Do not implement code, alter workflow configuration, or capture artifacts without explicit consent.
 allowed-tools: Bash(openspec:*)
 license: MIT
 compatibility: Requires openspec CLI.
@@ -309,3 +309,52 @@ But this summary is optional. Sometimes the thinking IS the value.
 - **Do visualize** - A good diagram is worth many paragraphs
 - **Do explore the codebase** - Ground discussions in reality
 - **Do question assumptions** - Including the user's and your own
+
+## When to Use & Triggers
+
+Use for ambiguous requirements, early investigation, or design questions. Do not use when implementation or archive execution is requested.
+
+## Workflows & Steps
+
+1. Inspect the repository and relevant change context.
+2. Identify assumptions, alternatives, risks, and unresolved decisions.
+3. Summarize findings and ask before writing artifacts.
+
+## Scripts & Tools
+
+- Prefer read-only repository searches, OpenSpec status, and context commands.
+- Use diagrams or tables when they make a decision easier to evaluate.
+
+## Rules & Guidelines
+
+- Ground conclusions in repository evidence and distinguish facts from assumptions.
+- Never implement code or write outside the explicitly confirmed artifact scope.
+
+## Error Handling
+
+| Error | Cause | Fix |
+|---|---|---|
+| Missing context | Change or repository state is unclear | Inspect nearby artifacts and ask a focused question |
+| Conflicting goals | Requirements point to different outcomes | Present the tradeoff and pause for a decision |
+
+## Scenarios & References
+
+- Use existing proposals, specs, repository instructions, and issue/PR evidence.
+- Record unresolved questions for the proposal or design owner.
+
+## Quick Reference
+
+| Task | Output |
+|---|---|
+| Investigate | Evidence and assumptions |
+| Compare options | Tradeoff table or diagram |
+| Conclude | Decision-ready summary and next step |
+
+## Collaboration & Iteration Loop
+
+- Invite correction, refine the model from user feedback, and offer artifact capture only after confirmation.
+
+## Output Specs, Success, Evaluation & Security
+
+- Output findings, decisions, open questions, and recommended next action.
+- Success requires grounded reasoning without unauthorized writes or secret disclosure.

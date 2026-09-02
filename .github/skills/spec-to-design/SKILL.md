@@ -1,11 +1,12 @@
+---
+name: spec-to-design
+description: Convert an approved OpenSpec proposal into an executable technical design, delta specs, and ordered implementation tasks. Use for the design stage. Do not use for production code or bypassing proposal requirements.
+---
+
 # Skill: Spec to Technical Design
 
-**Description**
-- **USE FOR:** converting approved proposals into executable design and task decomposition.
-- **DO NOT USE FOR:** writing production code or bypassing proposal requirements.
-
 **Persona:** Systems Architect Agent
-**Input:** `spec/openspec/changes/<slug>/proposal.md` + existing codebase
+**Input:** `openspec/changes/<slug>/proposal.md` + existing codebase
 **Output:** `design.md`, `tasks.md`, and delta specs in `specs/<domain>/spec.md`
 
 ---
@@ -20,7 +21,7 @@ Use when a PR/issue is labelled `stage:design` by the Product Owner Agent.
 
 1. **Read proposal.md** — Understand intent, scope, scenarios, and acceptance criteria
 2. **Analyse codebase** — Identify affected modules, existing patterns, integration points
-3. **Check existing specs** — Review relevant domain specs in `spec/openspec/specs/`
+3. **Check existing specs** — Review relevant domain specs in `openspec/specs/`
 4. **Build/Buy/Vibe decision** — Evaluate the Build/Buy/Vibe flag from the proposal.
    If Buy or Vibe is viable, create an ADR documenting the decision.
    Do not design custom engineering where a SaaS or bounded AI-generated tool suffices.
@@ -94,3 +95,35 @@ Use when a PR/issue is labelled `stage:design` by the Product Owner Agent.
 - Use recent workflow-improvement findings to adjust task granularity and stage handoff quality.
 - If issue/PR history is sparse, prefer conservative decomposition and explicit dependency ordering.
 - Add one process improvement note to each design cycle when repeated friction appears.
+
+## Scripts & Tools
+
+- Use `openspec context --json` and the repository's existing validation commands.
+- Inspect the current source tree and main specs before selecting implementation patterns.
+
+## Rules & Guidelines
+
+- Start only from an approved proposal and preserve its scope and acceptance criteria.
+- Record architectural choices as ADRs when they affect system boundaries or technology selection.
+- Include QA, security, legal-risk, and operations handoff tasks where applicable.
+
+## Error Handling
+
+| Error | Cause | Fix |
+|---|---|---|
+| Missing proposal | Design was requested before proposal approval | Stop and return to the proposal stage |
+| Missing main spec | A delta targets an unknown requirement | Correct the requirement or update the main spec first |
+| Unclear dependency | Task order cannot be established | Document the dependency and split the task before handoff |
+
+## Scenarios & References
+
+- Use `openspec/specs/` as the source of truth for existing requirements.
+- Every new or modified requirement must include Given/When/Then scenarios.
+
+## Quick Reference
+
+| Task | Output |
+|---|---|
+| Design a change | `design.md` with decisions and affected components |
+| Define behavior | Delta spec with testable scenarios |
+| Plan delivery | Ordered `tasks.md` including test and security work |

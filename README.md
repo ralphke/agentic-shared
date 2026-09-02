@@ -26,7 +26,7 @@ It currently centralizes:
 - `.github/instructions/` - shared instruction files
 - `.github/copilot-instructions.md` - shared baseline Copilot guidance
 - `.github/scripts/` - manifest validation and consumer synchronization tools
-- `spec/openspec/templates/spec-template.md` - shared OpenSPEC delta spec template
+- `openspec/templates/spec-template.md` - shared OpenSPEC delta spec template
 
 ## Consumption model
 
@@ -45,7 +45,7 @@ Consumer repositories should copy `.agentic-shared.example.yml` to
 asset groups are shared and whether each group is `managed`, `extended`, or
 `local`.
 
-Validate a manifest before opening a synchronization PR:
+Validate a manifest before opening a synchronization PR from the repository root:
 
 ```bash
 python .github/scripts/validate_agentic_shared_manifest.py .agentic-shared.yml
@@ -78,7 +78,7 @@ openspec init
 openspec context --json
 ```
 
-Run `openspec init` in the consumer repository and retain its existing `spec/openspec/`
+Run `openspec init` in the consumer repository and retain its existing `openspec/`
 configuration. `openspec context --json` must resolve the repository's OpenSpec root
 before a command skill can create or modify artifacts.
 
@@ -103,9 +103,9 @@ files remain outside this retirement path.
 
 ## Notes on compatibility
 
-`Agentic-Coding` already matches the shared `spec/openspec/` conventions, so it can consume the full content set directly.
+`Agentic-Coding` already matches the shared `openspec/` conventions, so it can consume the full content set directly.
 
-`Agentic-DevOps` currently uses now `spec/openspec/`, so it adopts the shared content as these paths are aligned.
+`Agentic-DevOps` currently uses `openspec/`, so it adopts the shared content as those paths are aligned.
 
 ## Update policy
 

@@ -1,6 +1,6 @@
 ---
 name: openspec-archive-change
-description: Archive a completed change in the experimental workflow. Use when the user wants to finalize and archive a change after implementation is complete.
+description: Archive a completed OpenSpec change after validation and required gates pass. Use when the user wants to finalize implementation. Do not archive incomplete changes or bypass quality gates.
 allowed-tools: Bash(openspec:*)
 license: MIT
 compatibility: Requires openspec CLI.
@@ -180,3 +180,54 @@ Archive a completed change in the experimental workflow.
 - Existing CLI checks, resolved paths, prompts, and command contracts are unchanged
 - Artifact rules constrain only the specs being written and are never operation guidance
 - Never copy runtime context, operation guidance, or artifact-rule text verbatim into output files
+
+## When to Use & Triggers
+
+Use only after implementation, verification, and required approvals are complete. Do not use for active or partially implemented changes.
+
+## Workflows & Steps
+
+1. Inspect status and required quality gates.
+2. Sync and verify delta specs when applicable.
+3. Archive only after all mandatory checks pass.
+
+## Scripts & Tools
+
+- Use OpenSpec status, validate, sync, and archive commands as directed by the CLI.
+- Verify main specs and archive paths after the operation.
+
+## Rules & Guidelines
+
+- Require complete tasks, passing tests, security approval, code review, CI, coverage, and conditional legal approval.
+- Do not archive when any quality-gate checklist item is unmet.
+
+## Error Handling
+
+| Error | Cause | Fix |
+|---|---|---|
+| Incomplete tasks | Work remains unchecked | Return to apply and complete the tasks |
+| Failed gate | Required evidence is missing | Report the unmet gate and stop |
+| Spec mismatch | Delta references an unknown requirement | Correct the delta before archiving |
+
+## Scenarios & References
+
+- Use `tasks.md`, verification output, delta specs, main specs, and repository archive rules.
+- Confirm removed requirements have no remaining references before archive.
+
+## Quick Reference
+
+| Task | Check |
+|---|---|
+| Assess readiness | Inspect OpenSpec status |
+| Sync | Verify delta requirements and main specs |
+| Archive | Run only after every mandatory gate passes |
+
+## Collaboration & Iteration Loop
+
+- Report warnings and skipped checks to the owner before archiving.
+- Provide archive evidence for the operations handoff.
+
+## Output Specs, Success, Evaluation & Security
+
+- Output change, schema, archive path, spec-sync result, warnings, and gate evidence.
+- Success means a verified archive with no unresolved mandatory gate or sensitive-data exposure.

@@ -1,8 +1,9 @@
-# Skill: Test Generation from Spec Scenarios
+---
+name: test-generation
+description: Generate deterministic tests mapped to OpenSpec scenarios with explicit coverage evidence. Use for the test stage after implementation. Do not use as a replacement for exploratory QA or security-gate approval.
+---
 
-**Description**
-- **USE FOR:** generating deterministic, scenario-mapped tests with clear coverage expectations.
-- **DO NOT USE FOR:** replacing exploratory QA or approving security gates.
+# Skill: Test Generation from Spec Scenarios
 
 **Persona:** QA Engineer Agent
 **Input:** `spec.md` scenarios + source code from Developer Agent
@@ -18,7 +19,7 @@ Use when a PR is labelled `stage:test` by the Developer Agent.
 
 ## Execution Steps
 
-1. **Read spec scenarios** — Open `spec/openspec/changes/<slug>/specs/<domain>/spec.md`
+1. **Read spec scenarios** — Open `openspec/changes/<slug>/specs/<domain>/spec.md`
 2. **List all scenarios** — Enumerate every Given/When/Then block
 3. **Inspect source code** — Understand the implementation to determine test levels
 4. **Plan test coverage** — Map scenarios to test level (unit/integration/e2e)
@@ -87,3 +88,35 @@ ExportToCsv_WithEmptyDataset_ReturnsEmptyCsv
 - Incorporate recurring defect patterns from recent PR/issue history into regression tests.
 - If history is sparse, seed baseline negative tests for auth, null-input, and error propagation paths.
 - Publish flaky/failing-pattern insights for downstream skill and workflow updates.
+
+## Scripts & Tools
+
+- Run the repository test command and its coverage command for the detected language.
+- Use deterministic fixtures, mocks, and the project's existing test utilities.
+
+## Rules & Guidelines
+
+- Map every Given/When/Then scenario to at least one test.
+- Require at least 80% coverage for new code and keep tests independent of wall-clock timing.
+- Do not mark the test gate complete while failures, flaky tests, or uncovered unhappy paths remain.
+
+## Error Handling
+
+| Error | Cause | Fix |
+|---|---|---|
+| Scenario has no test | Scenario was missed during enumeration | Add a test and link it to the scenario |
+| Coverage below 80% | New behavior is untested | Add focused tests for uncovered branches |
+| Flaky test | Shared state, timing, or external dependency | Isolate state, control time, and mock the dependency |
+
+## Scenarios & References
+
+- Use the change delta spec and repository testing standards as authoritative references.
+- Include happy, unhappy, authorization, validation, and dependency-failure scenarios where relevant.
+
+## Quick Reference
+
+| Task | Check |
+|---|---|
+| Enumerate behavior | List all Given/When/Then scenarios |
+| Add coverage | Choose unit, integration, or end-to-end level per decision matrix |
+| Prove readiness | Run tests and coverage three times for determinism |

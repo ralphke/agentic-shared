@@ -1,8 +1,9 @@
-# Skill: Workflow Retrospective and Improvement
+---
+name: workflow-retrospective
+description: Analyze real issue, pull request, review, and workflow evidence to propose SDLC skill and workflow improvements. Use for recurring process problems and scheduled retrospectives. Do not use for product feature implementation, incident response, or unapproved policy changes.
+---
 
-**Description**
-- **USE FOR:** deriving workflow and skill improvements from real issue/PR history, then turning that into concrete updates for `.github/workflows/` and `.github/skills/`.
-- **DO NOT USE FOR:** implementing product features, replacing incident response, or making policy changes without maintainer approval.
+# Skill: Workflow Retrospective and Improvement
 
 **Persona:** Operations SRE Agent
 **Input:** repository issues, pull requests, labels, review outcomes, workflow runs
@@ -82,7 +83,7 @@ gh run list --limit 100 --json name,status,conclusion,createdAt,updatedAt,workfl
 Reference sources:
 - `.github/workflows/*.yml`
 - `.github/skills/*.md`
-- `spec/openspec/templates/Skills.md`
+- `openspec/templates/Skills.md`
 
 ---
 

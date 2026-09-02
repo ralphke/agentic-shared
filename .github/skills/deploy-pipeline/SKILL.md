@@ -1,8 +1,9 @@
-# Skill: Deploy Pipeline Execution
+---
+name: deploy-pipeline
+description: Execute controlled multi-environment deployments with prerequisite gates, rollback criteria, smoke tests, and reporting. Use for approved stage deploy changes. Do not use to approve unreviewed changes or bypass test and security gates.
+---
 
-**Description**
-- **USE FOR:** controlled multi-environment deployment with rollback criteria and reporting.
-- **DO NOT USE FOR:** approving unreviewed PRs or bypassing test/security gates.
+# Skill: Deploy Pipeline Execution
 
 **Persona:** DevOps/SRE Agent
 **Input:** Approved PR, infrastructure spec, IaC templates
@@ -22,6 +23,11 @@ Use when a PR is approved and labelled `stage:deploy` by the Code Reviewer Agent
 2. **Verify AI code provenance** — Confirm AI-assisted commits are tagged `[AI-assisted]`
    and that the Security Agent's SCA/license scan passed before proceeding.
 3. **Build and scan image** — Build Docker image, run container vulnerability scan
+
+## Scripts & Tools
+
+- Use the repository CI workflow, deployment CLI, image scanner, smoke-test command, and telemetry dashboard.
+- Record command results as deployment evidence.
 4. **Deploy to dev** — Deploy to dev environment, run smoke tests
 5. **Deploy to staging** — Deploy to staging, run full integration tests + perf baseline
 6. **Production gate** — Manual approval for P0/P1; auto-advance for P2/P3
@@ -131,3 +137,24 @@ kubectl rollout undo deployment/$DEPLOYMENT -n $NAMESPACE  # rollback
 - Use deployment incident and rollback patterns from issue/PR history to refine gates.
 - If history is sparse, keep strict baseline rollback thresholds and capture first-deploy telemetry.
 - Feed recurring deployment friction into workflow automation and stage handoff guidance.
+
+## Error Handling
+
+| Error | Cause | Fix |
+|---|---|---|
+| Gate failed | Tests, security, review, or CI evidence is missing | Stop deployment and report the unmet gate |
+| Smoke test failed | Deployment is unhealthy or incompatible | Halt promotion and apply the documented rollback |
+| Metrics degraded | Error rate, latency, or availability crossed threshold | Roll back, preserve evidence, and notify Operations SRE |
+
+## Scenarios & References
+
+- Use the operations spec, infrastructure design, CI workflow, and environment runbook.
+- Validate development and staging before production; retain smoke-test and telemetry evidence.
+
+## Quick Reference
+
+| Task | Gate |
+|---|---|
+| Start deployment | Approved PR, green tests, security, review, and CI |
+| Promote | Smoke tests and health checks pass at each environment |
+| Finish | Post report, metrics, rollback status, and `stage:operate` handoff |

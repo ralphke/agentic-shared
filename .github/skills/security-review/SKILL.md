@@ -1,8 +1,9 @@
-# Skill: Security Review
+---
+name: security-review
+description: Perform security review using SAST, dependency, supply-chain, secret, and OWASP evidence. Use for security gate decisions. Do not use for general code quality decisions or bypassing remediation.
+---
 
-**Description**
-- **USE FOR:** blocking or passing PRs based on security evidence, supply-chain checks, and OWASP review.
-- **DO NOT USE FOR:** non-security code quality decisions or bypassing required remediation.
+# Skill: Security Review
 
 **Persona:** Security Engineer Agent
 **Input:** PR diff, dependency manifest, codebase
@@ -22,6 +23,11 @@ Use when a PR is labelled `stage:security` by the QA Engineer Agent.
 2. **Scan dependencies** — Run dependency vulnerability scanner on manifest changes
 3. **Phantom package check** — For every new dependency, verify it exists on the
    official registry (npm/PyPI/NuGet) and is actively maintained. AI tools occasionally
+
+## Scripts & Tools
+
+- Use the language-appropriate SAST, dependency, license, secret, and container scanners listed below.
+- Preserve scanner versions, commands, and results in the security report.
    hallucinate package names that attackers can later register (supply-chain risk).
 4. **License / SCA scan** — Run a Software Composition Analysis tool; flag any
    GPL/copyleft or unknown-license package in a proprietary codebase.
@@ -139,3 +145,30 @@ No vulnerable dependencies detected.
 - Reconcile every blocking finding with historical recurrence from issues/PRs to prioritize prevention.
 - If history is sparse, enforce strict baseline controls and capture first-incident signatures for future loops.
 - Feed repeated findings into workflow automation and upstream skill checklists.
+
+## Rules & Guidelines
+
+- Block HIGH and CRITICAL findings; do not waive them without documented human approval.
+- Treat secrets, dependency provenance, license risk, and AI-specific authorization failures as security findings.
+- Preserve evidence for the security gate and report unresolved MEDIUM findings explicitly.
+
+## Error Handling
+
+| Error | Cause | Fix |
+|---|---|---|
+| Scanner unavailable | Required tool is not installed or configured | Report the missing evidence and stop the gate |
+| Dependency cannot be verified | Package provenance or registry status is unclear | Block until provenance is confirmed |
+| Findings disagree | Tools produce conflicting severity or scope | Reproduce, document the discrepancy, and escalate |
+
+## Scenarios & References
+
+- Use the repository security standards and OWASP Top 10 as review references.
+- Check authentication, authorization, secrets, dependencies, input handling, and data exposure for every applicable change.
+
+## Quick Reference
+
+| Task | Decision |
+|---|---|
+| Scan code | Run relevant SAST and secret checks |
+| Scan supply chain | Check dependencies, provenance, and licenses |
+| Close the gate | Pass only with no unresolved HIGH or CRITICAL findings |

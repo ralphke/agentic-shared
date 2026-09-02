@@ -1,18 +1,20 @@
 ---
-applyTo: "spec/openspec/**"
+applyTo: "openspec/**"
 ---
 
 # OpenSpec Workflow Instructions
 
-When working with files in `spec/openspec/`, always follow the OpenSpec
+When working with files in `openspec/`, always follow the OpenSpec
 workflow (https://github.com/Fission-AI/OpenSpec).
 
 ## Command Skills
 
 Use the shared OpenSpec command skills for new workflows. Core Commands (/opsx:*) are
-the legacy interface; use Command Skills for all new workflows and only use Core
-Commands when explicitly requested. They require Node.js 26 or later and a working
-OpenSpec CLI. Before use, install and initialize the CLI:
+the legacy interface. Only use Core Commands (/opsx:*) when the user types the literal
+`/opsx:` command syntax; otherwise always use Command Skills. Command Skills require a
+working OpenSpec CLI. If the CLI is already installed and `openspec/` is already
+initialized, skip installation and proceed directly to `openspec context --json`.
+Otherwise, install and initialize the CLI:
 
 ```powershell
 npm install -g @fission-ai/openspec@latest
@@ -20,15 +22,9 @@ openspec init
 openspec context --json
 ```
 
-If installation fails, report the exact error and do not proceed with any OpenSpec
-workflow commands.
-
-Retain the repository's `spec/openspec/` configuration during initialization. If the
-installed CLI version conflicts with the existing `config.yaml` schema version, stop
-and report the version mismatch. If the CLI command is not found, or if `openspec
-context --json` fails to resolve a valid
-`spec/openspec/` root path, stop without modifying artifacts and report the setup
-requirement; do not fall back to a deprecated prompt wrapper.
+Before running `openspec init`, back up `openspec/config.yaml` if it exists. After
+initialization completes, restore any repository-specific fields that `openspec init`
+overwrote.
 
 | Legacy prompt | Command skill |
 |---|---|
@@ -37,8 +33,24 @@ requirement; do not fall back to a deprecated prompt wrapper.
 | `opsx-verify.prompt.md` | `openspec-verify-change` |
 | `sdlc-kickoff.prompt.md` | `software-fabric-kickoff` |
 
-If a legacy prompt has no corresponding command skill in this table, stop and report
-that no migration path exists.
+### Stop Conditions
+
+If any of the following conditions occur, stop and report as described. Do not modify
+artifacts and do not fall back to a deprecated prompt wrapper.
+
+| # | Condition | Required message | Modify artifacts? |
+|---|---|---|---|
+| 1 | `npm install -g @fission-ai/openspec@latest` fails | Report the exact installation error | No |
+| 2 | Installed CLI version conflicts with the existing `config.yaml` schema version | Report the version mismatch. If `config.yaml` does not yet exist, proceed with a fresh `openspec init` and skip this version-conflict check. | No |
+| 3 | CLI command is not found, or `openspec context --json` fails to resolve a valid `openspec/` root path | Report the setup requirement | No |
+| 4 | A legacy prompt has no corresponding command skill in the table above | Report that no migration path exists | No |
+| 5 | A MODIFIED or REMOVED requirement name does not exist in the main spec (see On Archive) | Report the mismatch instead of archiving | No |
+| 6 | Any Quality Gate Checklist item is unmet (see below) | Report which items are unmet | No |
+
+If only some legacy prompts lack a migration path, proceed with the ones that do and report only the missing ones.
+
+If `openspec context --json` succeeds but returns an unrecognized schema version,
+treat this the same as Stop Condition #2.
 
 ## Core Commands
 
@@ -52,10 +64,10 @@ that no migration path exists.
 
 ## File Locations
 
-- **Source of truth specs:** `spec/openspec/specs/<domain>/spec.md`
-- **In-flight changes:** `spec/openspec/changes/<slug>/`
-- **Archived changes:** `spec/openspec/changes/archive/<date>-<slug>/`
-- **Config:** `spec/openspec/config.yaml`
+- **Source of truth specs:** `openspec/specs/<domain>/spec.md`
+- **In-flight changes:** `openspec/changes/<slug>/`
+- **Archived changes:** `openspec/changes/archive/<date>-<slug>/`
+- **Config:** `openspec/config.yaml`
 
 ## Delta Spec Format
 
@@ -89,20 +101,15 @@ MODIFIED / REMOVED sections:
 
 ## On Archive
 
-- ADDED sections → appended to main spec
-- If a domain referenced in the delta spec has no existing specs/<domain>/spec.md, create the file before appending ADDED sections.
-- MODIFIED sections → replace existing requirement in main spec
-- If a MODIFIED or REMOVED requirement name does not exist in the main spec, stop and report the mismatch instead of archiving.
-- REMOVED sections → deleted from main spec
-- Change folder → moved to `spec/openspec/changes/archive/`
+- The domain name is taken from the delta spec folder path openspec/changes/<slug>/specs/<domain>/spec.md.
 
 ## Quality Gate Checklist (before archive)
 
-- [ ] All CI checks green
-- [ ] Security scan: no HIGH/CRITICAL findings
-- [ ] Code coverage ≥ 80%
-- [ ] At least one review approval
-- [ ] All acceptance criteria checked off in proposal.md
+- [ ] All tasks in `tasks.md` are complete.
+- [ ] All new scenarios have passing tests.
+- [ ] No removed requirements are still referenced elsewhere.
 
-If any Quality Gate Checklist item is unmet, do not run `/opsx:archive`; report which
-items are unmet and stop.
+If any checklist item cannot be verified due to missing data, treat it as unmet and report which items could not be verified.
+
+If any Quality Gate Checklist item is unmet, do not run `/opsx:archive` (see Stop
+Conditions #6).

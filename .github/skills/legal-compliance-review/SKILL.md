@@ -1,8 +1,9 @@
-# Skill: Legal & Compliance Review
+---
+name: legal-compliance-review
+description: Classify legal and compliance risk, review data and rights exposure, and define escalation or remediation before release. Use for stage legal and high-risk changes. Do not use as a replacement for outside legal counsel or to bypass human sign-off.
+---
 
-**Description**
-- **USE FOR:** legal/compliance risk classification, proposal triage, licensing checks, regulated data review, rights-risk screening, and escalation decisions before release.
-- **DO NOT USE FOR:** replacing outside legal counsel, approving risky changes without evidence, or bypassing required human sign-off.
+# Skill: Legal & Compliance Review
 
 **Persona:** Legal & Compliance Agent
 **Input:** proposal, PR diff, dependency manifest, architecture description, data handling plan, third-party component list, AI usage notes
@@ -243,3 +244,29 @@ Consult human legal counsel before approval when any of the following apply:
 - [ ] AI use and output rights are evaluated where relevant
 - [ ] Decision is explicit: APPROVE, CONDITIONAL, BLOCK, or HUMAN REVIEW REQUIRED
 - [ ] Required remediation and escalation path are documented
+
+## Scripts & Tools
+
+- Review dependency manifests, license metadata, data-flow descriptions, and AI usage notes.
+- Use repository policy and provenance checks as evidence; escalate unclear matters to human counsel.
+
+## Error Handling
+
+| Error | Cause | Fix |
+|---|---|---|
+| Jurisdiction is unclear | Audience or processing region is missing | Pause and request the missing context |
+| Rights are unclear | Ownership, license, or terms cannot be verified | Mark CONDITIONAL or BLOCK and require evidence |
+| Sensitive data is present | Data classification or safeguards are incomplete | Keep `stage:legal` and require remediation |
+
+## Scenarios & References
+
+- Use the legal-compliance spec and the repository high-risk trigger list.
+- Treat PII, regulated data, third-party rights, AI content, and cross-border processing as review scenarios.
+
+## Quick Reference
+
+| Task | Decision |
+|---|---|
+| Classify risk | Identify trigger, evidence, jurisdiction, and affected parties |
+| Clear a change | APPROVE only when required evidence and sign-off are documented |
+| Escalate | Keep `stage:legal` until remediation or human review clears the risk |

@@ -33,7 +33,7 @@ structured OpenSPEC proposals that the rest of the fabric can act on.
 1. **Idea Intake** — Accept ideas via GitHub Issues (label: `idea`), the
    `/opsx:propose` command, or direct requests in chat.
 2. **Proposal Creation** — Produce a complete `proposal.md` following the
-   OpenSPEC format in `spec/openspec/changes/<slug>/`.
+  OpenSPEC format in `openspec/changes/<slug>/`.
 3. **Scenario Writing** — Write ≥ 3 Given/When/Then scenarios per feature,
    always including at least one unhappy path.
 4. **Scope Guardrails** — Explicitly list what is OUT of scope to prevent
@@ -51,7 +51,7 @@ structured OpenSPEC proposals that the rest of the fabric can act on.
 ## Behaviour Rules
 
 - NEVER create `design.md` or `tasks.md` — those are the Architect's responsibility.
-- ALWAYS use the template at `spec/openspec/templates/idea-to-spec.md`. If the
+- ALWAYS use the template at `openspec/templates/idea-to-spec.md`. If the
   template file cannot be found, notify the user of the missing template and
   halt proposal creation rather than improvising a format.
 - If an idea is ambiguous, ask ≤ 3 targeted clarifying questions before
@@ -60,7 +60,7 @@ structured OpenSPEC proposals that the rest of the fabric can act on.
 - If no response is received after clarifying questions are asked, create the
   sub-issue with the `needs-clarification` label and pause proposal creation.
 - Slug format: kebab-case, 3–50 chars, start with a letter, descriptive (not a ticket number).
-- Before creating a new proposal, check `spec/openspec/changes/` for an existing
+- Before creating a new proposal, check `openspec/changes/` for an existing
   folder with the same or similar slug; if found, notify the original requester
   (issue author or chat requester) via a comment on the GitHub issue and ask
   whether to update the existing proposal instead. If the requester declines to
@@ -109,7 +109,7 @@ You:  Creating proposal for 'add-csv-export'...
 
       [After answers]
 
-      Created: spec/openspec/changes/add-csv-export/proposal.md
+      Created: openspec/changes/add-csv-export/proposal.md
       ✓ Intent, Scope, Out of Scope
       ✓ 4 scenarios (3 happy, 1 unhappy)
       ✓ 5 acceptance criteria

@@ -1,6 +1,6 @@
 ---
 name: openspec-update-change
-description: Update an OpenSpec change by revising its existing planning artifacts and keeping them coherent with one another. Use when the user wants to revise a change's plan, fold new decisions into it, or reconcile its artifacts after an edit. Never edits code.
+description: Update an OpenSpec change by revising existing planning artifacts and keeping them coherent. Use when the user wants to revise a plan or reconcile decisions. Do not edit implementation code or create unapproved artifacts.
 allowed-tools: Bash(openspec:*)
 license: MIT
 compatibility: Requires openspec CLI.
@@ -87,5 +87,54 @@ After each invocation, show:
 - Use the artifact ids and paths reported by `openspec status`; never branch on hardcoded artifact names.
 - Edit only the concrete files in `existingOutputPaths`; never write to a glob `resolvedOutputPath`.
 - Do not advance the build frontier: no new artifacts, no new files under glob artifacts - that is `/opsx-continue`'s job.
+
+## When to Use & Triggers
+
+Use when existing OpenSpec planning artifacts need coherent revisions. Do not use to implement code or create missing artifacts.
+
+## Workflows & Steps
+
+1. Read status and all existing concrete artifacts.
+2. Propose and confirm revisions one artifact at a time.
+3. Reconcile dependencies and report deferred work.
+
+## Scripts & Tools
+
+- Use OpenSpec status and artifact-specific instruction commands.
+- Read every existing dependency artifact before revising it.
+
+## Rules & Guidelines
+
+- Revise only existing concrete artifacts and confirm each proposed edit before writing.
+- Preserve scope, acceptance criteria, and artifact dependencies.
+
+## Error Handling
+
+| Error | Cause | Fix |
+|---|---|---|
+| Contradictory artifact | Later decisions conflict with earlier scope | Reconcile all affected artifacts |
+| Missing artifact | Required file does not exist | Defer creation to the continuation workflow |
+| Scope change | Intent has materially changed | Start a distinct change instead |
+
+## Scenarios & References
+
+- Use proposal, design, specs, tasks, and repository instructions as the coherence set.
+
+## Quick Reference
+
+| Task | Action |
+|---|---|
+| Inspect | Get status and concrete artifact paths |
+| Revise | Confirm and update one artifact at a time |
+| Finish | Report deferred artifacts and next workflow command |
+
+## Collaboration & Iteration Loop
+
+- Present proposed revisions, obtain confirmation, and recheck all artifacts after each accepted change.
+
+## Output Specs, Success, Evaluation & Security
+
+- Output revised artifacts, rejected proposals, deferred work, and current status.
+- Success requires coherent planning artifacts without unauthorized implementation or secret disclosure.
 - Confirm every edit with the user before writing.
 - If the request changes the change's *intent* rather than refining it, first verify whether the optional `/opsx-new` workflow is available. If it is, recommend starting fresh with `/opsx-new` (the "Update vs. Start Fresh" heuristic). If it is unavailable, ask for a distinct unused change name and recommend `openspec new change "<new-change-name>"` instead.

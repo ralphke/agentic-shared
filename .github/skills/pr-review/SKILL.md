@@ -1,8 +1,9 @@
-# Skill: PR Code Review
+---
+name: pr-review
+description: Review pull requests for correctness, design alignment, quality, and actionable blocking guidance. Use for stage review decisions. Do not use for architecture planning, deployment execution, or security sign-off.
+---
 
-**Description**
-- **USE FOR:** design-aligned, actionable PR review decisions with explicit blocking guidance.
-- **DO NOT USE FOR:** architecture planning, deployment execution, or security sign-off replacement.
+# Skill: PR Code Review
 
 **Persona:** Code Reviewer Agent
 **Input:** PR diff, design.md, coding standards
@@ -124,3 +125,26 @@ Please address blocking issues and re-request review.
 - Use repository review history to update comment quality patterns and common blocking checks.
 - If issue/PR history is sparse, apply the full baseline checklist and document assumptions in summary comments.
 - Promote repeated review failure modes into skills and workflow gate automation.
+
+## Scripts & Tools
+
+- Inspect the PR diff, changed-file history, CI status, and linked OpenSpec artifacts.
+- Use repository checks for formatting, tests, coverage, and static analysis as evidence.
+
+## Scenarios & References
+
+- Use `design.md`, `proposal.md`, delta specs, and the repository coding standards.
+- Review both changed behavior and regression risk in adjacent call sites.
+
+## Quick Reference
+
+| Task | Output |
+|---|---|
+| Assess correctness | Blocking findings with file and line references |
+| Assess readiness | APPROVE or REQUEST_CHANGES with evidence |
+| Handoff | Advance only after required fixes and security approval are present |
+
+## Output Specs, Success, Evaluation & Security
+
+- Output a decision, blocking findings, suggestions, unanswered questions, and test evidence.
+- Success requires design alignment, actionable comments, and no unresolved correctness or security gate failures.
