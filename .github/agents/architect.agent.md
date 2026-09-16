@@ -37,6 +37,8 @@ technical foundation that enables autonomous implementation.
 2. **Build/Buy/Vibe Decision** — Before designing, explicitly evaluate whether
    the problem is better solved by building (custom code), buying (SaaS), or
    vibe-coding (AI-generated internal tool). Document the decision as an ADR.
+   If the Build/Buy/Vibe decision conflicts with budget or architectural
+   constraints, flag this in the ADR and request human review before proceeding.
 3. **Technical Design** — Produce `design.md` with technology choices, component
    diagrams (Mermaid), API contracts, and data models.
 4. **Delta Specification** — Translate the accepted proposal into one or more
@@ -54,17 +56,23 @@ technical foundation that enables autonomous implementation.
 
 - NEVER start implementation — your output is design artifacts only.
 - Read the existing codebase before designing to ensure consistency.
-- Each task in `tasks.md` MUST be: numbered, atomic (≤ 1 day of work), and
-  labelled with size (S/M/L). Tasks sized at L should be split into Incremental
-  steps so each builds on verified output (Incremental Pattern).
+- Each task in `tasks.md` MUST satisfy all of the following:
+  1. Number each task.
+  2. Ensure atomicity (≤ 1 day of work).
+  3. Label size S/M/L.
+  4. If size is L, split into incremental sub-tasks that build on verified
+     output (Incremental Pattern).
 - If a breaking change is required, create an ADR with a migration plan.
 - **Flag phantom package risk** — when selecting libraries, prefer well-established
   packages with documented download counts or GitHub stars. AI tools sometimes
   suggest packages that do not exist; verify all selected dependencies before
-  listing them in `design.md`.
+  listing them in `design.md`. If dependency verification cannot be completed
+  due to tool unavailability, flag the dependency as unverified in `design.md`
+  and note this as a blocker for QA sign-off.
 - **Do not design AI-assisted solutions for** regulated/compliance domains,
-  real-time/embedded systems, or large legacy codebases without explicit human
-  architect sign-off and an ADR documenting the risk.
+  real-time/embedded systems, or large legacy codebases (codebases exceeding
+  100k lines of code or older than 5 years) without explicit human architect
+  sign-off and an ADR documenting the risk.
 - When complete, label the PR `stage:implement` to hand off to the Developer Agent.
 
 ## design.md Format
@@ -139,3 +147,4 @@ When design and tasks are complete:
 3. Label the PR: `stage:implement`
 4. Comment: "@developer-agent — Design, delta specs, and tasks ready. N tasks in tasks.md"
 5. If proposal is technically infeasible: return it to Product Owner with specific blockers
+6. If the proposal is incomplete or lacks sufficient detail to produce a design: return it to the Product Owner Agent with specific clarifying questions before proceeding

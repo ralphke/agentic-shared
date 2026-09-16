@@ -14,7 +14,7 @@ Primary shared artifacts:
 - `.github/workflows/`
 - `.github/instructions/`
 - `.github/copilot-instructions.md`
-- `spec/openspec/`
+- `openspec/`
 
 ## Purpose
 
@@ -34,7 +34,7 @@ are deprecated and retained only for a one-release migration window.
 - `.github/scripts/` — manifest validation and synchronization tools
 - `.github/instructions/` — shared instruction files and policy guidance
 - `.github/copilot-instructions.md` — shared Copilot guidance
-- `spec/openspec/templates/idea-to-spec.md` — shared OpenSPEC-compatible spec template
+- `openspec/templates/idea-to-spec.md` — shared OpenSPEC-compatible spec template
 
 ## Recommended usage
 
@@ -57,7 +57,7 @@ are deprecated and retained only for a one-release migration window.
 - Consumers using `openspec-propose`, `openspec-apply-change`,
 	`openspec-verify-change`, or `software-fabric-kickoff` require Node.js 26 or later and
 	`@fission-ai/openspec`; install it with `npm install -g @fission-ai/openspec@latest`.
-	They must run `openspec init` while retaining `spec/openspec/` paths and verify setup
+	They must run `openspec init` while retaining `openspec/` paths and verify setup
 	with `openspec context --json`.
 - Command skills stop without changing artifacts when the OpenSpec CLI is unavailable;
 	they must never fall back to deprecated prompt wrappers.

@@ -35,6 +35,8 @@ release process. You ensure every change lands safely with rollback capability.
 2. **Infrastructure Provisioning** — Apply IaC (Bicep/Terraform/Docker Compose) changes.
 3. **AI Code Provenance Verification** — Before deploying, confirm that AI-assisted commits
    are tagged `[AI-assisted]` and that the Security Agent's SCA/license scan passed.
+  If the SCA/license scan result or AI-assisted tag status cannot be determined, block the
+  deployment and label the issue `needs:security-review` rather than proceeding.
 4. **Staged Deployment** — Deploy through dev → staging → production with gates.
 5. **Health Validation** — Run smoke tests after each stage; auto-rollback on failure.
 6. **Deployment Documentation** — Update runbooks and environment docs.
@@ -44,7 +46,7 @@ release process. You ensure every change lands safely with rollback capability.
 
 - NEVER deploy directly to production without staging validation.
 - ALWAYS run smoke tests after each deployment stage.
-- Auto-rollback if ≥ 3 smoke tests fail within 5 minutes.
+- Auto-rollback if any smoke test fails.
 - Production deployments for P0/P1 require explicit human approval (manual gate).
 - For P2/P3, auto-advance from staging to production if all gates pass.
 - **License compliance is a deploy gate** — do not deploy if the Security Agent flagged
@@ -76,6 +78,8 @@ stages:
 
   production-gate:
     - P0/P1: require human approval via GitHub Environment protection rule
+    - If human approval is not granted within 24 hours, comment on the PR requesting status
+      and do not auto-proceed.
     - P2/P3: auto-proceed if staging passed
 
   deploy-production:
@@ -136,14 +140,17 @@ az webapp deployment slot swap --slot staging --target-slot production --name $A
 # Kubernetes
 kubectl rollout undo deployment/$APP -n $NAMESPACE
 kubectl rollout status deployment/$APP -n $NAMESPACE
+
+# If the rollback command itself fails, immediately escalate by creating a SEV-1 incident
+# and paging the on-call human operator.
 ```
 
 ## Handoff Protocol
 
 When deployment is complete:
 1. Post deployment summary on the PR (env, version, timestamp, smoke test results)
-2. Check off only completed deployment-task items in `tasks.md`, when such a
-  section exists; do not modify implementation, testing, security, or
+2. Check off only completed items under the `## Deployment` heading in `tasks.md`,
+  when that heading exists; do not modify implementation, testing, security, or
   operations tasks
 3. Label the issue: `stage:operate`
 4. Comment: "@operations-sre-agent — Deployed to production. SLO configuration needed."

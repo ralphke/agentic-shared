@@ -16,6 +16,6 @@ protected_paths:
   - .github/skills/local/**
   - .github/prompts/local/**
   - .github/instructions/local/**
-  - spec/openspec/changes/**
+  - openspec/changes/**
   - .github/workflows/agentic-shared-sync.yml
   - .github/workflows/sdlc-orchestrator.yml

@@ -25,11 +25,15 @@ SKILLS = {
         "Correctness",
         "Coherence",
         "legal approval",
+        "openspec store list --json",
+        "--store <id>",
     },
     "software-fabric-kickoff": {
         "Stop after planning",
         "new explicit request",
         "Do not implement code during kickoff",
+        "openspec store list --json",
+        "--store <id>",
     },
 }
 
@@ -85,6 +89,16 @@ class OpenSpecCommandSkillTests(unittest.TestCase):
         self.assertIn("labels:\n  - idea\n  - stage:proposal", idea_template)
         self.assertIn("include issue #${context.issue.number}", orchestrator)
         self.assertIn("software-fabric-kickoff skill", orchestrator)
+
+    def test_orchestrator_uses_command_skills_for_stage_handoffs(self) -> None:
+        orchestrator = (ROOT / ".github" / "workflows" / "sdlc-orchestrator.yml").read_text(
+            encoding="utf-8"
+        )
+
+        self.assertIn("openspec-apply-change skill", orchestrator)
+        self.assertIn("openspec-verify-change skill", orchestrator)
+        self.assertNotIn("/opsx:apply", orchestrator)
+        self.assertNotIn("/opsx:verify", orchestrator)
 
 
 if __name__ == "__main__":

@@ -1,78 +1,167 @@
 ---
-agent: agent
-description: >
-  Verify a Software Fabric change — run security review and code review to
-  validate implementation against the spec and quality gates.
-tools: [execute/getTerminalOutput, execute/sendToTerminal, execute/runInTerminal, read, search, web, azure-mcp/search, 'openspec-filesystem/*', 'github/*', todo]
+description: "Verify implementation matches change artifacts before archiving"
 ---
 
-> **Deprecated:** This wrapper is retained for one compatibility release. Use the
-> `openspec-verify-change` skill for new workflows; it requires Node.js 26+ and the OpenSpec CLI.
+Verify that an implementation matches the change artifacts (specs, tasks, design).
 
-# `/opsx:verify` — Verify a Change
+**Store selection:** If the user names a store (a store is a standalone OpenSpec repo registered on this machine) or the work lives in one, run `openspec store list --json` to discover registered store ids, then pass `--store <id>` on the commands that read or write specs and changes (`new change`, `status`, `instructions`, `list`, `show`, `validate`, `archive`, `doctor`, `context`, `schemas`, `view`). Once selected, treat `--store <id>` as sticky for the rest of the workflow. Every unscoped example of those commands below is shorthand: before running it, append the flag. For example, run `openspec status --change "<name>" --json --store "<id>"`, not the unscoped form shown below. Other commands do not take the flag. Hints printed by commands already carry the flag; keep it on follow-ups. Without a store, commands act on the nearest local `openspec/` root.
 
-Run the verification pipeline: Security → Code Review → Gate Check.
+**Input**: Optionally specify a change name after `/opsx-verify` (e.g., `/opsx-verify add-auth`). If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
 
-## Stage 1: Security Review
+**Steps**
 
-Act as **Security Engineer Agent** (`.github/agents/security-engineer.agent.md`).
-Apply skill: `.github/skills/security-review.md`
+1. **Select the change**
 
-1. Run SAST tools for the project's languages:
+   If a name is provided, use it. Otherwise:
+   - Infer from conversation context if the user mentioned a change
+   - Auto-select if only one active change exists
+   - If ambiguous, run `openspec list --json` to get available changes and ask the user to select one
+
+   When prompting, show changes that have implementation tasks (tasks artifact exists).
+   Include the schema used for each change if available.
+   Mark changes with incomplete tasks as "(In Progress)".
+
+   Always announce: "Using change: <name>" and how to override (e.g., `/opsx-verify <other>`).
+
+2. **Check status to understand the schema**
    ```bash
-   # Python
-   python3 -m bandit -r src/ -ll 2>/dev/null || true
-   # .NET
-   # dotnet security-scan (if installed)
+   openspec status --change "<name>" --json
    ```
-2. Check for hardcoded secrets in changed files
-3. Review OWASP Top 10 checklist for changed code
-4. Produce security report:
-   - CRITICAL/HIGH findings → BLOCKED (list findings with fixes)
-   - MEDIUM findings → WARNING (list findings, do not block)
-   - Clean → PASSED
+   Parse the JSON to understand:
+   - `schemaName`: The workflow being used (e.g., "spec-driven")
+   - `planningHome`, `changeRoot`, `artifactPaths`, and `actionContext`: path and scope context
+   - Which artifacts exist for this change
 
-## Stage 2: Code Review
+3. **Get planning context and load artifacts**
 
-Act as **Code Reviewer Agent** (`.github/agents/code-reviewer.agent.md`).
-Apply skill: `.github/skills/pr-review.md`
+   ```bash
+   openspec instructions apply --change "<name>" --json
+   ```
 
-1. Read `design.md` and `proposal.md` for the change
-2. Review all changed files against the review checklist
-3. Produce review summary:
-   - BLOCKING issues → REQUEST_CHANGES (list with suggested fixes)
-   - SUGGESTIONS → informational
-   - Clean → APPROVE
+   This returns the change directory and `contextFiles` (artifact ID -> array of concrete file paths). Read all available artifacts from `contextFiles`.
 
-## Stage 3: Gate Check
+4. **Initialize verification report structure**
 
-Verify all quality gates from `spec/openspec/config.yaml`:
-- [ ] Tests passing (`python3 -m pytest` or `dotnet test`)
-- [ ] Coverage ≥ 80% (from QA stage)
-- [ ] Security scan: no CRITICAL/HIGH
-- [ ] Code review: no BLOCKING issues
-- [ ] All tasks in `tasks.md` checked off
-- [ ] All acceptance criteria in `proposal.md` checked off
+   Create a report structure with three dimensions:
+   - **Completeness**: Track tasks and spec coverage
+   - **Correctness**: Track requirement implementation and scenario coverage
+   - **Coherence**: Track design adherence and pattern consistency
 
-## Usage
+   Each dimension can have CRITICAL, WARNING, or SUGGESTION issues.
 
-```
-/opsx:verify add-csv-export
-/opsx:verify     ← verify the most recent in-flight change
-```
+5. **Verify Completeness**
 
-## Output
+   **Task Completion**:
+   - If `contextFiles.tasks` exists, read every file path in it
+   - Parse checkboxes: `- [ ]` (incomplete) vs `- [x]` (complete)
+   - Count complete vs total tasks
+   - If incomplete tasks exist:
+     - Add CRITICAL issue for each incomplete task
+     - Recommendation: "Complete task: <description>" or "Mark as done if already implemented"
 
-```
-Security Review: ✅ PASSED (0 critical, 0 high, 1 medium warning)
-Code Review:     ✅ APPROVED (2 suggestions, 0 blocking)
-Gate Check:
-  ✅ Tests: 42 passing
-  ✅ Coverage: 84%
-  ✅ Security: clean
-  ✅ Review: approved
-  ✅ Tasks: 8/8 complete
-  ✅ Acceptance Criteria: 5/5 checked
+   **Spec Coverage**:
+   - If delta specs exist in `contextFiles.specs`:
+     - Extract all requirements (marked with "### Requirement:")
+     - For each requirement:
+       - Search codebase for keywords related to the requirement
+       - Assess if implementation likely exists
+     - If requirements appear unimplemented:
+       - Add CRITICAL issue: "Requirement not found: <requirement name>"
+       - Recommendation: "Implement requirement X: <description>"
 
-Ready to archive: /opsx:archive add-csv-export
-```
+6. **Verify Correctness**
+
+   **Requirement Implementation Mapping**:
+   - For each requirement from delta specs:
+     - Search codebase for implementation evidence
+     - If found, note file paths and line ranges
+     - Assess if implementation matches requirement intent
+     - If divergence detected:
+       - Add WARNING: "Implementation may diverge from spec: <details>"
+       - Recommendation: "Review <file>:<lines> against requirement X"
+
+   **Scenario Coverage**:
+   - For each scenario in delta specs (marked with "#### Scenario:"):
+     - Check if conditions are handled in code
+     - Check if tests exist covering the scenario
+     - If scenario appears uncovered:
+       - Add WARNING: "Scenario not covered: <scenario name>"
+       - Recommendation: "Add test or implementation for scenario: <description>"
+
+7. **Verify Coherence**
+
+   **Design Adherence**:
+   - If `contextFiles.design` exists:
+     - Extract key decisions (look for sections like "Decision:", "Approach:", "Architecture:")
+     - Verify implementation follows those decisions
+     - If contradiction detected:
+       - Add WARNING: "Design decision not followed: <decision>"
+       - Recommendation: "Update implementation or revise design.md to match reality"
+   - If no design.md: Skip design adherence check, note "No design.md to verify against"
+
+   **Code Pattern Consistency**:
+   - Review new code for consistency with project patterns
+   - Check file naming, directory structure, coding style
+   - If significant deviations found:
+     - Add SUGGESTION: "Code pattern deviation: <details>"
+     - Recommendation: "Consider following project pattern: <example>"
+
+8. **Generate Verification Report**
+
+   **Summary Scorecard**:
+   ```markdown
+   ## Verification Report: <change-name>
+
+   ### Summary
+   | Dimension    | Status           |
+   |--------------|------------------|
+   | Completeness | X/Y tasks, N reqs|
+   | Correctness  | M/N reqs covered |
+   | Coherence    | Followed/Issues  |
+   ```
+
+   **Issues by Priority**:
+
+   1. **CRITICAL** (Must fix before archive):
+      - Incomplete tasks
+      - Missing requirement implementations
+      - Each with specific, actionable recommendation
+
+   2. **WARNING** (Should fix):
+      - Spec/design divergences
+      - Missing scenario coverage
+      - Each with specific recommendation
+
+   3. **SUGGESTION** (Nice to fix):
+      - Pattern inconsistencies
+      - Minor improvements
+      - Each with specific recommendation
+
+   **Final Assessment**:
+   - If CRITICAL issues: "X critical issue(s) found. Fix before archiving."
+   - If only warnings: "No critical issues. Y warning(s) to consider. Ready for archive (with noted improvements)."
+   - If all clear: "All checks passed. Ready for archive."
+
+**Verification Heuristics**
+
+- **Completeness**: Focus on objective checklist items (checkboxes, requirements list)
+- **Correctness**: Use keyword search, file path analysis, reasonable inference - don't require perfect certainty
+- **Coherence**: Look for glaring inconsistencies, don't nitpick style
+- **False Positives**: When uncertain, prefer SUGGESTION over WARNING, WARNING over CRITICAL
+- **Actionability**: Every issue must have a specific recommendation with file/line references where applicable
+
+**Graceful Degradation**
+
+- If only tasks.md exists: verify task completion only, skip spec/design checks
+- If tasks + specs exist: verify completeness and correctness, skip design
+- If full artifacts: verify all three dimensions
+- Always note which checks were skipped and why
+
+**Output Format**
+
+Use clear markdown with:
+- Table for summary scorecard
+- Grouped lists for issues (CRITICAL/WARNING/SUGGESTION)
+- Code references in format: `file.ts:123`
+- Specific, actionable recommendations
+- No vague suggestions like "consider reviewing"
