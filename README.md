@@ -4,7 +4,13 @@ Shared reusable agentic SDLC assets for Ralph's repositories.
 
 ## Purpose
 
-This repository is the **single source of truth** for the reusable agentic artifacts that were previously split across project repositories.
+This repository is the **single source of truth** for the reusable agentic artifacts that were previously split across project repositories. It is also a standalone OpenSpec root.
+
+OpenSpec is the underlying change-management mechanism for the shared command
+skills: it resolves specifications, in-flight changes, planning artifacts,
+validation, and archival through the OpenSpec CLI. A clone of this repository
+can be registered as a machine-local OpenSpec store when shared specifications
+need to be operated on explicitly.
 
 It currently centralizes:
 
@@ -22,21 +28,32 @@ It currently centralizes:
 - `.github/ISSUE_TEMPLATE/` - shared issue intake forms
 - `.github/agents/` - persona definitions used by the Software Fabric flow
 - `.github/skills/` - reusable task playbooks for those personas
-- `.github/prompts/` - deprecated Copilot prompt wrappers retained for one compatibility release
 - `.github/instructions/` - shared instruction files
 - `.github/copilot-instructions.md` - shared baseline Copilot guidance
 - `.github/scripts/` - manifest validation and consumer synchronization tools
-- `openspec/templates/spec-template.md` - shared OpenSPEC delta spec template
+- `openspec/` - standalone OpenSpec content: configuration, source specifications,
+  in-flight changes, and shared templates
 
 ## Consumption model
 
-Most of these assets are **repository content**, not reusable `workflow_call` modules. That means consumer repositories should **sync** compatible files from this repository instead of editing divergent local copies.
+Most of these assets are **repository content**, not reusable `workflow_call` modules.
+Consumer repositories should **sync** compatible shared files from this repository
+instead of editing divergent local copies. Asset synchronization and OpenSpec store
+selection are complementary mechanisms:
+
+- **Synchronization** distributes shared agents, skills, instructions, workflows,
+  issue templates, and optional specification content through a reviewed pull request.
+- **A consumer OpenSpec store** owns that consumer's product specifications and active
+  changes. Command skills use the nearest local `openspec/` root by default.
+- **The shared OpenSpec store** owns this repository's shared specifications and changes.
+  Consumer feature work must not be created in the shared store.
 
 Recommended pattern:
 
 1. Edit shared artifacts here.
 2. Sync them into consumer repositories through automation PRs.
-3. Keep product-specific code, infrastructure, runtime docs, and local specs in the consuming repo.
+3. Keep product-specific code, infrastructure, runtime docs, source specifications, and
+   active OpenSpec changes in the consuming repo.
 
 ## Consumer manifest
 
@@ -44,6 +61,12 @@ Consumer repositories should copy `.agentic-shared.example.yml` to
 `.agentic-shared.yml` and pin a tagged release. The manifest declares which
 asset groups are shared and whether each group is `managed`, `extended`, or
 `local`.
+
+The supplied example sets `assets.specs: local` and protects `openspec/changes/**`.
+This is the recommended consumer configuration: consumers keep their OpenSpec store
+local while receiving the shared command skills and SDLC policy assets. Set
+`assets.specs` to `managed` or `extended` only when deliberately adopting shared
+`openspec/` content and reviewing the resulting configuration and spec updates.
 
 Validate a manifest before opening a synchronization PR from the repository root:
 
@@ -69,30 +92,49 @@ path and must not edit synchronized files in place.
 
 ## OpenSpec command skills
 
-The shared OpenSpec entry points are skills, not prompt files. Consumers that use the
-command skills require Node.js 26 or later and the OpenSpec CLI:
+The shared OpenSpec entry points are skills. The command skills use the OpenSpec CLI as
+their source of truth for artifact paths, workflow state, and instructions.
+
+### Consumer-local store (recommended)
+
+Consumers that use the command skills require Node.js 26 or later and the OpenSpec CLI.
+Initialize or retain an `openspec/` root in the consumer repository:
 
 ```powershell
 npm install -g @fission-ai/openspec@latest
 openspec init
 openspec context --json
+openspec doctor
 ```
 
 Run `openspec init` in the consumer repository and retain its existing `openspec/`
 configuration. `openspec context --json` must resolve the repository's OpenSpec root
-before a command skill can create or modify artifacts.
+before a command skill can create or modify artifacts. The skills then use that nearest
+local root, so consumer proposals, delta specs, and changes remain consumer-owned.
 
-| Deprecated prompt | Replacement skill |
-| --- | --- |
-| `opsx-propose.prompt.md` | `openspec-propose` |
-| `opsx-apply.prompt.md` | `openspec-apply-change` |
-| `opsx-verify.prompt.md` | `openspec-verify-change` |
-| `sdlc-kickoff.prompt.md` | `software-fabric-kickoff` |
+### Shared store (explicit selection)
 
-Shared prompt wrappers remain available for the release that introduces their replacement
-skills. A subsequent, separately reviewed breaking release may remove only shared prompt
-wrappers after consumer adoption is confirmed. Consumer-owned `.github/prompts/local/`
-files remain outside this retirement path.
+OpenSpec stores are standalone OpenSpec repositories registered on a developer machine;
+they are not a replacement for the synchronization workflow. To inspect the shared store
+from a local clone, register it and select it explicitly:
+
+```powershell
+openspec store register <path-to-agentic-shared> --id agentic-shared --yes
+openspec store list --json
+openspec context --json --store agentic-shared
+```
+
+After selecting a store, pass `--store agentic-shared` to subsequent OpenSpec commands
+that read or modify specs and changes, for example:
+
+```powershell
+openspec list --json --store agentic-shared
+openspec validate --all --json --store agentic-shared
+```
+
+Use the shared store to inspect or maintain shared SDLC content in this repository. Use
+a consumer-local store for consumer product work; do not create, apply, or archive
+consumer changes in the shared store.
 
 ## Current consumers
 

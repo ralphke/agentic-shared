@@ -1,108 +1,175 @@
 ---
 name: openspec-verify-change
-description: Verify an OpenSpec change is complete, correctly implemented, and ready for archive. Use before archive when the user requests validation. Do not implement incomplete tasks or bypass mandatory gates.
+description: Verify implementation matches change artifacts. Use when the user wants to validate that implementation is complete, correct, and coherent before archiving.
 allowed-tools: Bash(openspec:*)
 license: MIT
-compatibility: Requires Node.js 26 or later and the OpenSpec CLI.
+compatibility: Requires openspec CLI.
 metadata:
-  author: agentic-shared
-  upstream: Fission-AI/OpenSpec
+  author: openspec
   version: "1.0"
+  generatedBy: "1.13.0"
 ---
 
-# OpenSpec Verify Change
+Verify that an implementation matches the change artifacts (specs, tasks, design).
 
-**Store selection:** If the user names a store (a store is a standalone OpenSpec repo
-registered on this machine) or the work lives in one, run `openspec store list --json`
-to discover registered store ids, then pass `--store <id>` on every OpenSpec command
-that reads or writes specs and changes (`status`, `instructions`, `list`, `show`,
-`validate`, `archive`, `doctor`, `context`, `schemas`, `view`). Once selected, treat
-`--store <id>` as sticky for the rest of the workflow. Without a store, commands act
-on the nearest local `openspec/` root.
+**Store selection:** If the user names a store (a store is a standalone OpenSpec repo registered on this machine) or the work lives in one, run `openspec store list --json` to discover registered store ids, then pass `--store <id>` on the commands that read or write specs and changes (`new change`, `status`, `instructions`, `list`, `show`, `validate`, `archive`, `doctor`, `context`, `schemas`, `view`). Once selected, treat `--store <id>` as sticky for the rest of the workflow. Every unscoped example of those commands below is shorthand: before running it, append the flag. For example, run `openspec status --change "<name>" --json --store "<id>"`, not the unscoped form shown below. Other commands do not take the flag. Hints printed by commands already carry the flag; keep it on follow-ups. Without a store, commands act on the nearest local `openspec/` root.
 
-## Prerequisites
+**Input**: Optionally specify a change name. If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
 
-Run `openspec --version` and `openspec context --json` before inspection. If either
-fails, stop with no artifact changes and provide the standard Node.js 26+ installation
-and initialization commands. Never fall back to legacy prompts.
+**Steps**
 
-## Workflow
+1. **Select the change**
 
-1. Select the named or unambiguous active change; otherwise run `openspec list --json`
-   and ask the user to choose.
-2. Run `openspec status --change "<name>" --json` and
-   `openspec instructions apply --change "<name>" --json`.
-3. Read all available CLI-provided context files.
-4. Report completeness: completed tasks and implementation evidence for every delta
-   requirement.
-5. Report correctness: implementation and test coverage for every spec scenario.
-6. Report coherence: adherence to design decisions and established project patterns.
-7. Enforce Software Fabric gates: tests passing, 80% new-code coverage, no HIGH or
-   CRITICAL security findings, required legal approval for legal-risk changes, code-review
-   approval, and complete acceptance criteria.
-8. Run `openspec validate --change "<name>"` when the installed CLI supports it. Report
-   unsupported validation as a warning, not a successful gate.
+   If a name is provided, use it. Otherwise:
+   - Infer from conversation context if the user mentioned a change
+   - Auto-select if only one active change exists
+   - If ambiguous, run `openspec list --json` to get available changes and ask the user to select one
 
-## Severity
+   When prompting, show changes that have implementation tasks (tasks artifact exists).
+   Include the schema used for each change if available.
+   Mark changes with incomplete tasks as "(In Progress)".
 
-- **CRITICAL:** incomplete task, unimplemented requirement, failed mandatory gate, or
-  missing required legal approval. Block archive.
-- **WARNING:** missing scenario coverage or likely design divergence. Remediate before
-  archive unless explicitly accepted by the responsible owner.
-- **SUGGESTION:** non-blocking pattern improvement.
+   Always announce: "Using change: <name>" and how to override (e.g., `/opsx-verify <other>`).
 
-## Output
+2. **Check status to understand the schema**
+   ```bash
+   openspec status --change "<name>" --json
+   ```
+   Parse the JSON to understand:
+   - `schemaName`: The workflow being used (e.g., "spec-driven")
+   - `planningHome`, `changeRoot`, `artifactPaths`, and `actionContext`: path and scope context
+   - Which artifacts exist for this change
 
-Provide a completeness, correctness, and coherence scorecard; list actionable findings
-by severity; name skipped checks and why; then state whether the change is ready for
-archive.
+3. **Get planning context and load artifacts**
 
-## When to Use & Triggers
+   ```bash
+   openspec instructions apply --change "<name>" --json
+   ```
 
-Use after implementation when pre-archive validation is requested. Do not implement incomplete work.
+   This returns the change directory and `contextFiles` (artifact ID -> array of concrete file paths). Read all available artifacts from `contextFiles`.
 
-## Workflows & Steps
+4. **Initialize verification report structure**
 
-1. Inspect tasks, artifacts, implementation, and scenario coverage.
-2. Run available quality gates and classify findings.
-3. Report archive readiness with evidence.
+   Create a report structure with three dimensions:
+   - **Completeness**: Track tasks and spec coverage
+   - **Correctness**: Track requirement implementation and scenario coverage
+   - **Coherence**: Track design adherence and pattern consistency
 
-## Scripts & Tools
+   Each dimension can have CRITICAL, WARNING, or SUGGESTION issues.
 
-- Run OpenSpec status, validation, tests, coverage, security, CI, and review checks as available.
-- Inspect implementation against every scenario and task.
+5. **Verify Completeness**
 
-## Rules & Guidelines
+   **Task Completion**:
+   - If `contextFiles.tasks` exists, read every file path in it
+   - Parse checkboxes: `- [ ]` (incomplete) vs `- [x]` (complete)
+   - Count complete vs total tasks
+   - If incomplete tasks exist:
+     - Add CRITICAL issue for each incomplete task
+     - Recommendation: "Complete task: <description>" or "Mark as done if already implemented"
 
-- Block archive on incomplete tasks, failed mandatory gates, missing legal approval, or coverage below 80%.
-- Distinguish blocking findings from warnings and suggestions.
+   **Spec Coverage**:
+   - If delta specs exist in `contextFiles.specs`:
+     - Extract all requirements (marked with "### Requirement:")
+     - For each requirement:
+       - Search codebase for keywords related to the requirement
+       - Assess if implementation likely exists
+     - If requirements appear unimplemented:
+       - Add CRITICAL issue: "Requirement not found: <requirement name>"
+       - Recommendation: "Implement requirement X: <description>"
 
-## Error Handling
+6. **Verify Correctness**
 
-| Error | Cause | Fix |
-|---|---|---|
-| Missing evidence | A required check was not run | Mark it skipped and report it as blocking |
-| Scenario mismatch | Implementation diverges from the spec | Return to implementation and repair it |
-| Gate failure | A required quality gate failed | Keep the change out of archive until resolved |
+   **Requirement Implementation Mapping**:
+   - For each requirement from delta specs:
+     - Search codebase for implementation evidence
+     - If found, note file paths and line ranges
+     - Assess if implementation matches requirement intent
+     - If divergence detected:
+       - Add WARNING: "Implementation may diverge from spec: <details>"
+       - Recommendation: "Review <file>:<lines> against requirement X"
 
-## Scenarios & References
+   **Scenario Coverage**:
+   - For each scenario in delta specs (marked with "#### Scenario:"):
+     - Check if conditions are handled in code
+     - Check if tests exist covering the scenario
+     - If scenario appears uncovered:
+       - Add WARNING: "Scenario not covered: <scenario name>"
+       - Recommendation: "Add test or implementation for scenario: <description>"
 
-- Use proposal, design, delta specs, tasks, test results, security results, and CI status.
-- Confirm removed requirements are no longer referenced.
+7. **Verify Coherence**
 
-## Quick Reference
+   **Design Adherence**:
+   - If `contextFiles.design` exists:
+     - Extract key decisions (look for sections like "Decision:", "Approach:", "Architecture:")
+     - Verify implementation follows those decisions
+     - If contradiction detected:
+       - Add WARNING: "Design decision not followed: <decision>"
+       - Recommendation: "Update implementation or revise design.md to match reality"
+   - If no design.md: Skip design adherence check, note "No design.md to verify against"
 
-| Task | Result |
-|---|---|
-| Check completeness | All tasks and scenarios are covered |
-| Check gates | Tests, coverage, security, review, CI, and legal conditions pass |
-| Decide | Ready for archive or actionable findings |
+   **Code Pattern Consistency**:
+   - Review new code for consistency with project patterns
+   - Check file naming, directory structure, coding style
+   - If significant deviations found:
+     - Add SUGGESTION: "Code pattern deviation: <details>"
+     - Recommendation: "Consider following project pattern: <example>"
 
-## Collaboration & Iteration Loop
+8. **Generate Verification Report**
 
-- Return findings to the responsible persona, then rerun verification after remediation.
+   **Summary Scorecard**:
+   ```markdown
+   ## Verification Report: <change-name>
 
-## Output Specs, Success, Evaluation & Security
+   ### Summary
+   | Dimension    | Status           |
+   |--------------|------------------|
+   | Completeness | X/Y tasks, N reqs|
+   | Correctness  | M/N reqs covered |
+   | Coherence    | Followed/Issues  |
+   ```
 
-- Output scorecard, severity-ordered findings, skipped checks, and archive readiness.
-- Success requires reproducible evidence and no unresolved security or legal exposure.
+   **Issues by Priority**:
+
+   1. **CRITICAL** (Must fix before archive):
+      - Incomplete tasks
+      - Missing requirement implementations
+      - Each with specific, actionable recommendation
+
+   2. **WARNING** (Should fix):
+      - Spec/design divergences
+      - Missing scenario coverage
+      - Each with specific recommendation
+
+   3. **SUGGESTION** (Nice to fix):
+      - Pattern inconsistencies
+      - Minor improvements
+      - Each with specific recommendation
+
+   **Final Assessment**:
+   - If CRITICAL issues: "X critical issue(s) found. Fix before archiving."
+   - If only warnings: "No critical issues. Y warning(s) to consider. Ready for archive (with noted improvements)."
+   - If all clear: "All checks passed. Ready for archive."
+
+**Verification Heuristics**
+
+- **Completeness**: Focus on objective checklist items (checkboxes, requirements list)
+- **Correctness**: Use keyword search, file path analysis, reasonable inference - don't require perfect certainty
+- **Coherence**: Look for glaring inconsistencies, don't nitpick style
+- **False Positives**: When uncertain, prefer SUGGESTION over WARNING, WARNING over CRITICAL
+- **Actionability**: Every issue must have a specific recommendation with file/line references where applicable
+
+**Graceful Degradation**
+
+- If only tasks.md exists: verify task completion only, skip spec/design checks
+- If tasks + specs exist: verify completeness and correctness, skip design
+- If full artifacts: verify all three dimensions
+- Always note which checks were skipped and why
+
+**Output Format**
+
+Use clear markdown with:
+- Table for summary scorecard
+- Grouped lists for issues (CRITICAL/WARNING/SUGGESTION)
+- Code references in format: `file.ts:123`
+- Specific, actionable recommendations
+- No vague suggestions like "consider reviewing"
