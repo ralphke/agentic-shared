@@ -12,9 +12,16 @@ Defines the responsibilities, outputs, and handoff contracts for Software Fabric
 
 ## Overview
 
-The Software Fabric consists of **8 specialized agent personas**. Each persona
-owns a distinct SDLC stage and produces artifacts consumed by the next persona.
-Personas are defined in `.github/agents/` and referenced by Copilot instructions.
+The Software Fabric consists of **nine SDLC-stage personas** and one supporting
+OpenSpec workflow agent. The stage personas own distinct stages and produce
+artifacts consumed by the next persona. The OpenSpec agent manages change
+artifacts and workflows but does not own a PR stage. All agent definitions live
+in `.github/agents/` and are referenced by Copilot instructions.
+
+The stage flow is Product Owner, Systems Architect, Developer, QA Engineer,
+Security Engineer, Legal & Compliance (when required), Code Reviewer,
+DevOps/SRE, and Operations SRE. Legal & Compliance is an escalation gate for
+high-risk work rather than a default stage for every change.
 
 ---
 
@@ -27,6 +34,7 @@ The following requirements define the persona responsibilities and handoff contr
 The Product Owner (PO) Agent is the entry point for all new work.
 
 **Responsibilities:**
+
 - Accept raw ideas via GitHub issues (label: `idea`) or `/opsx:propose`
 - Produce a complete OpenSPEC `proposal.md` covering intent, scope, user value
 - Define ≥ 3 Given/When/Then scenarios per feature, including unhappy paths
@@ -40,6 +48,7 @@ The Product Owner (PO) Agent is the entry point for all new work.
 **Agent file:** `.github/agents/product-owner.agent.md`
 
 #### Scenario: Idea to structured proposal
+
 - GIVEN a raw idea: "Users should be able to export their data as CSV"
 - WHEN the Product Owner Agent processes it
 - THEN `proposal.md` contains: intent paragraph, scope list, ≥3 scenarios, acceptance criteria
@@ -47,6 +56,7 @@ The Product Owner (PO) Agent is the entry point for all new work.
 - AND out-of-scope items are explicitly listed (e.g., PDF export, scheduling)
 
 #### Scenario: Proposal requires minimum scenario count
+
 - GIVEN a proposal with only 2 scenarios
 - WHEN the Architect Agent reviews it
 - THEN a `needs-more-detail` comment is added requesting more scenarios
@@ -59,6 +69,7 @@ The Product Owner (PO) Agent is the entry point for all new work.
 The Architect Agent translates accepted proposals into technical designs.
 
 **Responsibilities:**
+
 - Review proposals for technical feasibility and alignment with existing system
 - Produce `design.md` with selected technology, component diagrams (Mermaid), ADRs
 - Identify all integration points, API contracts, and data model changes
@@ -73,6 +84,7 @@ The Architect Agent translates accepted proposals into technical designs.
 **Agent file:** `.github/agents/architect.agent.md`
 
 #### Scenario: Proposal to technical design
+
 - GIVEN a complete `proposal.md` with ≥3 scenarios
 - WHEN the Architect Agent reviews it
 - THEN `design.md` includes: chosen tech stack with rationale, Mermaid component diagram,
@@ -80,6 +92,7 @@ The Architect Agent translates accepted proposals into technical designs.
 - AND `tasks.md` contains numbered, atomic tasks with size estimates (S/M/L)
 
 #### Scenario: Design identifies breaking change
+
 - GIVEN a design that requires a breaking API change
 - WHEN the Architect Agent documents it
 - THEN an ADR is created noting the breaking change, migration path, and deprecation plan
@@ -92,6 +105,7 @@ The Architect Agent translates accepted proposals into technical designs.
 The Developer Agent implements tasks from the approved design.
 
 **Responsibilities:**
+
 - Implement ONLY tasks listed in `tasks.md` — no scope creep
 - Follow project coding standards and conventions
 - Write implementation code with documentation for non-obvious logic
@@ -105,6 +119,7 @@ The Developer Agent implements tasks from the approved design.
 **Agent file:** `.github/agents/developer.agent.md`
 
 #### Scenario: Tasks to code without scope creep
+
 - GIVEN `tasks.md` with 5 unchecked implementation tasks
 - WHEN the Developer Agent implements them
 - THEN exactly the 5 tasks are implemented and checked off
@@ -112,6 +127,7 @@ The Developer Agent implements tasks from the approved design.
 - AND the PR description includes `Implements: openspec/changes/<slug>/`
 
 #### Scenario: Developer responds to review feedback
+
 - GIVEN a code review with 3 requested changes
 - WHEN the Developer Agent addresses them
 - THEN each requested change is addressed in a follow-up commit
@@ -124,6 +140,7 @@ The Developer Agent implements tasks from the approved design.
 The QA Engineer Agent creates and validates automated tests from spec scenarios.
 
 **Responsibilities:**
+
 - Generate test cases directly from Given/When/Then scenarios in `spec.md`
 - Write unit tests, integration tests, and e2e tests as appropriate
 - Achieve ≥ 80% code coverage on all new code
@@ -138,6 +155,7 @@ The QA Engineer Agent creates and validates automated tests from spec scenarios.
 **Agent file:** `.github/agents/qa-engineer.agent.md`
 
 #### Scenario: Spec scenarios become test cases
+
 - GIVEN `spec.md` with N Given/When/Then scenarios
 - WHEN the QA Agent generates test suites
 - THEN ≥ N test cases exist (at least one per scenario)
@@ -145,6 +163,7 @@ The QA Engineer Agent creates and validates automated tests from spec scenarios.
 - AND coverage report shows ≥ 80% for new code paths
 
 #### Scenario: Missing test coverage triggers rework
+
 - GIVEN a PR where new code coverage is below 80%
 - WHEN the QA Agent's coverage check runs
 - THEN the PR is labelled `coverage-insufficient`
@@ -157,6 +176,7 @@ The QA Engineer Agent creates and validates automated tests from spec scenarios.
 The Security Engineer Agent ensures every change is free of exploitable vulnerabilities.
 
 **Responsibilities:**
+
 - Run SAST (static analysis) on all new and changed code
 - Audit all dependency changes for CVEs using SBOM/dependency scan
 - Review authentication and authorization logic against OWASP Top 10
@@ -170,12 +190,14 @@ The Security Engineer Agent ensures every change is free of exploitable vulnerab
 **Agent file:** `.github/agents/security-engineer.agent.md`
 
 #### Scenario: Clean security scan allows progression
+
 - GIVEN a PR with no HIGH or CRITICAL vulnerabilities
 - WHEN the Security Agent completes the scan
 - THEN the PR is labelled `security:passed`
 - AND a summary comment lists scan results (even if all LOW/INFO)
 
 #### Scenario: HIGH vulnerability blocks merge
+
 - GIVEN a PR introducing a dependency with a known HIGH CVE
 - WHEN the Security Agent scans dependencies
 - THEN the PR is labelled `security:blocked`
@@ -184,11 +206,48 @@ The Security Engineer Agent ensures every change is free of exploitable vulnerab
 
 ---
 
+### Requirement: Legal & Compliance Agent
+
+The Legal & Compliance Agent MUST act as a specialized risk gate for high-risk
+changes involving regulated data, commercial distribution, third-party
+components, or intellectual-property and use-rights concerns.
+
+**Responsibilities:**
+
+- Assess the target audience, geography, deployment model, and applicable legal obligations
+- Review component, API, model, dataset, and asset use rights and license compatibility
+- Identify privacy, regulated-data, copyright, patent, trademark, trade-secret, and AI-generated-content risks
+- Rate overall exposure as LOW, MEDIUM, or HIGH and recommend approval, conditions, block, or human legal review
+- Define minimum remediation and escalate ambiguous or high-risk cases to human legal counsel
+
+**Input:** Proposal, PR diff, dependency and asset inventory, deployment model, target audience and geography
+**Output:** Legal risk assessment, remediation or escalation issues, PR/issue labels and comments
+**Triggers:** PR labelled `stage:legal`; issue labelled `legal-review`
+**Handoff:** Labels an approved PR `legal:approved` and `stage:review`; blocks or retains legal review when risk is unresolved
+**Agent file:** `.github/agents/legal-compliance.agent.md`
+
+#### Scenario: High-risk change requires legal sign-off
+
+- GIVEN a change that handles personal data or introduces unclear third-party rights
+- WHEN the Legal & Compliance Agent completes its assessment
+- THEN it requires human legal review before release
+- AND the work does not progress to review, deployment, or operations until the risk is closed or formally escalated
+
+#### Scenario: Conditional legal approval identifies remediation
+
+- GIVEN a change with manageable, non-blocking attribution obligations
+- WHEN the Legal & Compliance Agent assesses the change
+- THEN it records a CONDITIONAL decision with explicit remediation
+- AND the work remains in legal review until the conditions are satisfied
+
+---
+
 ### Requirement: Code Reviewer Agent
 
 The Code Reviewer Agent validates code quality, design alignment, and best practices.
 
 **Responsibilities:**
+
 - Review code against `design.md` requirements and specifications
 - Check naming conventions, complexity (cyclomatic), and duplication
 - Verify error handling, logging patterns, and observability hooks
@@ -202,12 +261,14 @@ The Code Reviewer Agent validates code quality, design alignment, and best pract
 **Agent file:** `.github/agents/code-reviewer.agent.md`
 
 #### Scenario: Review produces actionable comments
+
 - GIVEN a PR with unclear variable names and missing error handling
 - WHEN the Code Reviewer Agent reviews it
 - THEN each comment references a specific line with a suggested fix
 - AND each comment explains WHY it matters (readability, reliability, etc.)
 
 #### Scenario: Review approval enables deployment
+
 - GIVEN all inline comments are addressed by the Developer Agent
 - WHEN the Code Reviewer Agent re-reviews
 - THEN the PR is approved with a summary of what was checked
@@ -219,6 +280,7 @@ The Code Reviewer Agent validates code quality, design alignment, and best pract
 The DevOps/SRE Agent automates infrastructure provisioning and staged deployment.
 
 **Responsibilities:**
+
 - Validate and update CI/CD pipeline configuration for the change
 - Provision or update infrastructure using IaC (Bicep, Terraform, or Docker Compose)
 - Execute staged deployments: dev → staging → production
@@ -232,6 +294,7 @@ The DevOps/SRE Agent automates infrastructure provisioning and staged deployment
 **Agent file:** `.github/agents/devops-sre.agent.md`
 
 #### Scenario: Successful staged deployment
+
 - GIVEN an approved PR
 - WHEN the DevOps Agent deploys to staging
 - THEN smoke tests run automatically against the staging environment
@@ -239,6 +302,7 @@ The DevOps/SRE Agent automates infrastructure provisioning and staged deployment
 - AND a deployment summary comment is added to the PR
 
 #### Scenario: Failed staging triggers rollback
+
 - GIVEN a staging deployment where 3+ smoke tests fail
 - WHEN the DevOps Agent detects failures within 5 minutes
 - THEN the previous staging version is automatically restored
@@ -251,6 +315,7 @@ The DevOps/SRE Agent automates infrastructure provisioning and staged deployment
 The Operations SRE Agent ensures the deployed application is observable and resilient.
 
 **Responsibilities:**
+
 - Configure monitoring dashboards for new features and endpoints
 - Define and register SLOs (availability, latency, error rate) for new surfaces
 - Create alert policies for SLO violation thresholds
@@ -264,6 +329,7 @@ The Operations SRE Agent ensures the deployed application is observable and resi
 **Agent file:** `.github/agents/operations-sre.agent.md`
 
 #### Scenario: New endpoint gets SLO and alerting
+
 - GIVEN a new API endpoint deployed to production
 - WHEN the Operations Agent configures observability
 - THEN a dashboard panel is created for the endpoint
@@ -272,12 +338,44 @@ The Operations SRE Agent ensures the deployed application is observable and resi
 
 ---
 
+### Requirement: OpenSpec Agent
+
+The OpenSpec Agent MUST support the Software Fabric by managing OpenSpec change
+artifacts and workflows. It is not a stage persona and does not own a PR label
+or SDLC handoff.
+
+**Responsibilities:**
+
+- Inspect OpenSpec changes, specifications, templates, and artifact status
+- Guide proposal, design, task, validation, synchronization, and archive workflows through the OpenSpec CLI
+- Validate change artifacts before completion and archive only after required gates are met
+- Prefer structured CLI output when programmatic interpretation is needed
+
+**Input:** OpenSpec change slug, specifications, workflow requests, and CLI configuration
+**Output:** OpenSpec workflow status, validation results, and managed change artifacts
+**Triggers:** Direct requests to manage OpenSpec changes, specifications, or workflows
+**Handoff:** None; the agent supports the stage persona currently responsible for the work
+**Agent file:** `.github/agents/openspec.agent.md`
+
+#### Scenario: Change validation reports artifact state
+
+- GIVEN an in-flight OpenSpec change
+- WHEN the OpenSpec Agent validates the change
+- THEN it reports validation results and any incomplete required artifacts
+- AND it does not archive the change until the required quality gates are satisfied
+
+---
+
 ## Collaboration Contract
 
-All personas MUST follow this contract when handing off work:
+The nine stage personas MUST follow this contract when handing off work:
 
 1. **Update `tasks.md`** — check off completed items before handoff
 2. **Label the PR** — set the appropriate `stage:*` label
 3. **Comment on the PR** — provide a handoff summary with findings and blockers
 4. **Create sub-issues for blockers** — link to the main PR
 5. **Never skip a stage** — if a stage is not applicable, document why in a comment
+
+The OpenSpec Agent supports these stages without owning a handoff. The Legal &
+Compliance Agent is invoked only for high-risk work; when triggered, it cannot
+be skipped until its assessment is resolved or escalated to human legal counsel.

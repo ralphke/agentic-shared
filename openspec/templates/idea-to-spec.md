@@ -1,4 +1,4 @@
-# 💡 Idea → OpenSPEC Change Template
+# Proposal: [Title]
 
 Use this template to capture a new idea and convert it into a Software Fabric
 OpenSPEC change. Copy to `openspec/changes/<your-slug>/proposal.md` and fill
@@ -13,8 +13,6 @@ Product Owner Agent will guide you through each section.
 <!-- created: YYYY-MM-DD -->
 <!-- status: draft | accepted | in-progress | complete -->
 ---
-
-# Proposal: <Title>
 
 > **Change slug:** `<kebab-case-slug>`  
 > **Priority:** P2  
@@ -71,7 +69,7 @@ integration strategy. Reference existing patterns in the codebase where applicab
 > *Write ≥ 3 Given/When/Then scenarios. Include at least 1 unhappy path.*
 > *These become test cases in the QA stage.*
 
-```
+```text
 Scenario: [Happy path — main flow]
   Given  [preconditions / system state]
   When   [user action or system event]
@@ -138,6 +136,7 @@ Scenario: [Boundary / edge case]
 > delta spec files in `openspec/changes/<slug>/specs/<domain>/spec.md`.*
 
 Domains to update:
+
 - `openspec/changes/<slug>/specs/idea-capture/spec.md` — [what changes]
 - `openspec/changes/<slug>/specs/<other-domain>/spec.md` — [what changes]
 

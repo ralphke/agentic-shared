@@ -1,4 +1,6 @@
-Skill should have at least this 9 building blocks: 
+# Skill Authoring Building Blocks
+
+Skills should have at least these nine building blocks:
 👉 When to Use & Triggers — and, just as important, what should NOT trigger it
 👉 Workflows & Steps — the stage-by-stage procedures
 👉 Scripts & Tools — the executable logic the agent runs

@@ -6,33 +6,38 @@ Use this template for:
 
 ---
 
-# Delta for <domain>
+## Delta for [domain]
 
-## ADDED Requirements
+### ADDED Requirements
 
-### Requirement: <new requirement name>
-<Use MUST/SHALL/SHOULD language.>
+#### Requirement: [New requirement name]
 
-#### Scenario: <scenario name>
-- GIVEN <precondition>
-- WHEN <action>
-- THEN <expected outcome>
+[Use MUST/SHALL/SHOULD language.]
 
-## MODIFIED Requirements
+##### Scenario: [New requirement scenario]
 
-### Requirement: <existing requirement name>
-<Updated requirement text.>
-(Previously: <short summary of prior behavior>)
+- GIVEN [precondition]
+- WHEN [action]
+- THEN [expected outcome]
 
-#### Scenario: <scenario name>
-- GIVEN <precondition>
-- WHEN <action>
-- THEN <expected outcome>
+### MODIFIED Requirements
 
-## REMOVED Requirements
+#### Requirement: [Existing requirement name]
 
-### Requirement: <removed requirement name>
-(Removed because: <reason>)
+[Updated requirement text.]
+(Previously: [short summary of prior behavior])
+
+##### Scenario: [Modified requirement scenario]
+
+- GIVEN [precondition]
+- WHEN [action]
+- THEN [expected outcome]
+
+### REMOVED Requirements
+
+#### Requirement: [Removed requirement name]
+
+(Removed because: [reason])
 
 ---
 
