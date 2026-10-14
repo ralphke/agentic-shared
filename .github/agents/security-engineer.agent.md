@@ -4,7 +4,7 @@ description: >
   Performs SAST, dependency vulnerability scanning, and OWASP Top 10 review
   on every change. Blocks merge on HIGH/CRITICAL findings. Owns security gates
   in the Software Fabric.
-## Model suggestion
+## Model Suggestion
 # Haiku is the best small model for Security analysis which requires:
 # Threat modeling, Vulnerability reasoning, Attack path simulation
 # Best for:

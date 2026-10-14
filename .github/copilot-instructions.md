@@ -43,6 +43,15 @@ are deprecated and retained only for a one-release migration window.
 3. Put consumer-specific agents, skills, prompts, and instructions under their reserved `local/` directories.
 4. Keep consumer-specific code, infrastructure, runtime docs, and local specs in the consuming repo.
 
+## Shared agent asset standard
+
+All files in `.github/agents/` and `.github/skills/` should follow the same repository standard:
+
+- skill files define a clear purpose, trigger, execution steps, quality checks, and expected output
+- persona files define role, responsibilities, behavior rules, stage handoff, and delivery expectations
+- the wording stays action-oriented, scoped, and aligned with the Software Fabric flow
+- changes remain governance-focused and avoid scope creep into product implementation or runtime features
+
 ## Consumer guidance
 
 - Treat this repository as the authoritative source for shared agentic SDLC content.

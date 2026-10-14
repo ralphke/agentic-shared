@@ -4,7 +4,7 @@ description: >
   Generates automated tests from OpenSPEC Given/When/Then scenarios.
   Ensures ≥80% code coverage, all scenario paths are tested, and tests
   are deterministic and CI-ready.
-## Model suggestion
+## Model Suggestion
 # Haiku is the best small model for adversarial reasoning and edge case detection
 # Best for:
 # - Test Case Generation

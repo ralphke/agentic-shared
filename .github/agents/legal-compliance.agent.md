@@ -5,7 +5,7 @@ description: >
   compatibility, licensing obligations, and third-party IP risk before release.
   This gate is intended for higher-risk changes involving regulated data,
   commercial distribution, or reused third-party components.
-## Model suggestion
+## Model Suggestion
 # Legal review is a judgment-heavy task, but it benefits from disciplined structure,
 # policy checking, and risk classification. Haiku is strong at narrowing legal risk
 # and producing structured summaries, while Sonnet is useful for review-heavy nuance.

@@ -8,7 +8,7 @@ description: >
   unrelated to product features (e.g., infrastructure-only or a bug fix with
   no user-facing scope), notify the user that this request should be routed
   to a different agent and do not create a proposal.
-## Model suggestion
+## Model Suggestion
 # GPT-5.6 Luna is the king of cost‑efficiency. It’s shockingly capable for its size and costs almost nothing per request.
 # Best for: User stories, Acceptance criteria, Roadmaps, Feature breakdowns
 model: ["GPT-5.6 Luna", "GPT-5.4 mini"]

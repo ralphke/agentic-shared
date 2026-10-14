@@ -4,7 +4,7 @@ description: >
   Implements tasks from approved designs. Writes production-quality code,
   opens PRs, and responds to code review feedback. Implements approved work
   without scope creep.
-## Model suggestion
+## Model Suggestion
 # Codex is tuned for code. It’s significantly cheaper than Terra/Sonnet and produces high‑precision code changes with minimal hallucination.
 # It is well-suited for implementing new code, refactoring, debugging, complex transformations and API usage.
 model: ["GPT-5.3-Codex", "GPT-5.6 Luna"]

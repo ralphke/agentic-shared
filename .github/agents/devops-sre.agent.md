@@ -4,7 +4,7 @@ description: >
   Provisions infrastructure via IaC, manages the CI/CD pipeline, and executes
   staged deployments with automatic rollback. Ensures every change flows safely
   from PR approval to production.
-## Model suggestion
+## Model Suggestion
 # GPT-5.4 mini is extremely cheap and surprisingly strong at tasks like:
 # shell scripting, YAML, CI/CD pipelines, config analysis, log interpretation
 # Best for:

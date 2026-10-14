@@ -12,13 +12,13 @@ Changes that standardize skill definitions SHALL begin with a reviewed proposal 
 - AND no changes are made to production skill definitions outside planning artifacts
 
 ### Requirement: Skill Quality Improvements MUST Be Measured Against Baseline
-Skill optimization changes SHALL include baseline and post-change evaluation artifacts with measurable comparison output.
+Skill standardization changes SHALL include a lightweight baseline-vs-improvement validation for representative skill and persona files, using a common rubric for clarity, structure, execution guidance, and handoff quality.
 
-#### Scenario: Relative improvement threshold is evaluated
-- GIVEN baseline metrics captured without skill assistance
-- WHEN post-change metrics are captured with updated skills
-- THEN a summary compares baseline versus post-change values
-- AND the change records whether the relative improvement target (>=5% where measurable) is achieved
+#### Scenario: Representative baseline review is recorded
+- GIVEN a standards update for skill or persona guidance
+- WHEN the change is validated
+- THEN a small set of representative files is scored before and after the change against the same rubric
+- AND the validation notes record the delta in clarity, structure, and scope discipline without introducing broad benchmark tooling or evaluation infrastructure
 
 ### Requirement: Persona Definitions MUST Follow a Consistent Standard Layout
 Persona files under `.github/agents/` SHALL follow a consistent layout so stage handoffs and execution expectations remain predictable.
