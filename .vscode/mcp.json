@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/microsoft/vscode/main/src/vs/workbench/contrib/mcp/common/mcpServer.schema.json",
+  "$schema": "vscode://schemas/mcp",
   "servers": {
     // TODO: Register the centrally hosted Customers Secure Coding MCP here when the BCP endpoint and authentication details are available.
     "github-mcp": {
