@@ -10,6 +10,28 @@ metadata:
   generatedBy: "1.14.3"
 ---
 
+<!-- agentic-shared:policy:start -->
+## Software Fabric prerequisites and boundaries
+
+Node.js 26 or later and the OpenSpec CLI are required. Before proceeding, run
+`node --version` and `openspec --version`. If either is unavailable or Node.js is
+older than 26, stop without changing artifacts and report the exact error and
+setup requirement. Do not fall back to a legacy prompt workflow.
+
+After store selection, run `openspec context --json` with the selected store flag,
+if any. Require a resolved root before artifact work. For an uninitialized project,
+follow the Project check below, including its auto-selected versus explicit-request
+distinction. For any other context error, stop, report the error and suggested fix,
+and make no artifact changes. Never initialize implicitly or use a stale root.
+
+Verification is advisory and does not grant security clearance or legal approval.
+Report unmet or unverifiable mandatory gates separately from schema applicability:
+passing tests, at least 80% new-code coverage, no HIGH or CRITICAL security findings,
+required legal approval for legal-risk changes, code-review approval, and green CI.
+Do not declare archive readiness while any applicable mandatory gate is unmet or
+unverifiable. Do not implement or archive during verification.
+<!-- agentic-shared:policy:end -->
+
 Verify that an implementation matches the change artifacts (specs, tasks, design).
 
 **Store selection:** If the user names a store (a store is a standalone OpenSpec repo registered on this machine) or the work lives in one, run `openspec store list --json` to discover registered store ids, then pass `--store <id>` on the commands that read or write specs and changes (`new change`, `status`, `instructions`, `list`, `show`, `validate`, `archive`, `doctor`, `context`, `schemas`, `view`). Once selected, treat `--store <id>` as sticky for the rest of the workflow. Every unscoped example of those commands below is shorthand: before running it, append the flag. For example, run `openspec status --change "<name>" --json --store "<id>"`, not the unscoped form shown below. Other commands do not take the flag. Hints printed by commands already carry the flag; keep it on follow-ups. Without a store, commands act on the nearest local `openspec/` root.

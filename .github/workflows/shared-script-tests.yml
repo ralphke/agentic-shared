@@ -1,0 +1,35 @@
+name: Shared Script Tests
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
+
+jobs:
+  shared-script-tests:
+    name: Shared script contracts
+    if: github.repository == 'ralphke/agentic-shared'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      - name: Install test dependencies
+        run: python -m pip install --disable-pip-version-check PyYAML
+
+      - name: Run all shared script tests
+        run: python -m unittest discover -s .github/scripts -p "test_*.py"

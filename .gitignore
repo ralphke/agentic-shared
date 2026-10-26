@@ -1,3 +1,4 @@
 .openspec-store/
 .env
 .env/
+.fabric-traces/

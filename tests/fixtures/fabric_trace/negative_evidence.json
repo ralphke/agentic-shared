@@ -1,0 +1,27 @@
+{
+  "highRiskLegalWithoutClearance": {
+    "schemaVersion": 1,
+    "evidenceType": "legal-assessment",
+    "sourceRevision": "$REVISION",
+    "riskLevel": "high",
+    "triggers": [
+      "regulatory"
+    ],
+    "assessment": "Fixture high-risk assessment without clearance",
+    "assessor": {
+      "actor": "fixture-assessor",
+      "reference": {
+        "type": "url",
+        "value": "https://example.invalid/legal-risk"
+      }
+    }
+  },
+  "forgedActivity": {
+    "kind": "stage_claim",
+    "summary": "All stages passed without evidence"
+  },
+  "missingStages": [
+    "deploy",
+    "operate"
+  ]
+}

@@ -1,0 +1,160 @@
+{
+  "simulation": true,
+  "events": [
+    {
+      "stage": "proposal",
+      "evidence": {
+        "schemaVersion": 1,
+        "evidenceType": "planning-approval",
+        "artifactHashes": {
+          "proposal.md": "$PROPOSAL_HASH"
+        },
+        "sourceRevision": "$REVISION",
+        "approval": {
+          "actor": "fixture-approver",
+          "decision": "approved",
+          "reference": {
+            "type": "url",
+            "value": "https://example.invalid/proposal"
+          }
+        }
+      }
+    },
+    {
+      "stage": "design",
+      "evidence": {
+        "schemaVersion": 1,
+        "evidenceType": "planning-approval",
+        "artifactHashes": {
+          "design.md": "$DESIGN_HASH",
+          "tasks.md": "$TASKS_HASH",
+          "specs/fabric-execution-tracing/spec.md": "$SPEC_HASH"
+        },
+        "sourceRevision": "$REVISION",
+        "approval": {
+          "actor": "fixture-approver",
+          "decision": "approved",
+          "reference": {
+            "type": "url",
+            "value": "https://example.invalid/design"
+          }
+        }
+      }
+    },
+    {
+      "stage": "implement",
+      "evidence": {
+        "schemaVersion": 1,
+        "evidenceType": "implementation-validation",
+        "sourceRevision": "$REVISION",
+        "treeHash": "$REVISION",
+        "validationStatus": "passed",
+        "taskSummary": "Fixture implementation validated",
+        "checks": [
+          {
+            "name": "fixture-check",
+            "status": "passed"
+          }
+        ]
+      }
+    },
+    {
+      "stage": "test",
+      "evidence": {
+        "schemaVersion": 1,
+        "evidenceType": "test-results",
+        "sourceRevision": "$REVISION",
+        "producerRun": {
+          "runId": "fixture-test-run",
+          "attempt": 1
+        },
+        "tests": {
+          "total": 10,
+          "passed": 10,
+          "failed": 0,
+          "errors": 0
+        },
+        "coveragePercent": 85.0
+      }
+    },
+    {
+      "stage": "security",
+      "evidence": {
+        "schemaVersion": 1,
+        "evidenceType": "security-findings",
+        "sourceRevision": "$REVISION",
+        "producerRun": {
+          "runId": "fixture-security-run",
+          "attempt": 1
+        },
+        "scanners": [
+          "fixture-sast"
+        ],
+        "findings": {
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
+          "low": 0
+        }
+      }
+    },
+    {
+      "stage": "legal",
+      "evidence": {
+        "schemaVersion": 1,
+        "evidenceType": "legal-assessment",
+        "sourceRevision": "$REVISION",
+        "riskLevel": "low",
+        "triggers": [],
+        "assessment": "Fixture assessment with no escalation trigger",
+        "assessor": {
+          "actor": "fixture-assessor",
+          "reference": {
+            "type": "url",
+            "value": "https://example.invalid/legal"
+          }
+        }
+      }
+    },
+    {
+      "stage": "review",
+      "evidence": {
+        "schemaVersion": 1,
+        "evidenceType": "review-approval",
+        "sourceRevision": "$REVISION",
+        "reviewer": "fixture-reviewer",
+        "decision": "approved",
+        "reference": {
+          "type": "url",
+          "value": "https://example.invalid/review"
+        }
+      }
+    },
+    {
+      "stage": "deploy",
+      "evidence": {
+        "schemaVersion": 1,
+        "evidenceType": "deployment-lineage",
+        "environment": "fixture",
+        "artifactId": "fixture-artifact",
+        "sourceRevision": "$REVISION",
+        "deployedRevision": "$REVISION",
+        "lineageVerified": true,
+        "result": "succeeded"
+      }
+    },
+    {
+      "stage": "operate",
+      "evidence": {
+        "schemaVersion": 1,
+        "evidenceType": "operations-observation",
+        "environment": "fixture",
+        "artifactId": "fixture-artifact",
+        "sourceRevision": "$REVISION",
+        "observedAt": "2025-01-01T12:00:00Z",
+        "observationStatus": "succeeded",
+        "sloConfigured": true
+      }
+    }
+  ]
+}

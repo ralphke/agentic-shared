@@ -73,6 +73,28 @@ class OpenSpecCommandSkillTests(unittest.TestCase):
                 self.assertIn("> **Deprecated:**", content)
                 self.assertIn(f"`{replacement}` skill", content)
 
+    def test_restored_skills_preserve_store_root_and_stop_contracts(self) -> None:
+        for name in ("openspec-propose", "openspec-apply-change", "openspec-verify-change"):
+            with self.subTest(name=name):
+                content = (ROOT / ".github" / "skills" / name / "SKILL.md").read_text(
+                    encoding="utf-8"
+                )
+                for phrase in (
+                    "node --version",
+                    "openspec --version",
+                    "openspec store list --json",
+                    "--store <id>",
+                    "openspec context --json",
+                    "older than 26, stop without changing artifacts",
+                    "Never initialize implicitly or use a stale root",
+                    "auto-selected versus explicit-request",
+                    "**Project check:**",
+                    "**Store selection:**",
+                ):
+                    self.assertIn(phrase, content)
+                self.assertEqual(content.count("<!-- agentic-shared:policy:start -->"), 1)
+                self.assertEqual(content.count("<!-- agentic-shared:policy:end -->"), 1)
+
     def test_idea_issue_and_direct_proposal_are_supported_entry_paths(self) -> None:
         proposal_skill = (
             ROOT / ".github" / "skills" / "openspec-propose" / "SKILL.md"

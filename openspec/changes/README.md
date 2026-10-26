@@ -20,17 +20,17 @@ changes/
 ## Lifecycle
 
 ```
-/opsx:propose <slug>  →  changes/<slug>/ created
-/opsx:apply           →  tasks implemented, PR opened
-/opsx:sync            →  delta specs merged into specs/ (preview)
-/opsx:archive         →  changes/<slug>/ moved to changes/archive/
+/openspec-propose <slug>  →  changes/<slug>/ created
+/openspec-apply           →  tasks implemented, PR opened
+/openspec-sync            →  delta specs merged into specs/ (preview)
+/openspec-archive         →  changes/<slug>/ moved to changes/archive/
 ```
 
 ## Creating a New Change
 
 Using VS Code Copilot:
 ```
-/opsx:propose <your-idea-slug>
+/openspec-propose <your-idea-slug>
 ```
 
 Or copy the idea template:

@@ -10,6 +10,28 @@ metadata:
   generatedBy: "1.14.3"
 ---
 
+<!-- agentic-shared:policy:start -->
+## Software Fabric prerequisites and boundaries
+
+Node.js 26 or later and the OpenSpec CLI are required. Before proceeding, run
+`node --version` and `openspec --version`. If either is unavailable or Node.js is
+older than 26, stop without changing artifacts and report the exact error and
+setup requirement. Do not fall back to a legacy prompt workflow.
+
+After store selection, run `openspec context --json` with the selected store flag,
+if any. Require a resolved root before artifact work. For an uninitialized project,
+follow the Project check below, including its auto-selected versus explicit-request
+distinction. For any other context error, stop, report the error and suggested fix,
+and make no artifact changes. Never initialize implicitly or use a stale root.
+
+The primary non-developer intake is a GitHub issue labelled `idea`. Use its title,
+fields, labels, and discussion as proposal input; retain `idea` and `stage:proposal`
+until approval. Direct `/opsx:propose <description>` invocation is a valid alternative
+and does not require an issue. This workflow authorizes planning only:
+Do not edit project code. Stop after planning and wait for a new explicit request
+before implementation.
+<!-- agentic-shared:policy:end -->
+
 Propose a new change - create the change and generate all artifacts in one step.
 
 **Planning boundary**: This workflow creates planning artifacts only. The user request that selected or triggered this workflow authorizes planning only, even if it asks to build or fix something. Do not edit project code. After the planning artifacts are complete, stop. Do not start implementation in the same response, even if the initial request asks for it. Wait for a new user request after the artifacts are presented; then start the apply workflow.
