@@ -58,6 +58,7 @@ jobs:
           ref: ${{ steps.manifest.outputs.old_version }}
           path: shared-old
           fetch-depth: 1
+          token: ${{ secrets.AGENTIC_SHARED_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: Checkout target shared release
         uses: actions/checkout@v7
@@ -66,6 +67,7 @@ jobs:
           ref: ${{ inputs.target_version }}
           path: shared-new
           fetch-depth: 1
+          token: ${{ secrets.AGENTIC_SHARED_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: Validate and synchronize assets
         run: |
@@ -82,7 +84,7 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           path: consumer
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.AGENTIC_SHARED_TOKEN || secrets.GITHUB_TOKEN }}
           branch: chore/agentic-shared-${{ inputs.target_version }}
           delete-branch: true
           commit-message: "chore: sync agentic-shared ${{ inputs.target_version }}"
