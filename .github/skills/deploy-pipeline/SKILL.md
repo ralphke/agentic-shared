@@ -1,41 +1,53 @@
 ---
 name: deploy-pipeline
-description: Execute controlled multi-environment deployments with prerequisite gates, rollback criteria, smoke tests, and reporting. Use for approved stage deploy changes. Do not use to approve unreviewed changes or bypass test and security gates.
+description:
+  Execute controlled multi-environment deployments with prerequisite gates,
+  rollback criteria, smoke tests, and reporting. Use for approved stage deploy
+  changes. Do not use to approve unreviewed changes or bypass test and security
+  gates.
 ---
 
 # Skill: Deploy Pipeline Execution
 
-**Persona:** DevOps/SRE Agent
-**Input:** Approved PR, infrastructure spec, IaC templates
-**Output:** Deployed application, deployment report, smoke test results
+**Persona:** DevOps/SRE Agent **Input:** Approved PR, infrastructure spec, IaC
+templates **Output:** Deployed application, deployment report, smoke test
+results
 
 ---
 
 ## When to Use This Skill
 
-Use when a PR is approved and labelled `stage:deploy` by the Code Reviewer Agent.
+Use when a PR is approved and labelled `stage:deploy` by the Code Reviewer
+Agent.
 
 ---
 
 ## Execution Steps
 
-1. **Validate pipeline config** — Check `.github/workflows/ci.yml` and orchestrator workflow
-2. **Verify AI code provenance** — Confirm AI-assisted commits are tagged `[AI-assisted]`
-   and that the Security Agent's SCA/license scan passed before proceeding.
-3. **Build and scan image** — Build Docker image, run container vulnerability scan
+1. **Validate pipeline config** — Check `.github/workflows/ci.yml` and
+   orchestrator workflow
+2. **Verify AI code provenance** — Confirm AI-assisted commits are tagged
+   `[AI-assisted]` and that the Security Agent's SCA/license scan passed before
+   proceeding.
+3. **Build and scan image** — Build Docker image, run container vulnerability
+   scan
 
-## Scripts & Tools
-
-- Use the repository CI workflow, deployment CLI, image scanner, smoke-test command, and telemetry dashboard.
-- Record command results as deployment evidence.
 4. **Deploy to dev** — Deploy to dev environment, run smoke tests
-5. **Deploy to staging** — Deploy to staging, run full integration tests + perf baseline
+5. **Deploy to staging** — Deploy to staging, run full integration tests + perf
+   baseline
 6. **Production gate** — Manual approval for P0/P1; auto-advance for P2/P3
 7. **Deploy to production** — Rolling deployment with health check validation
 8. **Post-deploy monitoring** — Monitor error rate for 10 minutes
-9. **Rollback if needed** — Auto-rollback if smoke tests fail or error rate spikes
+9. **Rollback if needed** — Auto-rollback if smoke tests fail or error rate
+   spikes
 10. **Report** — Post deployment summary on the PR
 11. **Handoff** — Label issue `stage:operate`
+
+## Scripts & Tools
+
+- Use the repository CI workflow, deployment CLI, image scanner, smoke-test
+  command, and telemetry dashboard.
+- Record command results as deployment evidence.
 
 ---
 
@@ -82,13 +94,13 @@ kubectl rollout undo deployment/$DEPLOYMENT -n $NAMESPACE  # rollback
 
 ## Rollback Decision Matrix
 
-| Condition                         | Action                    | Time Limit |
-|-----------------------------------|---------------------------|------------|
-| ≥ 3 smoke test failures           | Auto-rollback             | 5 min      |
-| Error rate > 1% for > 5 min       | Auto-rollback             | 5 min      |
-| p99 latency > 2x baseline         | Alert + manual decision   | 10 min     |
-| Health check fails                | Auto-rollback immediately | Instant    |
-| SEV-1 reported by user            | Manual rollback           | ASAP       |
+| Condition                   | Action                    | Time Limit |
+| --------------------------- | ------------------------- | ---------- |
+| ≥ 3 smoke test failures     | Auto-rollback             | 5 min      |
+| Error rate > 1% for > 5 min | Auto-rollback             | 5 min      |
+| p99 latency > 2x baseline   | Alert + manual decision   | 10 min     |
+| Health check fails          | Auto-rollback immediately | Instant    |
+| SEV-1 reported by user      | Manual rollback           | ASAP       |
 
 ---
 
@@ -97,21 +109,21 @@ kubectl rollout undo deployment/$DEPLOYMENT -n $NAMESPACE  # rollback
 ```markdown
 ## Deployment Report — <change-slug>
 
-**Deployed by:** DevOps/SRE Agent
-**Date:** YYYY-MM-DD HH:MM UTC
-**Environment:** production
-**Version:** <git-sha>
-**Result:** ✅ SUCCESS / ❌ ROLLED BACK
+**Deployed by:** DevOps/SRE Agent **Date:** YYYY-MM-DD HH:MM UTC
+**Environment:** production **Version:** <git-sha> **Result:** ✅ SUCCESS / ❌
+ROLLED BACK
 
 ### Stage Results
-| Stage   | Status | Duration | Notes          |
-|---------|--------|----------|----------------|
-| Build   | ✅     | 2m 15s   | Image scanned  |
-| Dev     | ✅     | 1m 30s   | Smoke tests: 5/5|
-| Staging | ✅     | 3m 45s   | Integration: 42/42|
-| Prod    | ✅     | 2m 10s   | Smoke tests: 5/5|
+
+| Stage   | Status | Duration | Notes              |
+| ------- | ------ | -------- | ------------------ |
+| Build   | ✅     | 2m 15s   | Image scanned      |
+| Dev     | ✅     | 1m 30s   | Smoke tests: 5/5   |
+| Staging | ✅     | 3m 45s   | Integration: 42/42 |
+| Prod    | ✅     | 2m 10s   | Smoke tests: 5/5   |
 
 ### Post-Deploy Metrics (10-min window)
+
 - Error rate: 0.02% (baseline: 0.01%) ✅
 - p99 latency: 245ms (baseline: 230ms) ✅
 - Availability: 100% ✅
@@ -122,7 +134,8 @@ kubectl rollout undo deployment/$DEPLOYMENT -n $NAMESPACE  # rollback
 ## Quality Checks
 
 - [ ] Image vulnerability scan completed (no CRITICAL CVEs)
-- [ ] AI code provenance verified — AI-assisted commits tagged, SCA/license scan passed
+- [ ] AI code provenance verified — AI-assisted commits tagged, SCA/license scan
+      passed
 - [ ] Smoke tests pass in dev and staging before production
 - [ ] Rolling deployment used (no downtime)
 - [ ] Health checks validated at each stage
@@ -134,27 +147,32 @@ kubectl rollout undo deployment/$DEPLOYMENT -n $NAMESPACE  # rollback
 
 ## Collaboration & Iteration Loop
 
-- Use deployment incident and rollback patterns from issue/PR history to refine gates.
-- If history is sparse, keep strict baseline rollback thresholds and capture first-deploy telemetry.
-- Feed recurring deployment friction into workflow automation and stage handoff guidance.
+- Use deployment incident and rollback patterns from issue/PR history to refine
+  gates.
+- If history is sparse, keep strict baseline rollback thresholds and capture
+  first-deploy telemetry.
+- Feed recurring deployment friction into workflow automation and stage handoff
+  guidance.
 
 ## Error Handling
 
-| Error | Cause | Fix |
-|---|---|---|
-| Gate failed | Tests, security, review, or CI evidence is missing | Stop deployment and report the unmet gate |
-| Smoke test failed | Deployment is unhealthy or incompatible | Halt promotion and apply the documented rollback |
-| Metrics degraded | Error rate, latency, or availability crossed threshold | Roll back, preserve evidence, and notify Operations SRE |
+| Error             | Cause                                                  | Fix                                                     |
+| ----------------- | ------------------------------------------------------ | ------------------------------------------------------- |
+| Gate failed       | Tests, security, review, or CI evidence is missing     | Stop deployment and report the unmet gate               |
+| Smoke test failed | Deployment is unhealthy or incompatible                | Halt promotion and apply the documented rollback        |
+| Metrics degraded  | Error rate, latency, or availability crossed threshold | Roll back, preserve evidence, and notify Operations SRE |
 
 ## Scenarios & References
 
-- Use the operations spec, infrastructure design, CI workflow, and environment runbook.
-- Validate development and staging before production; retain smoke-test and telemetry evidence.
+- Use the operations spec, infrastructure design, CI workflow, and environment
+  runbook.
+- Validate development and staging before production; retain smoke-test and
+  telemetry evidence.
 
 ## Quick Reference
 
-| Task | Gate |
-|---|---|
-| Start deployment | Approved PR, green tests, security, review, and CI |
-| Promote | Smoke tests and health checks pass at each environment |
-| Finish | Post report, metrics, rollback status, and `stage:operate` handoff |
+| Task             | Gate                                                               |
+| ---------------- | ------------------------------------------------------------------ |
+| Start deployment | Approved PR, green tests, security, review, and CI                 |
+| Promote          | Smoke tests and health checks pass at each environment             |
+| Finish           | Post report, metrics, rollback status, and `stage:operate` handoff |

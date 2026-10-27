@@ -36,7 +36,8 @@ before any spec, code, or design artifact is created.
 - GIVEN a product idea or stakeholder request in natural language
 - WHEN the Product Owner Agent processes it via `/opsx:propose <idea-slug>`
 - THEN a `proposal.md` is created in `openspec/changes/<idea-slug>/`
-- AND all required sections (intent, scope, scenarios, acceptance criteria) are populated
+- AND all required sections (intent, scope, scenarios, acceptance criteria) are
+  populated
 - AND no code or design work begins until the proposal is accepted
 
 #### Scenario: Incomplete idea is rejected
@@ -50,8 +51,8 @@ before any spec, code, or design artifact is created.
 
 ### Requirement: Spec Before Code
 
-A complete OpenSPEC spec with scenarios MUST exist and be accepted before
-any implementation task is assigned.
+A complete OpenSPEC spec with scenarios MUST exist and be accepted before any
+implementation task is assigned.
 
 #### Scenario: Implementation blocked without spec
 
@@ -79,17 +80,17 @@ A change with legal-risk triggers MUST receive `stage:legal`; it may advance to
 `stage:review` only after a `legal:approved` disposition is present. A change
 labelled `legal:blocked` MUST NOT advance to code review or deployment.
 
-| Stage Label          | Responsible Persona    | Next Stage                       |
-|----------------------|------------------------|----------------------------------|
-| `stage:proposal`     | Product Owner          | `stage:design`                   |
-| `stage:design`       | Architect              | `stage:implement`                |
-| `stage:implement`    | Developer              | `stage:test`                     |
-| `stage:test`         | QA Engineer            | `stage:security`                 |
-| `stage:security`     | Security Engineer      | `stage:legal` or `stage:review`  |
-| `stage:legal`        | Legal & Compliance     | `stage:review`                   |
-| `stage:review`       | Code Reviewer          | `stage:deploy`                   |
-| `stage:deploy`       | DevOps/SRE             | `stage:operate`                  |
-| `stage:operate`      | Operations SRE         | `archived`                       |
+| Stage Label       | Responsible Persona | Next Stage                      |
+| ----------------- | ------------------- | ------------------------------- |
+| `stage:proposal`  | Product Owner       | `stage:design`                  |
+| `stage:design`    | Architect           | `stage:implement`               |
+| `stage:implement` | Developer           | `stage:test`                    |
+| `stage:test`      | QA Engineer         | `stage:security`                |
+| `stage:security`  | Security Engineer   | `stage:legal` or `stage:review` |
+| `stage:legal`     | Legal & Compliance  | `stage:review`                  |
+| `stage:review`    | Code Reviewer       | `stage:deploy`                  |
+| `stage:deploy`    | DevOps/SRE          | `stage:operate`                 |
+| `stage:operate`   | Operations SRE      | `archived`                      |
 
 #### Scenario: Stage label gates merge
 

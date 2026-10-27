@@ -29,6 +29,7 @@ attempting to access or publish private session data from GitHub Actions.
 ## Scenarios
 
 ### Scenario: Retrospective report includes local Chronicle follow-up
+
 - GIVEN the Workflow Improvement Loop creates or updates its report issue
 - WHEN a maintainer reads the report
 - THEN it directs the maintainer to `/chronicle tips` and `/chronicle cost-tips`

@@ -7,30 +7,30 @@ request enters the legal stage, the workflow requires the explicit
 `legal:approved` disposition before allowing `stage:review` or `stage:deploy`.
 The `legal:blocked` disposition always rejects those downstream stages.
 
-The workflow coordinates labels and comments only. The Legal & Compliance
-Agent performs the review in Copilot and posts the assessment; qualified human
-legal counsel remains responsible for any required legal sign-off.
+The workflow coordinates labels and comments only. The Legal & Compliance Agent
+performs the review in Copilot and posts the assessment; qualified human legal
+counsel remains responsible for any required legal sign-off.
 
 ## Label Contract
 
-| Label | Meaning | Workflow behavior |
-|-------|---------|-------------------|
-| `stage:legal` | Legal review is required for this change. | Posts the legal-review handoff and disposition requirements. |
-| `legal:approved` | Required legal assessment and any required counsel sign-off are complete. | Allows later review and deployment stages. |
-| `legal:blocked` | A legal issue remains unresolved. | Fails review and deployment stage gates. |
+| Label            | Meaning                                                                   | Workflow behavior                                            |
+| ---------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| `stage:legal`    | Legal review is required for this change.                                 | Posts the legal-review handoff and disposition requirements. |
+| `legal:approved` | Required legal assessment and any required counsel sign-off are complete. | Allows later review and deployment stages.                   |
+| `legal:blocked`  | A legal issue remains unresolved.                                         | Fails review and deployment stage gates.                     |
 
 Labels are applied manually by the responsible agent or reviewer. Automated
-high-risk classification is out of scope; the Product Owner, Architect,
-Security Engineer, or Legal & Compliance Agent may route a change to
-`stage:legal` when legal-risk triggers are identified.
+high-risk classification is out of scope; the Product Owner, Architect, Security
+Engineer, or Legal & Compliance Agent may route a change to `stage:legal` when
+legal-risk triggers are identified.
 
 ## Workflow Behavior
 
 1. A reviewer applies `stage:legal` to a pull request requiring legal review.
 2. The `stage-legal-gate` job posts the review instructions, assessment
    requirements, and disposition labels.
-3. The Legal & Compliance Agent posts a Legal Risk Assessment and applies one
-   of the documented dispositions.
+3. The Legal & Compliance Agent posts a Legal Risk Assessment and applies one of
+   the documented dispositions.
 4. An approved assessment applies `legal:approved` and then `stage:review`.
 5. The review and deployment jobs read the current pull-request labels.
 6. `legal:blocked` fails either job. A PR carrying `stage:legal` without
@@ -38,12 +38,12 @@ Security Engineer, or Legal & Compliance Agent may route a change to
 
 ## Decision Table
 
-| `stage:legal` | `legal:approved` | `legal:blocked` | Review/deploy result |
-|----------------|------------------|-----------------|----------------------|
-| No | No | No | Allowed by legal gate |
-| Yes | Yes | No | Allowed by legal gate |
-| Yes | No | No | Blocked: missing disposition |
-| Any | Any | Yes | Blocked: unresolved legal issue |
+| `stage:legal` | `legal:approved` | `legal:blocked` | Review/deploy result            |
+| ------------- | ---------------- | --------------- | ------------------------------- |
+| No            | No               | No              | Allowed by legal gate           |
+| Yes           | Yes              | No              | Allowed by legal gate           |
+| Yes           | No               | No              | Blocked: missing disposition    |
+| Any           | Any              | Yes             | Blocked: unresolved legal issue |
 
 ## Validation
 

@@ -4,19 +4,21 @@
 
 ### Requirement: Repository Command Contracts Survive CLI Updates
 
-Post-update automation MUST restore repository-owned command-skill contracts
-and wrapper deprecations without replacing surrounding generated content.
+Post-update automation MUST restore repository-owned command-skill contracts and
+wrapper deprecations without replacing surrounding generated content.
 Maintainers MUST invoke restoration, review diffs, and pass script tests before
 releasing shared assets, without weakening assertions.
 
 #### Scenario: Regeneration removes a required guard
 
-- GIVEN an OpenSpec CLI update regenerates shared skills or legacy prompt wrappers
+- GIVEN an OpenSpec CLI update regenerates shared skills or legacy prompt
+  wrappers
 - WHEN a maintainer invokes the documented restoration automation
-- THEN it restores Node.js 26+ prerequisites, fail-closed CLI/context
-  checks, no-legacy-fallback behavior, and replacement-skill notices
+- THEN it restores Node.js 26+ prerequisites, fail-closed CLI/context checks,
+  no-legacy-fallback behavior, and replacement-skill notices
 - AND retains the current CLI's store-selection and root-resolution behavior
-- AND the maintainer reviews diffs and runs the full shared-script suite before releasing
+- AND the maintainer reviews diffs and runs the full shared-script suite before
+  releasing
 
 #### Scenario: Restoration is repeatable and preserves generated content
 
@@ -29,8 +31,8 @@ releasing shared assets, without weakening assertions.
 ### Requirement: Restoration Rejects Unsupported Inputs
 
 Restoration MUST validate all targets before writing any. Missing files,
-ambiguous insertion points, malformed markers, or conflicting policy blocks
-MUST produce actionable errors and a nonzero exit with all targets unchanged.
+ambiguous insertion points, malformed markers, or conflicting policy blocks MUST
+produce actionable errors and a nonzero exit with all targets unchanged.
 Write-time failures MUST be reported explicitly, including any completed writes.
 
 #### Scenario: Unsupported input prevents all restoration writes
@@ -59,21 +61,24 @@ boundaries, truthful task completion, and security and required legal gates.
 
 Every pull request in the canonical `ralphke/agentic-shared` repository MUST run
 the complete shared-script test suite with its dependencies installed. Consumer
-copies lacking synchronized script tests MUST skip this canonical-only job.
-Test failures and import errors MUST fail the job.
-The job MUST run with read-only repository permissions and MUST NOT depend on
-repository secrets or suppress failing tests.
+copies lacking synchronized script tests MUST skip this canonical-only job. Test
+failures and import errors MUST fail the job. The job MUST run with read-only
+repository permissions and MUST NOT depend on repository secrets or suppress
+failing tests.
 
 #### Scenario: Pull request removes a contract
 
-- GIVEN a canonical-repository pull request removes a required guard or wrapper notice
+- GIVEN a canonical-repository pull request removes a required guard or wrapper
+  notice
 - WHEN the shared-script CI job runs
 - THEN contract tests fail and the job reports failure
-- AND CI does not run restoration on the checkout to conceal the missing contract
+- AND CI does not run restoration on the checkout to conceal the missing
+  contract
 
 #### Scenario: Synchronized workflow skips consumer repositories
 
-- GIVEN a consumer repository receives the workflow without the canonical script tests
+- GIVEN a consumer repository receives the workflow without the canonical script
+  tests
 - WHEN its pull request triggers the workflow
 - THEN the canonical-only shared-script job is skipped
 

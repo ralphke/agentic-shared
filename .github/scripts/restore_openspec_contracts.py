@@ -14,7 +14,7 @@ import yaml
 ROOT = Path(__file__).resolve().parents[2]
 START = "<!-- agentic-shared:policy:start -->"
 END = "<!-- agentic-shared:policy:end -->"
-COMMON_POLICY = """## Software Fabric prerequisites and boundaries
+COMMON_POLICY = """# Software Fabric prerequisites and boundaries
 
 Node.js 26 or later and the OpenSpec CLI are required. Before proceeding, run
 `node --version` and `openspec --version`. If either is unavailable or Node.js is
@@ -22,16 +22,18 @@ older than 26, stop without changing artifacts and report the exact error and
 setup requirement. Do not fall back to a legacy prompt workflow.
 
 After store selection, run `openspec context --json` with the selected store flag,
-if any. Require a resolved root before artifact work. For an uninitialized project,
-follow the Project check below, including its auto-selected versus explicit-request
-distinction. For any other context error, stop, report the error and suggested fix,
-and make no artifact changes. Never initialize implicitly or use a stale root.
+if any. Require a resolved root before artifact work. For an uninitialized
+project, follow the Project check below, including its
+auto-selected versus explicit-request distinction. For any other context error,
+stop, report the error and suggested fix, and make no artifact changes.
+Never initialize implicitly or use a stale root.
 """
 SKILL_POLICIES = {
     "openspec-propose": COMMON_POLICY + """
 The primary non-developer intake is a GitHub issue labelled `idea`. Use its title,
-fields, labels, and discussion as proposal input; retain `idea` and `stage:proposal`
-until approval. Direct `/opsx:propose <description>` invocation is a valid alternative
+fields, labels, and discussion as proposal input; retain `idea` and
+`stage:proposal` until approval.
+Direct `/opsx:propose <description>` invocation is a valid alternative
 and does not require an issue. This workflow authorizes planning only:
 Do not edit project code. Stop after planning and wait for a new explicit request
 before implementation.""",
@@ -43,8 +45,10 @@ authorize merge, deployment, or archive.""",
     "openspec-verify-change": COMMON_POLICY + """
 Verification is advisory and does not grant security clearance or legal approval.
 Report unmet or unverifiable mandatory gates separately from schema applicability:
-passing tests, at least 80% new-code coverage, no HIGH or CRITICAL security findings,
-required legal approval for legal-risk changes, code-review approval, and green CI.
+passing tests, at least 80% new-code coverage,
+no HIGH or CRITICAL security findings,
+required legal approval for legal-risk changes,
+code-review approval, and green CI.
 Do not declare archive readiness while any applicable mandatory gate is unmet or
 unverifiable. Do not implement or archive during verification.""",
 }
@@ -58,7 +62,7 @@ class Target:
     skill_name: str | None = None
 
     def block(self, newline: bytes) -> bytes:
-        return f"{START}\n{self.policy}\n{END}\n\n".encode("utf-8").replace(b"\n", newline)
+        return f"{START}\n\n{self.policy}\n\n{END}\n\n".encode("utf-8").replace(b"\n", newline)
 
 
 INTRODUCTIONS = {
@@ -83,8 +87,10 @@ TARGETS = tuple(
     Target(
         Path(".github") / "prompts" / f"{prompt}.prompt.md",
         INTRODUCTIONS[skill],
-        "> **Deprecated:** This wrapper is retained for one compatibility release. Use the\n"
-        f"> `{skill}` skill for new workflows. Use this legacy wrapper only when\n"
+        f"# {skill.replace('-', ' ').title()}\n\n"
+        "> **Deprecated:** This wrapper is retained for one compatibility release.\n"
+        f"> Use the `{skill}` skill for new workflows.\n"
+        "> Use this legacy wrapper only when\n"
         "> the user explicitly invokes its literal `/opsx:` command.",
     )
     for prompt, skill in PROMPTS.items()

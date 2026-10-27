@@ -8,7 +8,8 @@
 
 ## Purpose
 
-Defines deployment, observability, SLO, runbook, and incident-response requirements for the Software Fabric.
+Defines deployment, observability, SLO, runbook, and incident-response
+requirements for the Software Fabric.
 
 ## Overview
 
@@ -22,7 +23,8 @@ Operations SRE agents share responsibility for this domain.
 
 ### Requirement: Staged Deployment Pipeline
 
-Every change MUST be deployed through a staged pipeline before reaching production.
+Every change MUST be deployed through a staged pipeline before reaching
+production.
 
 **Pipeline stages:**
 
@@ -39,7 +41,8 @@ PR Merge → Build → Unit Tests → Container Build
 - GIVEN a merged PR that passes all CI gates
 - WHEN the deployment pipeline triggers
 - THEN the change is deployed to dev, then staging (with tests at each stage)
-- AND IF all staging tests pass, production deployment proceeds automatically for P2/P3
+- AND IF all staging tests pass, production deployment proceeds automatically
+  for P2/P3
 - AND a deployment summary is posted to the PR and Slack/Teams channel
 
 #### Scenario: Staging failure triggers rollback
@@ -59,9 +62,12 @@ Every deployed service MUST expose a health check endpoint.
 **Health check specification:**
 
 - `GET /health` — liveness probe: returns 200 if process is alive
-- `GET /health/ready` — readiness probe: returns 200 only when ready to serve traffic
-- `GET /health/startup` — startup probe: returns 200 only after full initialization
-- Response body MUST include: `{"status": "ok", "version": "<semver>", "timestamp": "<ISO8601>"}`
+- `GET /health/ready` — readiness probe: returns 200 only when ready to serve
+  traffic
+- `GET /health/startup` — startup probe: returns 200 only after full
+  initialization
+- Response body MUST include:
+  `{"status": "ok", "version": "<semver>", "timestamp": "<ISO8601>"}`
 
 #### Scenario: Health check enables zero-downtime deployment
 
@@ -84,8 +90,10 @@ Every production service MUST emit the three observability pillars.
 
 **Logs (structured JSON):**
 
-- All log entries MUST include: `timestamp`, `level`, `service`, `traceId`, `message`
-- Log levels: ERROR for exceptions, WARN for degraded states, INFO for key events
+- All log entries MUST include: `timestamp`, `level`, `service`, `traceId`,
+  `message`
+- Log levels: ERROR for exceptions, WARN for degraded states, INFO for key
+  events
 - No PII (personally identifiable information) in log output
 - Log retention: 30 days hot, 1 year cold
 
@@ -99,7 +107,8 @@ Every production service MUST emit the three observability pillars.
 
 - GIVEN a new API endpoint deployed to production
 - WHEN a request is made to the endpoint
-- THEN the request appears in: metrics dashboard, structured logs, and distributed trace
+- THEN the request appears in: metrics dashboard, structured logs, and
+  distributed trace
 - AND the trace spans from the load balancer through all downstream services
 
 ---
@@ -110,12 +119,12 @@ Every user-facing service MUST have defined and monitored SLOs.
 
 **Minimum SLO set per service:**
 
-| SLO                | Default Target      | Measurement Window |
-|--------------------|---------------------|--------------------|
-| Availability       | 99.9% (3 nines)     | Rolling 30 days    |
-| Latency p99        | < 500ms             | Rolling 7 days     |
-| Error Rate         | < 0.1%              | Rolling 24 hours   |
-| Deployment Success | > 95%               | Per quarter        |
+| SLO                | Default Target  | Measurement Window |
+| ------------------ | --------------- | ------------------ |
+| Availability       | 99.9% (3 nines) | Rolling 30 days    |
+| Latency p99        | < 500ms         | Rolling 7 days     |
+| Error Rate         | < 0.1%          | Rolling 24 hours   |
+| Deployment Success | > 95%           | Per quarter        |
 
 **SLO process:**
 
@@ -140,7 +149,8 @@ Every operational scenario MUST have a runbook before going to production.
 **Runbook format:**
 
 - Location: `doc/runbooks/<service>/<scenario>.md`
-- Sections: Summary, Detection, Diagnosis Steps, Resolution Steps, Escalation, Post-Mortem
+- Sections: Summary, Detection, Diagnosis Steps, Resolution Steps, Escalation,
+  Post-Mortem
 - Linked from: monitoring alerts, incident issues, and the service's README
 
 #### Scenario: Runbook reduces MTTR
@@ -160,7 +170,7 @@ Production incidents MUST follow a defined response process.
 **Severity levels:**
 
 | Severity | Definition                        | Response Time | Escalation    |
-|----------|-----------------------------------|---------------|---------------|
+| -------- | --------------------------------- | ------------- | ------------- |
 | SEV-1    | Complete service outage           | 5 minutes     | Auto-escalate |
 | SEV-2    | Major feature unavailable         | 15 minutes    | PD/Teams      |
 | SEV-3    | Degraded performance              | 1 hour        | Next business |
@@ -187,7 +197,8 @@ All infrastructure MUST be defined as code and version-controlled.
 - IaC files MUST be stored under `infrastructure/` in the repository
 - Every infrastructure change follows the same OpenSPEC change process
 - IaC plans are reviewed before apply (PR-based workflow)
-- State files MUST be stored in a remote backend (Azure Blob Storage, Terraform Cloud)
+- State files MUST be stored in a remote backend (Azure Blob Storage, Terraform
+  Cloud)
 
 #### Scenario: Infrastructure change is reviewed before apply
 

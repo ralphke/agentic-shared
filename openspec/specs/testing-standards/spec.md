@@ -1,20 +1,21 @@
 # Testing Standards — Source of Truth
 
 > **Domain:** `testing-standards` | **Owner:** qa-engineer  
-> Defines the testing strategy, required test types, coverage minimums,
-> and quality gates for all Software Fabric changes.
+> Defines the testing strategy, required test types, coverage minimums, and
+> quality gates for all Software Fabric changes.
 
 ---
 
 ## Purpose
 
-Defines scenario-driven testing, coverage, determinism, and CI quality-gate requirements for every change.
+Defines scenario-driven testing, coverage, determinism, and CI quality-gate
+requirements for every change.
 
 ## Overview
 
-Every change MUST include automated tests before it can pass the quality
-gate. Tests are generated from OpenSPEC Given/When/Then scenarios and
-validated in CI. The QA Engineer Agent owns test generation and coverage.
+Every change MUST include automated tests before it can pass the quality gate.
+Tests are generated from OpenSPEC Given/When/Then scenarios and validated in CI.
+The QA Engineer Agent owns test generation and coverage.
 
 ---
 
@@ -22,7 +23,8 @@ validated in CI. The QA Engineer Agent owns test generation and coverage.
 
 ### Requirement: Scenario-Driven Test Generation
 
-Every Given/When/Then scenario in `spec.md` MUST have at least one corresponding test.
+Every Given/When/Then scenario in `spec.md` MUST have at least one corresponding
+test.
 
 **Test mapping:**
 
@@ -35,13 +37,15 @@ Every Given/When/Then scenario in `spec.md` MUST have at least one corresponding
 - GIVEN a spec with 5 Given/When/Then scenarios
 - WHEN the QA Engineer Agent generates tests
 - THEN ≥ 5 test functions exist, one per scenario
-- AND each test is named to reflect its scenario (e.g., `test_empty_export_returns_204`)
+- AND each test is named to reflect its scenario (e.g.,
+  `test_empty_export_returns_204`)
 
 #### Scenario: Unhappy path scenarios generate negative tests
 
 - GIVEN a spec scenario with a `WHEN` condition that should produce an error
 - WHEN the QA Agent generates the test
-- THEN the test asserts the error response (exception, status code, error message)
+- THEN the test asserts the error response (exception, status code, error
+  message)
 
 ---
 
@@ -51,20 +55,21 @@ Changes MUST include tests at multiple levels following the test pyramid.
 
 **Test levels and requirements:**
 
-| Level       | Scope                      | Required When                          | Coverage Goal           |
-|-------------|----------------------------|----------------------------------------|-------------------------|
-| Unit        | Single function/class      | Any new function or method             | ≥ 90% of units          |
-| Integration | Component interaction      | New service calls, DB queries, APIs    | All integrations        |
-| End-to-End  | Full user journey          | User-facing features or flows          | Happy path + 1 unhappy  |
-| Performance | Latency / throughput       | New endpoints or data-heavy operations | p99 baseline            |
-| Smoke       | Critical paths post-deploy | Every deployment                       | All P0 paths            |
+| Level       | Scope                      | Required When                          | Coverage Goal          |
+| ----------- | -------------------------- | -------------------------------------- | ---------------------- |
+| Unit        | Single function/class      | Any new function or method             | ≥ 90% of units         |
+| Integration | Component interaction      | New service calls, DB queries, APIs    | All integrations       |
+| End-to-End  | Full user journey          | User-facing features or flows          | Happy path + 1 unhappy |
+| Performance | Latency / throughput       | New endpoints or data-heavy operations | p99 baseline           |
+| Smoke       | Critical paths post-deploy | Every deployment                       | All P0 paths           |
 
 #### Scenario: New API endpoint triggers integration test
 
 - GIVEN a new REST endpoint `POST /api/v1/exports`
 - WHEN the QA Agent determines test requirements
 - THEN an integration test is written that calls the endpoint via HTTP
-- AND tests cover: success (201), validation error (400), auth failure (401), not found (404)
+- AND tests cover: success (201), validation error (400), auth failure (401),
+  not found (404)
 
 #### Scenario: User-facing feature triggers e2e test
 
@@ -77,7 +82,8 @@ Changes MUST include tests at multiple levels following the test pyramid.
 
 ### Requirement: Code Coverage Floor
 
-New code MUST achieve ≥ 80% line coverage. Existing code MUST NOT regress below its current baseline.
+New code MUST achieve ≥ 80% line coverage. Existing code MUST NOT regress below
+its current baseline.
 
 #### Scenario: Coverage gate passes
 
@@ -98,7 +104,8 @@ New code MUST achieve ≥ 80% line coverage. Existing code MUST NOT regress belo
 
 ### Requirement: Test Determinism
 
-All automated tests MUST be deterministic — no flaky tests are allowed in the CI pipeline.
+All automated tests MUST be deterministic — no flaky tests are allowed in the CI
+pipeline.
 
 **Anti-patterns to prevent:**
 
@@ -130,7 +137,8 @@ Tests MUST be self-documenting — readable as executable specifications.
 #### Scenario: Test name communicates intent
 
 - GIVEN a test for password validation
-- WHEN the test is named `test_password_validator_with_short_password_returns_false`
+- WHEN the test is named
+  `test_password_validator_with_short_password_returns_false`
 - THEN a reader understands the test without reading the body
 
 ---

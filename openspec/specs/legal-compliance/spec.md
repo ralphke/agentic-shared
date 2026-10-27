@@ -9,7 +9,8 @@
 
 ## Purpose
 
-Defines the legal and compliance checks required for changes involving data, rights, licensing, or regulatory risk.
+Defines the legal and compliance checks required for changes involving data,
+rights, licensing, or regulatory risk.
 
 ## Overview
 
@@ -54,7 +55,8 @@ disclosure, and commercial-use obligations MUST be captured before release.
 #### Scenario: Compatible dependency is approved with obligations recorded
 
 - GIVEN a change that adds a third-party library with known license terms
-- WHEN the Legal & Compliance Agent verifies the library against the intended use
+- WHEN the Legal & Compliance Agent verifies the library against the intended
+  use
 - THEN the review records the library, license, and compatibility result
 - AND any required notices or attribution are listed as release obligations
 
@@ -70,9 +72,9 @@ disclosure, and commercial-use obligations MUST be captured before release.
 ### Requirement: Regulated and Personal Data Assessment
 
 Changes that collect, process, store, share, transfer, or infer personal,
-sensitive, health, financial, or otherwise regulated data MUST identify the
-data categories, processing purpose, retention and deletion expectations,
-sharing boundaries, and applicable obligations.
+sensitive, health, financial, or otherwise regulated data MUST identify the data
+categories, processing purpose, retention and deletion expectations, sharing
+boundaries, and applicable obligations.
 
 #### Scenario: Personal data requires legal escalation
 
@@ -93,9 +95,9 @@ sharing boundaries, and applicable obligations.
 ### Requirement: Intellectual Property and AI Risk Assessment
 
 Changes using third-party, adapted, or AI-generated code, content, models, or
-data MUST assess ownership, provider terms, reuse restrictions, attribution,
-and material copyright, trademark, patent, trade-secret, or database-right
-risks relevant to the intended use.
+data MUST assess ownership, provider terms, reuse restrictions, attribution, and
+material copyright, trademark, patent, trade-secret, or database-right risks
+relevant to the intended use.
 
 #### Scenario: AI-generated content is reviewed for intended use
 
@@ -124,14 +126,17 @@ remediation or escalation owner.
 
 - GIVEN a change whose dependency license requires attribution
 - WHEN the Legal & Compliance Agent issues a conditional decision
-- THEN the assessment identifies the attribution requirement and accountable owner
+- THEN the assessment identifies the attribution requirement and accountable
+  owner
 - AND the change remains in legal review until the requirement is verified
 
 #### Scenario: Approval contains sufficient audit evidence
 
-- GIVEN a low-risk internal change with all relevant rights and obligations verified
+- GIVEN a low-risk internal change with all relevant rights and obligations
+  verified
 - WHEN the Legal & Compliance Agent approves the change
-- THEN the assessment records the reviewer, date, decision, risk rating, and evidence
+- THEN the assessment records the reviewer, date, decision, risk rating, and
+  evidence
 - AND the PR may advance to the code review stage
 
 ---
@@ -149,7 +154,8 @@ or rights-holder dispute.
 - GIVEN a proposal involving personal data and external commercial distribution
 - WHEN the Software Fabric lifecycle evaluates its gates
 - THEN the change is assigned the `stage:legal` review gate
-- AND it cannot advance to review or deployment until human legal sign-off is recorded
+- AND it cannot advance to review or deployment until human legal sign-off is
+  recorded
 
 #### Scenario: Resolved escalation allows progress
 

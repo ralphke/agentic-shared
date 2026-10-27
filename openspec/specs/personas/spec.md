@@ -8,7 +8,8 @@
 
 ## Purpose
 
-Defines the responsibilities, outputs, and handoff contracts for Software Fabric agent personas.
+Defines the responsibilities, outputs, and handoff contracts for Software Fabric
+agent personas.
 
 ## Overview
 
@@ -27,25 +28,34 @@ high-risk work rather than a default stage for every change.
 
 ## Requirements
 
-The following requirements define the persona responsibilities and handoff contracts.
+The following requirements define the persona responsibilities and handoff
+contracts.
 
 ### Requirement: Product Owner Agent
-The Product Owner Agent SHALL capture explicit acceptance criteria that include quality measurement expectations when a change targets skill definition standards.
-(Previously: The Product Owner Agent is the entry point for all new work.)
+
+The Product Owner Agent SHALL capture explicit acceptance criteria that include
+quality measurement expectations when a change targets skill definition
+standards. (Previously: The Product Owner Agent is the entry point for all new
+work.)
 
 #### Scenario: Skill-standard change includes measurable acceptance criteria
+
 - GIVEN a proposal targets skill definition standards
 - WHEN the Product Owner Agent prepares the proposal
-- THEN the acceptance criteria include instruction completeness, ambiguity reduction, and checklist coverage measures
-- AND the proposal identifies the required baseline and post-change evaluation evidence
+- THEN the acceptance criteria include instruction completeness, ambiguity
+  reduction, and checklist coverage measures
+- AND the proposal identifies the required baseline and post-change evaluation
+  evidence
 
 #### Scenario: Idea to structured proposal
+
 - GIVEN a raw idea is submitted through an approved intake channel
 - WHEN the Product Owner Agent processes it
 - THEN `proposal.md` contains intent, scope, scenarios, and acceptance criteria
 - AND at least one unhappy-path scenario is included
 
 #### Scenario: Proposal requires minimum scenario count
+
 - GIVEN a proposal has fewer than 3 scenarios
 - WHEN the Architect Agent reviews it
 - THEN the proposal is returned for more detail
@@ -58,15 +68,17 @@ The Architect Agent translates accepted proposals into technical designs.
 **Responsibilities:**
 
 - Review proposals for technical feasibility and alignment with existing system
-- Produce `design.md` with selected technology, component diagrams (Mermaid), ADRs
+- Produce `design.md` with selected technology, component diagrams (Mermaid),
+  ADRs
 - Identify all integration points, API contracts, and data model changes
 - Decompose design into atomic, ordered, estimated tasks in `tasks.md`
 - Ensure non-functional requirements (performance, scalability) are addressed
 - Translate the accepted proposal into OpenSpec delta specs for affected domains
 
 **Input:** `proposal.md`, existing system specs, codebase structure  
-**Output:** `design.md`, delta specs in `specs/<domain>/spec.md`, `tasks.md`, Architecture Decision Records (ADRs)
-**Triggers:** Proposal labelled `stage:design`  
+**Output:** `design.md`, delta specs in `specs/<domain>/spec.md`, `tasks.md`,
+Architecture Decision Records (ADRs) **Triggers:** Proposal labelled
+`stage:design`\
 **Handoff:** Labels PR `stage:implement` when design is accepted  
 **Agent file:** `.github/agents/architect.agent.md`
 
@@ -74,15 +86,17 @@ The Architect Agent translates accepted proposals into technical designs.
 
 - GIVEN a complete `proposal.md` with ≥3 scenarios
 - WHEN the Architect Agent reviews it
-- THEN `design.md` includes: chosen tech stack with rationale, Mermaid component diagram,
-  data model schema, API contract (request/response), ADRs for key decisions
+- THEN `design.md` includes: chosen tech stack with rationale, Mermaid component
+  diagram, data model schema, API contract (request/response), ADRs for key
+  decisions
 - AND `tasks.md` contains numbered, atomic tasks with size estimates (S/M/L)
 
 #### Scenario: Design identifies breaking change
 
 - GIVEN a design that requires a breaking API change
 - WHEN the Architect Agent documents it
-- THEN an ADR is created noting the breaking change, migration path, and deprecation plan
+- THEN an ADR is created noting the breaking change, migration path, and
+  deprecation plan
 - AND the proposal scope is updated to include migration tasks
 
 ---
@@ -96,13 +110,15 @@ The Developer Agent implements tasks from the approved design.
 - Implement ONLY tasks listed in `tasks.md` — no scope creep
 - Follow project coding standards and conventions
 - Write implementation code with documentation for non-obvious logic
-- Open a PR per logical task group with a description referencing the change slug
+- Open a PR per logical task group with a description referencing the change
+  slug
 - Respond to code review feedback with targeted fixes within the same PR
 
 **Input:** `tasks.md`, `design.md`, existing codebase  
 **Output:** Source code, PR with description linking to change folder  
 **Triggers:** Tasks labelled `stage:implement`  
-**Handoff:** Labels PR `stage:test` when all implementation tasks are checked off  
+**Handoff:** Labels PR `stage:test` when all implementation tasks are checked
+off\
 **Agent file:** `.github/agents/developer.agent.md`
 
 #### Scenario: Tasks to code without scope creep
@@ -160,7 +176,8 @@ The QA Engineer Agent creates and validates automated tests from spec scenarios.
 
 ### Requirement: Security Engineer Agent
 
-The Security Engineer Agent ensures every change is free of exploitable vulnerabilities.
+The Security Engineer Agent ensures every change is free of exploitable
+vulnerabilities.
 
 **Responsibilities:**
 
@@ -171,7 +188,8 @@ The Security Engineer Agent ensures every change is free of exploitable vulnerab
 - Produce a security report; block merge on HIGH/CRITICAL findings
 
 **Input:** PR diff, dependency manifest, SBOM  
-**Output:** Security report, vulnerability list with CVSS scores, remediation tasks  
+**Output:** Security report, vulnerability list with CVSS scores, remediation
+tasks\
 **Triggers:** PR labelled `stage:security`  
 **Handoff:** Labels PR `stage:review` when security gate passes  
 **Agent file:** `.github/agents/security-engineer.agent.md`
@@ -189,7 +207,8 @@ The Security Engineer Agent ensures every change is free of exploitable vulnerab
 - WHEN the Security Agent scans dependencies
 - THEN the PR is labelled `security:blocked`
 - AND merge is prevented by a CI gate
-- AND a linked issue is opened with the CVE ID, CVSS score, and remediation options
+- AND a linked issue is opened with the CVE ID, CVSS score, and remediation
+  options
 
 ---
 
@@ -201,24 +220,32 @@ components, or intellectual-property and use-rights concerns.
 
 **Responsibilities:**
 
-- Assess the target audience, geography, deployment model, and applicable legal obligations
-- Review component, API, model, dataset, and asset use rights and license compatibility
-- Identify privacy, regulated-data, copyright, patent, trademark, trade-secret, and AI-generated-content risks
-- Rate overall exposure as LOW, MEDIUM, or HIGH and recommend approval, conditions, block, or human legal review
-- Define minimum remediation and escalate ambiguous or high-risk cases to human legal counsel
+- Assess the target audience, geography, deployment model, and applicable legal
+  obligations
+- Review component, API, model, dataset, and asset use rights and license
+  compatibility
+- Identify privacy, regulated-data, copyright, patent, trademark, trade-secret,
+  and AI-generated-content risks
+- Rate overall exposure as LOW, MEDIUM, or HIGH and recommend approval,
+  conditions, block, or human legal review
+- Define minimum remediation and escalate ambiguous or high-risk cases to human
+  legal counsel
 
-**Input:** Proposal, PR diff, dependency and asset inventory, deployment model, target audience and geography
-**Output:** Legal risk assessment, remediation or escalation issues, PR/issue labels and comments
-**Triggers:** PR labelled `stage:legal`; issue labelled `legal-review`
-**Handoff:** Labels an approved PR `legal:approved` and `stage:review`; blocks or retains legal review when risk is unresolved
-**Agent file:** `.github/agents/legal-compliance.agent.md`
+**Input:** Proposal, PR diff, dependency and asset inventory, deployment model,
+target audience and geography **Output:** Legal risk assessment, remediation or
+escalation issues, PR/issue labels and comments **Triggers:** PR labelled
+`stage:legal`; issue labelled `legal-review` **Handoff:** Labels an approved PR
+`legal:approved` and `stage:review`; blocks or retains legal review when risk is
+unresolved **Agent file:** `.github/agents/legal-compliance.agent.md`
 
 #### Scenario: High-risk change requires legal sign-off
 
-- GIVEN a change that handles personal data or introduces unclear third-party rights
+- GIVEN a change that handles personal data or introduces unclear third-party
+  rights
 - WHEN the Legal & Compliance Agent completes its assessment
 - THEN it requires human legal review before release
-- AND the work does not progress to review, deployment, or operations until the risk is closed or formally escalated
+- AND the work does not progress to review, deployment, or operations until the
+  risk is closed or formally escalated
 
 #### Scenario: Conditional legal approval identifies remediation
 
@@ -231,7 +258,8 @@ components, or intellectual-property and use-rights concerns.
 
 ### Requirement: Code Reviewer Agent
 
-The Code Reviewer Agent validates code quality, design alignment, and best practices.
+The Code Reviewer Agent validates code quality, design alignment, and best
+practices.
 
 **Responsibilities:**
 
@@ -264,12 +292,14 @@ The Code Reviewer Agent validates code quality, design alignment, and best pract
 
 ### Requirement: DevOps/SRE Agent
 
-The DevOps/SRE Agent automates infrastructure provisioning and staged deployment.
+The DevOps/SRE Agent automates infrastructure provisioning and staged
+deployment.
 
 **Responsibilities:**
 
 - Validate and update CI/CD pipeline configuration for the change
-- Provision or update infrastructure using IaC (Bicep, Terraform, or Docker Compose)
+- Provision or update infrastructure using IaC (Bicep, Terraform, or Docker
+  Compose)
 - Execute staged deployments: dev → staging → production
 - Run smoke tests after each deployment stage; auto-rollback on failure
 - Update deployment runbooks and environment documentation
@@ -299,7 +329,8 @@ The DevOps/SRE Agent automates infrastructure provisioning and staged deployment
 
 ### Requirement: Operations/SRE Agent
 
-The Operations SRE Agent ensures the deployed application is observable and resilient.
+The Operations SRE Agent ensures the deployed application is observable and
+resilient.
 
 **Responsibilities:**
 
@@ -310,7 +341,8 @@ The Operations SRE Agent ensures the deployed application is observable and resi
 - Lead post-mortems and propose SDLC improvements from operational learnings
 
 **Input:** Deployed application, SLO targets, existing dashboards  
-**Output:** Monitoring dashboards, alert policies, runbooks, post-mortem reports  
+**Output:** Monitoring dashboards, alert policies, runbooks, post-mortem
+reports\
 **Triggers:** Successful production deployment (label: `stage:operate`)  
 **Handoff:** Invokes `/opsx:archive` when SLOs are configured and stable  
 **Agent file:** `.github/agents/operations-sre.agent.md`
@@ -334,50 +366,72 @@ or SDLC handoff.
 **Responsibilities:**
 
 - Inspect OpenSpec changes, specifications, templates, and artifact status
-- Guide proposal, design, task, validation, synchronization, and archive workflows through the OpenSpec CLI
-- Validate change artifacts before completion and archive only after required gates are met
+- Guide proposal, design, task, validation, synchronization, and archive
+  workflows through the OpenSpec CLI
+- Validate change artifacts before completion and archive only after required
+  gates are met
 - Prefer structured CLI output when programmatic interpretation is needed
 
-**Input:** OpenSpec change slug, specifications, workflow requests, and CLI configuration
-**Output:** OpenSpec workflow status, validation results, and managed change artifacts
-**Triggers:** Direct requests to manage OpenSpec changes, specifications, or workflows
-**Handoff:** None; the agent supports the stage persona currently responsible for the work
-**Agent file:** `.github/agents/openspec.agent.md`
+**Input:** OpenSpec change slug, specifications, workflow requests, and CLI
+configuration **Output:** OpenSpec workflow status, validation results, and
+managed change artifacts **Triggers:** Direct requests to manage OpenSpec
+changes, specifications, or workflows **Handoff:** None; the agent supports the
+stage persona currently responsible for the work **Agent file:**
+`.github/agents/openspec.agent.md`
 
 #### Scenario: Change validation reports artifact state
 
 - GIVEN an in-flight OpenSpec change
 - WHEN the OpenSpec Agent validates the change
 - THEN it reports validation results and any incomplete required artifacts
-- AND it does not archive the change until the required quality gates are satisfied
+- AND it does not archive the change until the required quality gates are
+  satisfied
 
 ---
 
 ### Requirement: Skills Standards Compliance Plan MUST Be Approved Before Execution
-Changes that standardize skill definitions SHALL begin with a reviewed proposal and explicit approval before implementation tasks are executed.
+
+Changes that standardize skill definitions SHALL begin with a reviewed proposal
+and explicit approval before implementation tasks are executed.
 
 #### Scenario: Proposal blocks implementation until approval
-- GIVEN a change folder for skill standards exists under `openspec/changes/<slug>/`
+
+- GIVEN a change folder for skill standards exists under
+  `openspec/changes/<slug>/`
 - WHEN `proposal.md` status is draft or unapproved
 - THEN implementation tasks in `tasks.md` remain unchecked
-- AND no changes are made to production skill definitions outside planning artifacts
+- AND no changes are made to production skill definitions outside planning
+  artifacts
 
 ### Requirement: Skill Quality Improvements MUST Be Measured Against Baseline
-Skill standardization changes SHALL include a lightweight baseline-vs-improvement validation for representative skill and persona files, using a common rubric for clarity, structure, execution guidance, and handoff quality.
+
+Skill standardization changes SHALL include a lightweight
+baseline-vs-improvement validation for representative skill and persona files,
+using a common rubric for clarity, structure, execution guidance, and handoff
+quality.
 
 #### Scenario: Representative baseline review is recorded
+
 - GIVEN a standards update for skill or persona guidance
 - WHEN the change is validated
-- THEN a small set of representative files is scored before and after the change against the same rubric
-- AND the validation notes record the delta in clarity, structure, and scope discipline without introducing broad benchmark tooling or evaluation infrastructure
+- THEN a small set of representative files is scored before and after the change
+  against the same rubric
+- AND the validation notes record the delta in clarity, structure, and scope
+  discipline without introducing broad benchmark tooling or evaluation
+  infrastructure
 
 ### Requirement: Persona Definitions MUST Follow a Consistent Standard Layout
-Persona files under `.github/agents/` SHALL follow a consistent layout so stage handoffs and execution expectations remain predictable.
+
+Persona files under `.github/agents/` SHALL follow a consistent layout so stage
+handoffs and execution expectations remain predictable.
 
 #### Scenario: Persona layout audit enforces consistency
+
 - GIVEN persona files in `.github/agents/*.agent.md`
 - WHEN a standards alignment change is prepared
-- THEN each persona file includes consistent sections for role intent, core responsibilities, behavior rules, execution/checklist guidance, and handoff protocol
+- THEN each persona file includes consistent sections for role intent, core
+  responsibilities, behavior rules, execution/checklist guidance, and handoff
+  protocol
 - AND deviations are captured as tasks before implementation completion
 
 ## Collaboration Contract
@@ -388,7 +442,8 @@ The nine stage personas MUST follow this contract when handing off work:
 2. **Label the PR** — set the appropriate `stage:*` label
 3. **Comment on the PR** — provide a handoff summary with findings and blockers
 4. **Create sub-issues for blockers** — link to the main PR
-5. **Never skip a stage** — if a stage is not applicable, document why in a comment
+5. **Never skip a stage** — if a stage is not applicable, document why in a
+   comment
 
 The OpenSpec Agent supports these stages without owning a handoff. The Legal &
 Compliance Agent is invoked only for high-risk work; when triggered, it cannot

@@ -1,20 +1,21 @@
 # Idea Capture — Source of Truth
 
 > **Domain:** `idea-capture` | **Owner:** product-owner  
-> Defines how raw ideas are ingested, validated, and transformed into
-> structured OpenSPEC proposals ready for the Software Fabric pipeline.
+> Defines how raw ideas are ingested, validated, and transformed into structured
+> OpenSPEC proposals ready for the Software Fabric pipeline.
 
 ---
 
 ## Purpose
 
-Defines how raw ideas are submitted, validated, and transformed into structured OpenSpec proposals.
+Defines how raw ideas are submitted, validated, and transformed into structured
+OpenSpec proposals.
 
 ## Overview
 
-Every Software Fabric change begins with an **idea** — a concise statement of
-a problem, opportunity, or improvement. The idea-capture domain standardises
-how ideas flow from raw input to an accepted proposal.
+Every Software Fabric change begins with an **idea** — a concise statement of a
+problem, opportunity, or improvement. The idea-capture domain standardises how
+ideas flow from raw input to an accepted proposal.
 
 ---
 
@@ -36,7 +37,8 @@ The system MUST provide a structured mechanism for submitting new ideas.
 - WHEN the issue is submitted with label `idea`
 - THEN the SDLC Orchestrator workflow triggers the Product Owner Agent
 - AND a change folder is created at `openspec/changes/<slug>/`
-- AND the submitter receives a confirmation comment with a link to the change folder
+- AND the submitter receives a confirmation comment with a link to the change
+  folder
 
 #### Scenario: Idea submitted via chat command
 
@@ -49,8 +51,8 @@ The system MUST provide a structured mechanism for submitting new ideas.
 
 ### Requirement: Minimum Viable Idea
 
-An idea MUST contain enough information for the Product Owner Agent to produce
-a complete proposal without additional human input.
+An idea MUST contain enough information for the Product Owner Agent to produce a
+complete proposal without additional human input.
 
 **Required idea fields:**
 
@@ -65,13 +67,15 @@ a complete proposal without additional human input.
 - GIVEN an idea with all 5 required fields populated
 - WHEN the Product Owner Agent processes it
 - THEN `proposal.md` is generated without requiring additional human input
-- AND the agent proceeds autonomously to fill in scenarios and acceptance criteria
+- AND the agent proceeds autonomously to fill in scenarios and acceptance
+  criteria
 
 #### Scenario: Incomplete idea triggers clarification loop
 
 - GIVEN an idea with only a title and vague problem statement
 - WHEN the Product Owner Agent assesses it
-- THEN the agent requests clarification on the missing fields via a GitHub comment
+- THEN the agent requests clarification on the missing fields via a GitHub
+  comment
 - AND does NOT create `proposal.md` until minimum information is provided
 
 ---
@@ -115,7 +119,8 @@ Change folder names MUST follow the kebab-case slug convention.
 - Lowercase letters, digits, and hyphens only
 - 3–50 characters
 - Start with a letter
-- Describe the change, not the ticket number (use `add-dark-mode`, not `issue-42`)
+- Describe the change, not the ticket number (use `add-dark-mode`, not
+  `issue-42`)
 
 #### Scenario: Valid slug accepted
 
@@ -155,5 +160,5 @@ The Product Owner Agent MUST maintain a prioritized backlog.
 
 See `openspec/templates/idea-to-spec.md` for the complete template.
 
-Use with: `/opsx:propose <slug>` — the Product Owner Agent will use this template
-to structure the conversation and produce `proposal.md`.
+Use with: `/opsx:propose <slug>` — the Product Owner Agent will use this
+template to structure the conversation and produce `proposal.md`.

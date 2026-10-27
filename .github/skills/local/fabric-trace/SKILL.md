@@ -1,6 +1,11 @@
 ---
 name: fabric-trace
-description: Opt in to a revision-bound Software Fabric execution trace. Use when asked to trace a Software Fabric change, record a Fabric execution trace, run OpenSpec apply with tracing, or check a Fabric trace. Do not use for ordinary apply requests unless tracing is requested.
+description:
+  Opt in to a revision-bound Software Fabric execution trace. Use when asked to
+  trace a Software Fabric change, record a Fabric execution trace,
+  run OpenSpec apply with tracing, or check a Fabric trace.
+  Do not use for ordinary apply
+  requests unless tracing is requested.
 license: MIT
 ---
 
@@ -8,11 +13,12 @@ license: MIT
 
 ## Purpose and limits
 
-Use the local trace CLI to record observable activity and evaluate revision-bound
-evidence for one OpenSpec change. This is an opt-in wrapper; it does not dispatch
-personas, capture all host activity, or make an ordinary apply run the complete
-Software Fabric. Read the [trace guide](../../../../doc/fabric-execution-trace.md)
-and the [SDLC instructions](../../../../.github/instructions/sdlc-fabric.instructions.md)
+Use the local trace CLI to record observable activity and evaluate
+revision-bound evidence for one OpenSpec change. This is an opt-in wrapper; it
+does not dispatch personas, capture all host activity, or make an ordinary apply
+run the complete Software Fabric. Read the
+[trace guide](../../../../doc/fabric-execution-trace.md) and the
+[SDLC instructions](../../../../.github/instructions/sdlc-fabric.instructions.md)
 before starting. Keep the approved change scope and preserve unrelated worktree
 changes.
 
@@ -30,8 +36,8 @@ changes.
 
    Capture the printed `.fabric-traces/<traceId>` path as `$traceDir`. Resume an
    existing trace only when its repository, change directory, and target
-   revision are still the intended ones. If the implementation revision
-   changed, initialize a new trace and link the prior trace with
+   revision are still the intended ones. If the implementation revision changed,
+   initialize a new trace and link the prior trace with
    `--predecessor <traceId>`; do not carry gate success forward.
 
 2. Record that the local tracing skill and applicable instructions were
@@ -58,8 +64,8 @@ changes.
    prompt wrapper. The wrapper records that apply was requested, not that every
    persona ran.
 
-4. Execute the relevant validation through `run`, using an appropriate stage
-   and the repository's actual test command. The child command follows `--`:
+4. Execute the relevant validation through `run`, using an appropriate stage and
+   the repository's actual test command. The child command follows `--`:
 
    ```powershell
    python scripts/fabric_trace.py run `
@@ -92,10 +98,10 @@ changes.
    python scripts/fabric_trace.py check --trace-dir $traceDir
    ```
 
-   `report` can successfully render an incomplete trace. `check` returns
-   nonzero unless the evaluated result is `verified-complete`; preserve that
-   result and its missing or failed evidence as an honest gap, not as a reason
-   to bypass a gate.
+   `report` can successfully render an incomplete trace. `check` returns nonzero
+   unless the evaluated result is `verified-complete`; preserve that result and
+   its missing or failed evidence as an honest gap, not as a reason to bypass a
+   gate.
 
 ## Quality checks and guardrails
 
@@ -105,8 +111,8 @@ changes.
   session references as self-reported; do not infer agent invocation or stage
   completion.
 - Respect required security and conditional legal review. Do not merge without
-  the security gate, deploy without passing tests and the required coverage,
-  or archive without operations/SLO readiness.
+  the security gate, deploy without passing tests and the required coverage, or
+  archive without operations/SLO readiness.
 - Do not change generic apply skills/prompts, managed instructions, or
   workflows. Do not change labels, post comments, dispatch workflows, approve,
   merge, deploy, or archive through this local tracing flow.
@@ -118,9 +124,9 @@ changes.
 Report the trace directory and target revision, validation commands and their
 observed exits, whether optional GitHub collection ran, the report/check status,
 verified gates, missing or failed evidence, and the trace's observation
-boundary. State explicitly that tracing is opt-in and does not prove
-unobserved persona activity or a real deployment. Do not claim
-`verified-complete` unless `check` returned success.
+boundary. State explicitly that tracing is opt-in and does not prove unobserved
+persona activity or a real deployment. Do not claim `verified-complete` unless
+`check` returned success.
 
 ## References
 

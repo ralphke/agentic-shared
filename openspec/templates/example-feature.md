@@ -16,7 +16,8 @@ This example shows a minimal compliant change set.
 
 #### Intent
 
-Users need a downloadable CSV export for filtered table results. Today they copy data manually, which is slow and error-prone.
+Users need a downloadable CSV export for filtered table results. Today they copy
+data manually, which is slow and error-prone.
 
 #### Scope
 
@@ -31,7 +32,8 @@ Users need a downloadable CSV export for filtered table results. Today they copy
 
 #### Approach
 
-Add one API endpoint and reuse existing query filters so exported data matches what users see in the UI.
+Add one API endpoint and reuse existing query filters so exported data matches
+what users see in the UI.
 
 #### Scenarios
 
@@ -74,19 +76,22 @@ Add one API endpoint and reuse existing query filters so exported data matches w
 
 ##### Requirement: CSV Export Regression Coverage
 
-The test suite MUST validate CSV export authorization, success, and empty-result behavior.
+The test suite MUST validate CSV export authorization, success, and empty-result
+behavior.
 
 ###### Scenario: Authorized export test exists
 
 - GIVEN a change introducing CSV export
 - WHEN tests execute in CI
-- THEN at least one integration test validates successful export for authenticated users
+- THEN at least one integration test validates successful export for
+  authenticated users
 
 ###### Scenario: Unauthorized export test exists
 
 - GIVEN a change introducing CSV export
 - WHEN tests execute in CI
-- THEN at least one integration test validates `401 Unauthorized` for unauthenticated requests
+- THEN at least one integration test validates `401 Unauthorized` for
+  unauthenticated requests
 
 #### MODIFIED Requirements
 

@@ -24,8 +24,7 @@ Use this template for:
 
 #### Requirement: [Existing requirement name]
 
-[Updated requirement text.]
-(Previously: [short summary of prior behavior])
+[Updated requirement text.] (Previously: [short summary of prior behavior])
 
 ##### Scenario: [Modified requirement scenario]
 

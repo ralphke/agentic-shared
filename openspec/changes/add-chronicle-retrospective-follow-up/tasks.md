@@ -8,7 +8,8 @@
 
 ## Phase 1 - Implementation
 
-- [x] T01 - Add voluntary Chronicle follow-up guidance to the workflow improvement report.
+- [x] T01 - Add voluntary Chronicle follow-up guidance to the workflow
+      improvement report.
 
 ## Phase 2 - Validation
 

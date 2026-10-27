@@ -8,13 +8,14 @@
 
 ## Purpose
 
-Defines the minimum security review, scanning, threat-modeling, and vulnerability-gate requirements for every change.
+Defines the minimum security review, scanning, threat-modeling, and
+vulnerability-gate requirements for every change.
 
 ## Overview
 
-Security is a first-class citizen in the Software Fabric. Every change MUST
-pass a security review before it can progress to code review or deployment.
-This spec defines the minimum security bar and the automated scanning process.
+Security is a first-class citizen in the Software Fabric. Every change MUST pass
+a security review before it can progress to code review or deployment. This spec
+defines the minimum security bar and the automated scanning process.
 
 ---
 
@@ -22,7 +23,8 @@ This spec defines the minimum security bar and the automated scanning process.
 
 ### Requirement: OWASP Top 10 Compliance
 
-All application code MUST be reviewed against the OWASP Top 10 vulnerability categories.
+All application code MUST be reviewed against the OWASP Top 10 vulnerability
+categories.
 
 **OWASP Top 10 Checks (enforced per change):**
 
@@ -67,12 +69,12 @@ All code changes MUST pass automated static analysis before code review.
 
 **Severity thresholds:**
 
-| Severity  | Action                           |
-|-----------|----------------------------------|
-| CRITICAL  | Block merge, open P0 issue       |
-| HIGH      | Block merge, open P1 issue       |
-| MEDIUM    | Warning comment, track in backlog|
-| LOW/INFO  | Informational comment only       |
+| Severity | Action                            |
+| -------- | --------------------------------- |
+| CRITICAL | Block merge, open P0 issue        |
+| HIGH     | Block merge, open P1 issue        |
+| MEDIUM   | Warning comment, track in backlog |
+| LOW/INFO | Informational comment only        |
 
 #### Scenario: SAST finds SQL injection risk
 
@@ -105,7 +107,8 @@ All dependency changes (new packages, version bumps) MUST be scanned for CVEs.
 
 - GIVEN a PR adding `some-library==1.2.3` with a known CVE-2024-XXXXX (HIGH)
 - WHEN the dependency scan runs
-- THEN the PR is blocked with the CVE details, CVSS score, and available fix version
+- THEN the PR is blocked with the CVE details, CVSS score, and available fix
+  version
 - AND an issue is opened to track upgrading to a patched version
 
 ---
@@ -116,7 +119,8 @@ Secrets MUST NOT appear in source code, commit history, or log output.
 
 **Mandated practices:**
 
-- Use environment variables or a secrets manager (Azure Key Vault, GitHub Secrets)
+- Use environment variables or a secrets manager (Azure Key Vault, GitHub
+  Secrets)
 - Enable GitHub Secret Scanning on the repository
 - Enable GitHub Push Protection to block commits containing secrets
 - Rotate all secrets exposed in commit history immediately
@@ -137,7 +141,8 @@ Every change MUST have a security review sign-off before deployment.
 **Sign-off criteria:**
 
 - Security scan report reviewed by Security Engineer Agent
-- All CRITICAL and HIGH findings resolved or formally accepted with justification
+- All CRITICAL and HIGH findings resolved or formally accepted with
+  justification
 - Security summary comment added to PR referencing the findings report
 - PR labelled `security:passed` before Code Reviewer stage begins
 
@@ -168,5 +173,6 @@ All deployments MUST use security hardened defaults.
 
 - GIVEN a change is ready for deployment
 - WHEN the DevOps/SRE Agent evaluates its deployment configuration
-- THEN debug endpoints are disabled, external traffic uses HTTPS, and secrets are injected at runtime
+- THEN debug endpoints are disabled, external traffic uses HTTPS, and secrets
+  are injected at runtime
 - AND the container image has passed vulnerability scanning

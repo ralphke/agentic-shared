@@ -1,19 +1,26 @@
 ---
 name: legal-compliance-review
-description: Classify legal and compliance risk, review data and rights exposure, and define escalation or remediation before release. Use for stage legal and high-risk changes. Do not use as a replacement for outside legal counsel or to bypass human sign-off.
+description:
+  Classify legal and compliance risk, review data and rights exposure, and
+  define escalation or remediation before release. Use for stage legal and
+  high-risk changes. Do not use as a replacement for outside legal counsel or to
+  bypass human sign-off.
 ---
 
 # Skill: Legal & Compliance Review
 
-**Persona:** Legal & Compliance Agent
-**Input:** proposal, PR diff, dependency manifest, architecture description, data handling plan, third-party component list, AI usage notes
-**Output:** risk verdict, required remediation, and legal review recommendation or block decision
+**Persona:** Legal & Compliance Agent **Input:** proposal, PR diff, dependency
+manifest, architecture description, data handling plan, third-party component
+list, AI usage notes **Output:** risk verdict, required remediation, and legal
+review recommendation or block decision
 
 ---
 
 ## When to Use This Skill
 
-Use when a change is labelled `stage:legal`, includes a legal-risk trigger, or exposes any of the following:
+Use when a change is labelled `stage:legal`, includes a legal-risk trigger, or
+exposes any of the following:
+
 - personal, health, financial, biometric, or regulated data
 - external commercial distribution or customer-facing launch
 - open-source, source-available, or third-party component reuse
@@ -25,14 +32,25 @@ Use when a change is labelled `stage:legal`, includes a legal-risk trigger, or e
 
 ## Execution Steps
 
-1. **Gather the proposal evidence** — Review the issue, PR, or design notes for audience, geography, data types, components, licenses, and business use case.
-2. **Map the risk signals** — Identify whether the proposed change involves PII, regulated data, cross-border movement, marketplace restrictions, third-party IP, AI-generated output, or contract risk.
-3. **Check the component surface** — Review every dependency, data source, model, API, and integration for license terms, use restrictions, provenance, attribution, and commercial-use compatibility.
-4. **Assess data exposure** — Confirm whether the solution handles personal data or regulated content, what controls exist, and whether there is any risk of misuse or tampering.
-5. **Score the proposal** — Use the risk rubric below to convert evidence into a low/medium/high/critical result.
-6. **Decide the action** — Approve, conditionally approve, block, or require human legal review.
-7. **Document the rationale** — Capture specific risk triggers, required remediation, and the sign-off path in a PR or issue comment.
-8. **Apply gate behavior** — If the result is high or critical, escalate for legal sign-off and do not let the change progress without explicit closure.
+1. **Gather the proposal evidence** — Review the issue, PR, or design notes for
+   audience, geography, data types, components, licenses, and business use case.
+2. **Map the risk signals** — Identify whether the proposed change involves PII,
+   regulated data, cross-border movement, marketplace restrictions, third-party
+   IP, AI-generated output, or contract risk.
+3. **Check the component surface** — Review every dependency, data source,
+   model, API, and integration for license terms, use restrictions, provenance,
+   attribution, and commercial-use compatibility.
+4. **Assess data exposure** — Confirm whether the solution handles personal data
+   or regulated content, what controls exist, and whether there is any risk of
+   misuse or tampering.
+5. **Score the proposal** — Use the risk rubric below to convert evidence into a
+   low/medium/high/critical result.
+6. **Decide the action** — Approve, conditionally approve, block, or require
+   human legal review.
+7. **Document the rationale** — Capture specific risk triggers, required
+   remediation, and the sign-off path in a PR or issue comment.
+8. **Apply gate behavior** — If the result is high or critical, escalate for
+   legal sign-off and do not let the change progress without explicit closure.
 
 ---
 
@@ -40,19 +58,20 @@ Use when a change is labelled `stage:legal`, includes a legal-risk trigger, or e
 
 Apply a score to each signal that reasonably applies:
 
-| Signal | Example trigger | Score |
-|---|---|---:|
-| PII exposure | customer names, email, medical or financial data | 1 |
-| Regulated data | health, finance, children, biometrics, government data | 1 |
-| Cross-border processing | EU/UK/US/Canada/APAC or multi-jurisdiction handling | 1 |
-| Copyleft or restrictive licensing | GPL/AGPL, source-disclosure obligations, unclear terms | 1 |
-| Third-party IP risk | reused code, content, datasets, models, or SDKs with unclear rights | 1 |
-| Data integrity or tampering risk | user-modifiable data, audit gaps, unsafe update paths | 1 |
-| Market restriction | regulated workflow, consumer protection exposure, sector rules | 1 |
-| Contractual review needed | external distribution, indemnity, customer terms, procurement reviews | 1 |
-| AI-specific legal exposure | personal or sensitive decisioning, model terms restrictions | 1 |
+| Signal                            | Example trigger                                                       | Score |
+| --------------------------------- | --------------------------------------------------------------------- | ----: |
+| PII exposure                      | customer names, email, medical or financial data                      |     1 |
+| Regulated data                    | health, finance, children, biometrics, government data                |     1 |
+| Cross-border processing           | EU/UK/US/Canada/APAC or multi-jurisdiction handling                   |     1 |
+| Copyleft or restrictive licensing | GPL/AGPL, source-disclosure obligations, unclear terms                |     1 |
+| Third-party IP risk               | reused code, content, datasets, models, or SDKs with unclear rights   |     1 |
+| Data integrity or tampering risk  | user-modifiable data, audit gaps, unsafe update paths                 |     1 |
+| Market restriction                | regulated workflow, consumer protection exposure, sector rules        |     1 |
+| Contractual review needed         | external distribution, indemnity, customer terms, procurement reviews |     1 |
+| AI-specific legal exposure        | personal or sensitive decisioning, model terms restrictions           |     1 |
 
 Risk score guidance:
+
 - 0-1 = LOW
 - 2-3 = MEDIUM
 - 4-5 = HIGH
@@ -63,31 +82,38 @@ Risk score guidance:
 ## Review Checklist
 
 ### Target audience and jurisdiction
+
 - [ ] Customer or user population is identified
 - [ ] Geography and legal jurisdiction are explicit
 - [ ] Cross-border transfer or local market obligations are reviewed
 - [ ] Marketing claims match the actual compliance posture
 
 ### Data handling and privacy
+
 - [ ] Personal or sensitive categories are identified
 - [ ] Consent, notice, retention, and deletion obligations are understood
 - [ ] Data sharing and processing boundaries are documented
 - [ ] Security and incident-response obligations are considered
 
 ### Rights and licensing
+
 - [ ] Every dependency is evaluated for rights and restrictions
 - [ ] License compatibility across all components is reviewed
 - [ ] Attribution and notice obligations are mapped
 - [ ] External distribution or SaaS use is compatible with package terms
 
 ### IP and ownership
+
 - [ ] Third-party code, assets, or datasets are provenance-checked
 - [ ] Ownership is clear on major components and content
-- [ ] Potential copyright, patent, trademark, or trade-secret exposure is documented
+- [ ] Potential copyright, patent, trademark, or trade-secret exposure is
+      documented
 
 ### AI and generated content
+
 - [ ] Model provider terms permit the intended use case
-- [ ] Generated or adapted content does not reuse restricted third-party material
+- [ ] Generated or adapted content does not reuse restricted third-party
+      material
 - [ ] Data or prompt usage does not create legal or rights exposure
 
 ---
@@ -95,27 +121,35 @@ Risk score guidance:
 ## Decision Rules
 
 ### APPROVE
+
 Use only when:
+
 - all key licenses and use rights are clear and compatible
 - no unresolved legal or regulatory issues remain
 - the target audience and deployment context are covered by available evidence
 - no material IP dispute risk remains
 
 ### CONDITIONAL
+
 Use when:
+
 - the change is acceptable if specific remediation happens before release
 - there are manageable notice, attribution, or control updates to complete
 - legal risk is understood and tracked to closure
 
 ### BLOCK
+
 Use when:
+
 - unresolved license conflicts exist
 - rights ownership is unclear or disputed
 - regulated data obligations are not addressed
 - public distribution would violate third-party terms or platform obligations
 
 ### HUMAN REVIEW REQUIRED
+
 Use when:
+
 - the target audience, jurisdiction, or legal regime is complex or ambiguous
 - contract or regulatory interpretation is needed
 - the project uses sensitive data or IP-heavy inputs
@@ -127,40 +161,47 @@ Use when:
 
 ```markdown
 ## Legal Risk Assessment — <change-slug>
-**Reviewed by:** Legal & Compliance Agent
-**Date:** YYYY-MM-DD
-**Decision:** APPROVE / CONDITIONAL / BLOCK / HUMAN REVIEW REQUIRED
-**Overall Risk:** LOW / MEDIUM / HIGH / CRITICAL
+
+**Reviewed by:** Legal & Compliance Agent **Date:** YYYY-MM-DD **Decision:**
+APPROVE / CONDITIONAL / BLOCK / HUMAN REVIEW REQUIRED **Overall Risk:** LOW /
+MEDIUM / HIGH / CRITICAL
 
 ### Summary
+
 [One-paragraph summary of the legal posture of the change]
 
 ### Jurisdictional Considerations
+
 - Audience: [region/country/market]
 - Applicable obligations: [list]
 - Gaps identified: [list]
 
 ### Rights & Licensing Review
-| Component | Rights/License | Result | Notes |
-|-----------|---------------|--------|-------|
+
+| Component   | Rights/License  | Result               | Notes   |
+| ----------- | --------------- | -------------------- | ------- |
 | [component] | [license/terms] | [clear/unclear/risk] | [notes] |
 
 ### Data & Privacy Review
+
 - Data types: [list]
 - Regulated exposure: [yes/no]
 - Required controls: [list]
 
 ### IP / Dispute Risk
+
 - Risk areas: [copyright, patent, trademark, privacy, data rights]
 - Likelihood: [low/medium/high]
 - Severity: [low/medium/high]
 - Key concern: [description]
 
 ### Required Remediation
+
 1. [remediation item]
 2. [remediation item]
 
 ### Escalation Recommendation
+
 [Proceed / conditional approval / legal counsel sign-off / block]
 ```
 
@@ -215,6 +256,7 @@ def triage_legal_risk(proposal):
 ## Required Legal Sign-Off Triggers
 
 Consult human legal counsel before approval when any of the following apply:
+
 - regulated or personal data is involved
 - the solution is intended for external commercial distribution
 - major third-party code, model, content, or data is bundled or redistributed
@@ -227,10 +269,12 @@ Consult human legal counsel before approval when any of the following apply:
 ## Collaboration & Review Loop
 
 - Post the risk assessment comment on the PR or issue.
-- Check off only completed legal/compliance tasks in `tasks.md` when such a section exists.
+- Check off only completed legal/compliance tasks in `tasks.md` when such a
+  section exists.
 - If approved, label the PR `legal:approved` and `stage:review`.
 - If conditional, request remediation and keep the work in legal review.
-- If blocked, open remediation or escalation issues and label the work `legal:blocked`.
+- If blocked, open remediation or escalation issues and label the work
+  `legal:blocked`.
 - Comment with clear next steps so engineering can remediate without ambiguity.
 
 ---
@@ -242,31 +286,35 @@ Consult human legal counsel before approval when any of the following apply:
 - [ ] Licensing and use-rights status is reviewed for every dependency
 - [ ] Third-party IP and provenance risk is assessed
 - [ ] AI use and output rights are evaluated where relevant
-- [ ] Decision is explicit: APPROVE, CONDITIONAL, BLOCK, or HUMAN REVIEW REQUIRED
+- [ ] Decision is explicit: APPROVE, CONDITIONAL, BLOCK, or HUMAN REVIEW
+      REQUIRED
 - [ ] Required remediation and escalation path are documented
 
 ## Scripts & Tools
 
-- Review dependency manifests, license metadata, data-flow descriptions, and AI usage notes.
-- Use repository policy and provenance checks as evidence; escalate unclear matters to human counsel.
+- Review dependency manifests, license metadata, data-flow descriptions, and AI
+  usage notes.
+- Use repository policy and provenance checks as evidence; escalate unclear
+  matters to human counsel.
 
 ## Error Handling
 
-| Error | Cause | Fix |
-|---|---|---|
-| Jurisdiction is unclear | Audience or processing region is missing | Pause and request the missing context |
-| Rights are unclear | Ownership, license, or terms cannot be verified | Mark CONDITIONAL or BLOCK and require evidence |
-| Sensitive data is present | Data classification or safeguards are incomplete | Keep `stage:legal` and require remediation |
+| Error                     | Cause                                            | Fix                                            |
+| ------------------------- | ------------------------------------------------ | ---------------------------------------------- |
+| Jurisdiction is unclear   | Audience or processing region is missing         | Pause and request the missing context          |
+| Rights are unclear        | Ownership, license, or terms cannot be verified  | Mark CONDITIONAL or BLOCK and require evidence |
+| Sensitive data is present | Data classification or safeguards are incomplete | Keep `stage:legal` and require remediation     |
 
 ## Scenarios & References
 
 - Use the legal-compliance spec and the repository high-risk trigger list.
-- Treat PII, regulated data, third-party rights, AI content, and cross-border processing as review scenarios.
+- Treat PII, regulated data, third-party rights, AI content, and cross-border
+  processing as review scenarios.
 
 ## Quick Reference
 
-| Task | Decision |
-|---|---|
-| Classify risk | Identify trigger, evidence, jurisdiction, and affected parties |
-| Clear a change | APPROVE only when required evidence and sign-off are documented |
-| Escalate | Keep `stage:legal` until remediation or human review clears the risk |
+| Task           | Decision                                                             |
+| -------------- | -------------------------------------------------------------------- |
+| Classify risk  | Identify trigger, evidence, jurisdiction, and affected parties       |
+| Clear a change | APPROVE only when required evidence and sign-off are documented      |
+| Escalate       | Keep `stage:legal` until remediation or human review clears the risk |
