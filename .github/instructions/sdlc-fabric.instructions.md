@@ -11,15 +11,15 @@ to production.
 ## How the Software Fabric Works
 
 ```text
-[Idea] → [Proposal] → [Spec+Design] → [Tasks] → [Code]
+[Idea] → [Proposal] → [UX Design] → [Spec+Design] → [Tasks] → [Code]
        → [Tests] → [Security] → [Legal Review*] → [Review] → [Deploy] → [Operate]
 ```
 
 `Legal Review*` is an optional escalation gate triggered only when the proposal
 or implementation is assessed as high-risk for legal, regulatory, licensing, or
 use-rights issues. The persona currently owning the active stage (Product Owner,
-Architect, or Developer) must perform this risk assessment at the end of their
-stage and label the PR `stage:legal` if any trigger criteria are met.
+UX Designer, Architect, or Developer) must perform this risk assessment at the
+end of their stage and label the PR `stage:legal` if any trigger criteria are met.
 
 Each stage is owned by a specific persona defined in `.github/agents/`. Stages
 are gated by GitHub PR labels (`stage:*`). If a PR has no stage label, apply
@@ -32,6 +32,7 @@ review.
 | Persona            | File                                        | Stage Label       |
 | ------------------ | ------------------------------------------- | ----------------- |
 | Product Owner      | `.github/agents/product-owner.agent.md`     | `stage:proposal`  |
+| UX Designer        | `.github/agents/ux-designer.agent.md`       | `stage:ux`        |
 | Systems Architect  | `.github/agents/architect.agent.md`         | `stage:design`    |
 | Developer          | `.github/agents/developer.agent.md`         | `stage:implement` |
 | QA Engineer        | `.github/agents/qa-engineer.agent.md`       | `stage:test`      |

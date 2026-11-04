@@ -30,6 +30,7 @@ context: |
 
   Persona roster and files:
     product-owner=.github/agents/product-owner.agent.md
+    ux-designer=.github/agents/ux-designer.agent.md
     architect=.github/agents/architect.agent.md
     developer=.github/agents/developer.agent.md
     qa-engineer=.github/agents/qa-engineer.agent.md
