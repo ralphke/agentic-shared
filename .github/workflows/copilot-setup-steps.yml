@@ -23,10 +23,18 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
-      - name: Install OpenSpec CLI
-        run: npm install -g @fission-ai/openspec
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "26"
 
-      - name: Verify OpenSpec CLI
-        run: openspec --version
+      - name: Install OpenSpec
+        run: npm install -g @fission-ai/openspec@latest
+
+      - name: Verify prerequisites
+        run: |
+          node --version
+          openspec --version
+          openspec context --json
+          openspec doctor
