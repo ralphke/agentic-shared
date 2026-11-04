@@ -1,4 +1,4 @@
-# Spec Delta
+# Delta for sdlc-process
 
 ## MODIFIED Requirements
 
@@ -8,9 +8,9 @@ Each agent stage MUST complete before the next begins, signalled by PR labels.
 The UX Designer stage follows proposal and precedes architecture; the Architect
 MUST receive the UX brief before beginning design. Legal review is a conditional
 gate after security review and before code review. A change with legal-risk
-triggers MUST receive `stage:legal`; it may advance to `stage:review` only after a
-`legal:approved` disposition is present. A change labelled `legal:blocked` MUST
-NOT advance to code review or deployment.
+triggers MUST receive `stage:legal`; it may advance to `stage:review` only after
+a `legal:approved` disposition is present. A change labelled `legal:blocked`
+MUST NOT advance to code review or deployment.
 
 | Stage Label       | Responsible Persona | Next Stage                      |
 | ----------------- | ------------------- | ------------------------------- |

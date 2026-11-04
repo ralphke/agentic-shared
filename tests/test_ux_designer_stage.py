@@ -32,3 +32,23 @@ def test_persona_rosters_and_downstream_handoffs_reference_ux():
     assert "Read `ux-brief.md` before design" in architect
     assert "`ux-brief.md` is the" in developer
     assert "UX acceptance criteria in `ux-brief.md`" in qa
+
+
+def test_sdlc_workflow_gates_ux_before_design_and_requires_the_brief():
+    workflow = (ROOT / ".github/workflows/sdlc-orchestrator.yml").read_text()
+
+    ux_gate_start = workflow.index("stage-ux-gate:")
+    design_gate_start = workflow.index("stage-design-gate:")
+    ux_gate = workflow[ux_gate_start:design_gate_start]
+    design_gate = workflow[design_gate_start:]
+
+    assert "github.event.label.name == 'stage:ux'" in ux_gate
+    assert "stage:ux requires a change folder" in ux_gate
+    assert 'if [ ! -f "$dir/proposal.md" ]; then' in ux_gate
+    assert "Create `openspec/changes/<slug>/ux-brief.md`" in ux_gate
+    assert "Pass the completed brief to the Architect" in ux_gate
+    assert 'if [ ! -f "$dir/ux-brief.md" ]; then' in design_gate
+    assert "Missing UX handoff artifact. Expected ux-brief.md" in design_gate
+    assert workflow.index("5. 🧪 Tests (QA Engineer)") < workflow.index(
+        "6. 🔒 Security Review (Security Engineer)"
+    )

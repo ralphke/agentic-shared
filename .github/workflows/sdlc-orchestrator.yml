@@ -48,14 +48,15 @@ jobs:
                 '',
                 '**Pipeline stages:**',
                 '1. 📋 Proposal (Product Owner)',
-                '2. 🏗️ Design + Tasks (Architect)',
-                '3. 💻 Implementation (Developer)',
-                '4. 🧪 Tests (QA Engineer)',
-                '5. 🔒 Security Review (Security Engineer)',
-                '6. ⚖️ Legal Review when risk requires it (Legal & Compliance)',
-                '7. 👁️ Code Review (Code Reviewer)',
-                '8. 🚀 Deploy (DevOps/SRE)',
-                '9. 📊 Monitor + Archive (Operations SRE)',
+                '2. 🎨 UX Design (UX Designer)',
+                '3. 🏗️ Design + Tasks (Architect)',
+                '4. 💻 Implementation (Developer)',
+                '5. 🧪 Tests (QA Engineer)',
+                '6. 🔒 Security Review (Security Engineer)',
+                '7. ⚖️ Legal Review when risk requires it (Legal & Compliance)',
+                '8. 👁️ Code Review (Code Reviewer)',
+                '9. 🚀 Deploy (DevOps/SRE)',
+                '10. 📊 Monitor + Archive (Operations SRE)',
               ].join('\n')
             });
 
@@ -70,13 +71,13 @@ jobs:
               labels: ['stage:proposal']
             });
 
-  # ─── STAGE GATE: PROPOSAL → DESIGN ────────────────────────────────────────
-  stage-design-gate:
-    name: "🏗️ Stage: Design"
+  # ─── STAGE GATE: PROPOSAL → UX ────────────────────────────────────────────
+  stage-ux-gate:
+    name: "🎨 Stage: UX Design"
     if: |
       github.event_name == 'pull_request' &&
       github.event.action == 'labeled' &&
-      github.event.label.name == 'stage:design'
+      github.event.label.name == 'stage:ux'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -92,7 +93,66 @@ jobs:
           mapfile -t change_dirs < <(
             git diff --name-only "$BASE_SHA" "$HEAD_SHA" \
               | grep -E '^openspec/changes/[^/]+/' \
-              | cut -d/ -f1-4 \
+              | cut -d/ -f1-3 \
+              | sort -u
+          )
+
+          if [ "${#change_dirs[@]}" -eq 0 ]; then
+            echo "::error::stage:ux requires a change folder under openspec/changes/<slug>/."
+            exit 1
+          fi
+
+          for dir in "${change_dirs[@]}"; do
+            if [ ! -f "$dir/proposal.md" ]; then
+              echo "::error file=$dir::Missing proposal artifact. Expected proposal.md before UX design."
+              exit 1
+            fi
+          done
+
+      - name: Comment — UX design stage started
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: [
+                '## 🎨 Stage: UX Design',
+                '',
+                '**UX Designer Agent** — your turn.',
+                '',
+                'Create `openspec/changes/<slug>/ux-brief.md` from the accepted proposal.',
+                'Cover readable content, WCAG 2.2 AA accessibility, visible and discoverable controls,',
+                'responsive desktop/tablet/mobile behavior, and keyboard and touch interactions.',
+                '',
+                'Pass the completed brief to the Architect by applying `stage:design`.',
+              ].join('\n')
+            });
+
+  # ─── STAGE GATE: UX → DESIGN ──────────────────────────────────────────────
+  stage-design-gate:
+    name: "🏗️ Stage: Design"
+    if: |
+      github.event_name == 'pull_request' &&
+      github.event.action == 'labeled' &&
+      github.event.label.name == 'stage:design'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Validate proposal and UX brief artifacts
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          mapfile -t change_dirs < <(
+            git diff --name-only "$BASE_SHA" "$HEAD_SHA" \
+              | grep -E '^openspec/changes/[^/]+/' \
+              | cut -d/ -f1-3 \
               | sort -u
           )
 
@@ -104,6 +164,10 @@ jobs:
           for dir in "${change_dirs[@]}"; do
             if [ ! -f "$dir/proposal.md" ]; then
               echo "::error file=$dir::Missing proposal stage artifact. Expected proposal.md before the Architect stage."
+              exit 1
+            fi
+            if [ ! -f "$dir/ux-brief.md" ]; then
+              echo "::error file=$dir::Missing UX handoff artifact. Expected ux-brief.md before the Architect stage."
               exit 1
             fi
           done

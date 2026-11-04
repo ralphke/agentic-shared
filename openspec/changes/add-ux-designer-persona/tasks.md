@@ -13,15 +13,15 @@
 
 ## 2. Workflow stage gate
 
-- [ ] 2.1 Add the `stage:ux` orchestrator gate and require `ux-brief.md` in the
-  existing design gate; verify the UX handoff and missing-brief rejection are
-  covered by the focused workflow tests.
-- [ ] 2.2 Extend the focused workflow tests to assert the `stage:ux` trigger,
+- [x] 2.1 Add the `stage:ux` orchestrator gate and require `ux-brief.md` in the
+  existing design gate; verify the stage order and artifact checks in the
+  workflow definition.
+- [x] 2.2 Extend the focused workflow tests to assert the `stage:ux` trigger,
   proposal validation, UX brief handoff, and design-gate requirement; verify
   them with `python3 -m pytest -q tests/test_ux_designer_stage.py`.
 
 ## 3. Integration validation
 
-- [ ] 3.1 Validate the change with `openspec validate
-  --change add-ux-designer-persona --strict` and run the focused tests and
+- [x] 3.1 Validate the change with `openspec validate
+  add-ux-designer-persona --strict` and run the focused tests and
   tracked Markdown lint; resolve all findings before handoff.

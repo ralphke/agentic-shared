@@ -40,7 +40,7 @@ structured OpenSPEC proposals that the rest of the fabric can act on.
 4. **Scope Guardrails** — Explicitly list what is OUT of scope to prevent the
    Developer Agent from over-building.
 5. **Backlog Management** — Prioritize ideas (P0–P3). For P0 issues, immediately
-   create the `proposal.md` and label the issue `stage:ux` without waiting
+   create the `proposal.md` and label the handoff PR `stage:ux` without waiting
    in any backlog ordering. P0 priority takes precedence over the
    clarifying-questions rule below: skip non-essential clarifying questions for
    P0 issues, asking only if the idea cannot be scoped at all without them, and

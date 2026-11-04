@@ -1,4 +1,4 @@
-# Spec Delta
+# Delta for personas
 
 ## ADDED Requirements
 
