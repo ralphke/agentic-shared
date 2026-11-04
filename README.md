@@ -184,6 +184,40 @@ those paths are aligned.
 - Avoid editing synchronized files directly in consumer repositories unless the
   change is immediately promoted back here.
 
+### Mandatory Software Fabric gates
+
+Ideas and draft proposals have an early **Proceed / Defer / Do not pursue**
+decision before any repository capture write, including initialization and
+scaffolding. Assess in conversation or session storage outside the worktree.
+Raw ideas, labels, P0 priority, and kickoff do not authorize capture; an explicit
+request to create named repository artifacts counts as Proceed without another
+prompt at handoff. Missing input keeps capture paused.
+
+Defer or rejection needs no delivery gates and leaves repository files untouched.
+It is not successful archive or task completion and never deletes existing work;
+cleanup of an already captured proposal needs separate explicit authorization.
+Proceed authorizes capture only, not acceptance of the resulting proposal/spec.
+
+Implementation requires complete proposal, delta specs, design, and ordered
+tasks plus explicit acceptance of the current proposal/spec. Existing
+conversation approval or linked review can supply acceptance evidence; file
+existence and CLI readiness alone cannot. Skipped required artifacts or a schema
+omitting a required role block readiness rather than waive it.
+
+Single and bulk archive require complete required artifacts/tasks and verifiable
+passing evidence for every mandatory quality gate in
+`.github/instructions/openspec-workflow.instructions.md`. User confirmation
+cannot override mandatory gates. Every delta of an archived change must be synced
+and verified in the main specs; a blocked delta blocks its whole change.
+Genuinely optional artifacts keep informative warnings.
+
+The conventional-path `validate_openspec_change.py` checks local planning files,
+delta presence, and usable completed task checkboxes. It does not certify
+substantive planning acceptance, scenario coverage, external CI, review, security,
+legal or operational gates, or completed spec sync. The archive-readiness workflow
+also checks PR evidence only when a PR is supplied; a green run is not complete
+Software Fabric archive clearance.
+
 ### After updating the OpenSpec CLI assets
 
 Run this maintainer procedure in this canonical repository, not a consumer.
@@ -225,7 +259,12 @@ regeneration; it does not automate the CLI update itself.
 The restoration script only targets the three propose/apply/verify command
 skills and their three legacy wrappers. Human diff review remains necessary:
 recognizing the file layout does not prove a future CLI's semantics are
-compatible. Pull-request CI independently checks committed policy and
+compatible. Restoration does not rewrite generated bodies. Reconcile apply,
+archive/bulk-archive, sync, verification, planning, and onboarding bodies against
+the mandatory gates; never release regenerated confirmation overrides,
+premature implementation, or archive-without-sync choices. The strict policy
+contract tests check these paths alongside the restoration fixtures.
+Pull-request CI independently checks committed policy and
 restoration fixtures; it must not repair the checkout before testing. The
 `Shared script contracts` job runs only in `ralphke/agentic-shared` and
 skips consumer repositories, which do not receive this repository's script tests

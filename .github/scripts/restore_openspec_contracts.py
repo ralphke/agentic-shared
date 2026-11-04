@@ -30,6 +30,14 @@ Never initialize implicitly or use a stale root.
 """
 SKILL_POLICIES = {
     "openspec-propose": COMMON_POLICY + """
+Before setup or capture writes, follow the Pre-Capture Intake Decision in
+`.github/instructions/openspec-workflow.instructions.md`. Assess in conversation
+or session storage; offer Proceed, Defer, or Do not pursue. Missing input pauses
+capture. Defer or rejection means no repository writes, sync, archive, task
+completion, or deletion of existing work. A request to create named repository
+artifacts counts as Proceed; do not repeat it at handoff. Proceed does not accept
+the proposal/spec or authorize implementation.
+
 The primary non-developer intake is a GitHub issue labelled `idea`. Use its title,
 fields, labels, and discussion as proposal input; retain `idea` and
 `stage:proposal` until approval.
@@ -38,6 +46,12 @@ and does not require an issue. This workflow authorizes planning only:
 Do not edit project code. Stop after planning and wait for a new explicit request
 before implementation.""",
     "openspec-apply-change": COMMON_POLICY + """
+Before implementation, require complete proposal, delta specs, design, and tasks
+and explicit acceptance of the current proposal/spec. Follow the Mandatory
+Planning Contract in `.github/instructions/openspec-workflow.instructions.md`.
+Missing or stale acceptance evidence blocks implementation. CLI readiness,
+schema omissions, and skipped required artifacts cannot waive these prerequisites.
+
 Do not mark partial or deferred work complete. Complete each task's specified
 behavior and verification before checking it off. Preserve the testing, security,
 required legal review, code review, and archive gates; task completion does not

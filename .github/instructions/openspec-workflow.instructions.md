@@ -9,6 +9,9 @@ When working with files in `openspec/`, always follow the OpenSpec workflow
 
 ## Command Skills
 
+Apply the Pre-Capture Intake Decision below before any setup or capture write.
+Read-only assessment needs no repository initialization.
+
 Use the shared OpenSpec command skills for new workflows. Core Commands
 (/opsx:_) are the legacy interface. Only use Core Commands (/opsx:_) when the
 user types the literal `/opsx:` command syntax; otherwise always use Command
@@ -109,15 +112,78 @@ MODIFIED / REMOVED sections:
 
 - The domain name is taken from the delta spec folder path
   `openspec/changes/<slug>/specs/<domain>/spec.md`.
+- Sync every delta into its main spec and verify the resulting requirements and
+  scenarios before moving the change. Already-synced deltas still require content
+  verification. A sync blocker, excluded delta, or failed comparison blocks the
+  entire affected change, including in bulk archive.
+- Never offer archive without syncing or use confirmation to override required
+  completion, quality gates, or sync verification. Report partial sync writes on
+  failure; keep the change active and do not claim rollback.
+
+## Pre-Capture Intake Decision
+
+Before any repository write for a new idea or draft proposal, assess it in
+conversation or session storage outside the worktree. Offer one decision:
+**Proceed**, **Defer**, or **Do not pursue**. A raw idea, issue label, P0 priority,
+or kickoff alone is not capture authorization. An explicit request to create
+named repository artifacts counts as Proceed; do not ask the same decision again
+when handing off between skills. Missing input keeps capture paused.
+
+Defer or Do not pursue ends intake without repository writes: no initialization,
+change directory, metadata, proposal, specs, design, tasks, or code. Report that
+the idea was deferred or not pursued, not delivered or successfully archived.
+No delivery gates are needed merely to end intake. Do not run archive or sync,
+mark tasks complete, or delete/revert existing work; cleanup of an already
+captured proposal requires separate explicit authorization.
+
+Proceed permits capture, not acceptance of the resulting proposal/spec or
+implementation. Apply the mandatory planning and archive gates below after
+capture. This is a conversational exit, not a CLI skip command, `skip_specs`
+waiver, new stage, or alternate successful archive path.
+
+## Mandatory Planning Contract
+
+Before implementation, require a substantively complete proposal, delta specs
+for every affected domain, design, and ordered tasks. The proposal must be
+accepted before design begins; the current proposal/spec must have explicit
+acceptance evidence before implementation. Use existing conversation approval
+or linked review evidence tied to the current content, not a new approval format.
+Missing or stale evidence blocks implementation.
+
+Resolve required artifact roles through the selected schema's status and context
+paths, including the transitive dependencies of `applyRequires`. These Software
+Fabric roles remain mandatory even if the schema omits them or reports them
+`skipped`; `skip_specs` is not a waiver. Stop on ambiguous mappings instead of
+guessing filenames or writing an artifact explicitly marked skipped.
+CLI readiness and file existence alone do not prove substantive completeness or
+acceptance. Genuinely optional artifacts outside these required roles retain
+warnings and do not become mandatory gates.
+
+An implementation request authorizes work only after these prerequisites pass.
+Never pre-check tasks to satisfy a PR-progress condition. If planning changes
+invalidate acceptance, pause affected implementation until acceptance is renewed.
 
 ## Quality Gate Checklist (before archive)
 
+- [ ] Required planning artifacts are complete and current acceptance is verified.
 - [ ] All tasks in `tasks.md` are complete.
 - [ ] All new scenarios have passing tests.
 - [ ] No removed requirements are still referenced elsewhere.
+- [ ] All CI checks are green (build, lint, unit tests).
+- [ ] Security review has passed with no HIGH or CRITICAL findings.
+- [ ] New-code coverage is at least 80%.
+- [ ] At least one code-review approval (human or AI) is present.
+- [ ] All spec acceptance criteria are satisfied.
+- [ ] Required legal review is approved for changes with legal-risk triggers.
+- [ ] Applicable operational archive criteria are met: SLOs, alerts, runbooks,
+      stability window, and post-mortem completion when required.
 
 If any checklist item cannot be verified due to missing data, treat it as unmet
-and report which items could not be verified.
+and report which items could not be verified. Check these gates before any
+archive-driven sync writes or moves, for each change in a batch. Non-applicability
+must be grounded in the change's actual scope (for example no new code for a
+coverage metric), not inferred from missing evidence or a confirmation.
+Local artifact validation does not certify external quality gates.
 
 If any Quality Gate Checklist item is unmet, do not run `/opsx:archive` (see
-Stop Conditions #6).
+Stop Conditions #6). User confirmation cannot override mandatory gates.

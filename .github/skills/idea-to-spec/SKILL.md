@@ -9,7 +9,8 @@ description:
 # Skill: Idea to OpenSPEC Proposal
 
 **Persona:** Product Owner Agent **Input:** Raw idea text (natural language)
-**Output:** `openspec/changes/<slug>/proposal.md`
+**Output:** An intake decision, or `openspec/changes/<slug>/proposal.md` after
+explicit Proceed.
 
 ---
 
@@ -30,10 +31,22 @@ Use this skill when a user submits:
 2. **Generate slug** — Convert title to kebab-case (e.g., "add csv export" →
    `add-csv-export`)
 3. **Validate slug** — Ensure kebab-case, 3–50 chars, starts with letter
-4. **Create change folder** — `openspec/changes/<slug>/`
-5. **Load template** — Read `openspec/templates/idea-to-spec.md`
-6. **Clarify if needed** — Ask ≤ 3 focused questions if intent is ambiguous
-7. **Write proposal.md** — Fill in all required sections:
+4. **Load template and assess** — Read `openspec/templates/idea-to-spec.md`;
+   clarify material ambiguity before any capture, asking ≤ 3 focused questions.
+   Keep the idea and draft proposal in conversation or session storage.
+5. **Pre-Capture Intake Decision** — Follow
+   `.github/instructions/openspec-workflow.instructions.md`. Offer Proceed,
+   Defer, or Do not pursue. Missing input pauses capture. Defer or rejection
+   means no repository writes, sync, archive, task completion, or deletion of
+   existing work. A request to create named repository artifacts counts as
+   Proceed; do not repeat the decision at handoff. An issue, priority, or raw
+   idea alone does not. Proceed is not proposal/spec acceptance or permission
+   to implement.
+6. **Capture after Proceed** — Use `openspec-propose` prerequisites, selected
+   root, and schema paths to scaffold with `openspec new change "<slug>"` and
+   obtain proposal instructions. Never hand-create a change directory or
+   initialize implicitly. Capture only the proposal within this skill's scope.
+7. **Write proposal.md** — Only after Proceed, fill in all required sections:
    - `## Intent` — 1-2 paragraphs explaining why (what users need, not how to
      build it)
    - `## Scope` — bullet list of inclusions
@@ -48,14 +61,18 @@ Use this skill when a user submits:
    - `## Scenarios` — ≥3 Given/When/Then (≥1 unhappy path)
    - `## Acceptance Criteria` — binary checkboxes (≥3)
    - `## Affected Domains` — OpenSPEC domains impacted
-8. **Hand off to Architect** — Label the proposal PR `stage:design`; keep the
-   source idea issue labelled `stage:proposal`
+8. **Obtain proposal acceptance** — Present the proposal. Only after explicit
+   acceptance, label an existing handoff PR `stage:ux`; keep the source idea issue
+   labelled `stage:proposal`. Do not create a PR unless asked. No design or
+   implementation before its applicable acceptance and planning prerequisites.
 9. **Confirm** — Comment with link to `proposal.md`
 
 ---
 
 ## Quality Checks
 
+- [ ] Explicit Proceed preceded the first repository write; deferred/rejected
+      intake has no repository artifacts or successful archive claim
 - [ ] proposal.md has all 7 required sections (including Build/Buy/Vibe Flag and
       Legal/IP Notes)
 - [ ] At least 3 Given/When/Then scenarios
@@ -78,7 +95,7 @@ Created: openspec/changes/add-csv-export/proposal.md
 ✓ Scenarios — 4 scenarios (3 happy, 1 unhappy: empty dataset)
 ✓ Acceptance Criteria — 5 binary checks
 ✓ Affected Domains — idea-capture, testing-standards
-Handoff PR labelled: stage:design
+After explicit acceptance, existing handoff PR labelled: stage:ux
 ```
 
 ---
@@ -127,4 +144,4 @@ Handoff PR labelled: stage:design
 | ------------------ | ------------------------------------------------------------------- |
 | Start a proposal   | Gather problem, users, scope, scenarios, and acceptance criteria    |
 | Validate artifacts | Run `openspec context --json` and the applicable validation command |
-| Handoff            | Label the work `stage:design` after review approval                 |
+| Handoff            | Label an existing handoff PR `stage:ux` after proposal acceptance  |

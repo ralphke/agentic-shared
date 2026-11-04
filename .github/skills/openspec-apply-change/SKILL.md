@@ -26,6 +26,12 @@ auto-selected versus explicit-request distinction. For any other context error,
 stop, report the error and suggested fix, and make no artifact changes.
 Never initialize implicitly or use a stale root.
 
+Before implementation, require complete proposal, delta specs, design, and tasks
+and explicit acceptance of the current proposal/spec. Follow the Mandatory
+Planning Contract in `.github/instructions/openspec-workflow.instructions.md`.
+Missing or stale acceptance evidence blocks implementation. CLI readiness,
+schema omissions, and skipped required artifacts cannot waive these prerequisites.
+
 Do not mark partial or deferred work complete. Complete each task's specified
 behavior and verification before checking it off. Preserve the testing, security,
 required legal review, code review, and archive gates; task completion does not
@@ -90,7 +96,7 @@ In both branches, never create the root as a side effect: do not run `openspec i
      - If `missingArtifacts` is non-empty: suggest using `/opsx-continue` to create them.
      - Otherwise, follow the CLI instruction to create or repair the schema-configured tracking file from existing planning artifacts. Do not assume another artifact is ready or start implementation while blocked.
    - If `state: "all_done"`: report that all tracked tasks are complete and suggest review or verification as appropriate before archiving
-   - Otherwise: proceed to implementation
+   - Otherwise: check the mandatory planning prerequisites below before implementation
 
    Treat `context` as a required prompt-level input. Read and consider it, and
    apply relevant project facts, conventions, and constraints while implementing.
@@ -108,6 +114,16 @@ In both branches, never create the root as a side effect: do not run `openspec i
    These are prompt-level behavior contracts, not enforceable checks.
 
 4. **Read context files**
+
+   Apply the Mandatory Planning Contract in
+   `.github/instructions/openspec-workflow.instructions.md`. Resolve and read the
+   required proposal, specs, design, and tasks plus transitive `applyRequires`
+   dependencies through status/context paths. Verify substantive completeness
+   and explicit acceptance of the current proposal/spec. Missing, incomplete,
+   skipped, or ambiguously mapped required artifacts and absent or stale
+   acceptance evidence block implementation, even when CLI state is `ready`.
+   Report the blocker and stop before code edits. Genuinely optional artifacts
+   remain warnings; do not create an artifact explicitly marked skipped.
 
    Read every file path listed under `contextFiles` from the apply instructions output.
    The files depend on the schema being used:
@@ -179,8 +195,8 @@ Working on task 4/7: <task description>
 - [x] Task 2
 ...
 
-All tracked tasks are complete. Review or verify the change as appropriate
-before archiving. You can archive this change with `/opsx-archive`.
+All tracked tasks are complete. Review and verify the change; archive is permitted
+only after all mandatory gates pass and every delta is synced and verified.
 ```
 
 **Output On Pause (Issue Encountered)**
@@ -225,5 +241,5 @@ What would you like to do?
 
 This skill supports the "actions on a change" model:
 
-- **Can be invoked anytime**: Before all artifacts are done (if tasks exist), after partial implementation, interleaved with other actions
-- **Allows artifact updates**: If implementation reveals design issues, suggest updating artifacts - not phase-locked, work fluidly
+- **Can be invoked to inspect readiness anytime**: Implementation begins or resumes only after required planning and current acceptance are verified.
+- **Allows artifact updates**: If implementation reveals design issues, pause affected work, update planning, and renew acceptance when content changes invalidate it.

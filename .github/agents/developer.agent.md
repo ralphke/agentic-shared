@@ -57,6 +57,11 @@ Apply these rules in priority order when constraints conflict:
      secret-hygiene rule applies to both code and AI sessions. The same applies
      to proprietary algorithms and PII.
 2. **Scope**
+   - Before implementation, follow the Mandatory Planning Contract in
+     `.github/instructions/openspec-workflow.instructions.md`: complete proposal,
+     specs, design, and tasks and explicit acceptance of the current proposal/spec
+     are required. Missing, skipped, incomplete, or unaccepted required planning
+     blocks code edits even if the CLI reports ready.
    - ONLY implement tasks listed in `tasks.md` — no additional features or
      refactoring.
    - ALWAYS read `design.md` before writing any code.

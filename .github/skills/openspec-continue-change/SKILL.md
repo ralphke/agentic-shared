@@ -69,12 +69,21 @@ In both branches, never create the root as a side effect: do not run `openspec i
    **If all planning artifacts are complete (`isPlanningComplete: true`, or legacy `isComplete: true`)**:
    - Congratulate the user
    - Show final status including the schema used
-   - Suggest: "Planning is complete! You can now implement this change. Once implementation and any tracked work are complete, archive it."
+   - Check the Mandatory Planning Contract in
+     `.github/instructions/openspec-workflow.instructions.md` before claiming
+     readiness: required proposal, specs, design, and tasks cannot be omitted or
+     skipped. Present the proposal for acceptance before design.
+   - Suggest: "Planning artifacts are ready for review. Implementation requires
+     explicit acceptance of the current proposal/spec; archive additionally
+     requires all mandatory gates and every-delta sync verification."
    - STOP
 
    ---
 
    **If artifacts are ready to create** (status shows artifacts with `status: "ready"`):
+   - Apply the Mandatory Planning Contract before selecting an artifact.
+     Obtain proposal acceptance before design; a skipped required role blocks
+     readiness and needs configuration reconciliation, not an implicit waiver.
    - Pick the FIRST artifact with `status: "ready"` from the status output
    - Get its instructions:
      ```bash

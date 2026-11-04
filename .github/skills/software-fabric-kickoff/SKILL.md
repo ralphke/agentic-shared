@@ -14,6 +14,17 @@ metadata:
 
 # Software Fabric Kickoff
 
+## Pre-Capture Intake Decision
+
+Before setup or capture writes, follow
+`.github/instructions/openspec-workflow.instructions.md`. Assess the idea or
+draft proposal in conversation or session storage and offer Proceed, Defer, or
+Do not pursue. Missing input pauses capture. Defer or rejection means no
+repository writes, sync, archive, task completion, or deletion of existing work.
+An explicit request to create named repository artifacts counts as Proceed; do
+not repeat the decision at handoff. A kickoff alone does not. Proceed is not
+proposal/spec acceptance or implementation approval.
+
 ## Prerequisites
 
 Confirm `openspec --version` and `openspec context --json` before invoking any
@@ -36,13 +47,15 @@ store, commands act on the nearest local `openspec/` root.
 
 ## Workflow
 
-1. Obtain the user's idea and invoke `openspec-propose` to create all planning
-   artifacts.
+1. Assess the user's idea and resolve the Pre-Capture Intake Decision first.
+   Only after Proceed, invoke `openspec-propose` to create planning artifacts,
+   obtaining proposal acceptance before design.
 2. Confirm the proposal identifies scope, scenarios, acceptance criteria, and
    applicable legal/IP risk.
 3. Present the proposal, delta specs, design, and tasks for human approval.
-4. Stop after planning. A request to start the kickoff authorizes planning only,
-   even when it also asks for implementation.
+4. Stop after planning. A request to start the kickoff authorizes assessment
+   only until Proceed, and planning only afterward, even when it also asks for
+   implementation.
 5. After the user makes a new explicit request, invoke `openspec-apply-change`
    for the selected change.
 6. When implementation and tests are complete, invoke `openspec-verify-change`.
@@ -62,6 +75,8 @@ store, commands act on the nearest local `openspec/` root.
 Report the change name, planning artifacts created, approval status, and the
 next skill to invoke. After planning, prompt the user to explicitly request
 apply work.
+For deferred or rejected intake, report that outcome and that no repository
+files were written; there is no change name or successful archive to report.
 
 ## When to Use & Triggers
 
@@ -70,7 +85,8 @@ implement or archive an existing change.
 
 ## Workflows & Steps
 
-1. Initialize and validate OpenSpec context.
+1. Resolve the intake decision without writes; after Proceed, validate OpenSpec
+   context. Never initialize implicitly.
 2. Coordinate proposal, design, specs, and tasks through the responsible
    personas.
 3. Obtain approval before handing off to implementation.

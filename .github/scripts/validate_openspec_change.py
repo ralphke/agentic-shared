@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate that an OpenSpec change is ready for archive review."""
+"""Check conventional OpenSpec artifacts; external archive gates need separate evidence."""
 
 from __future__ import annotations
 
@@ -19,21 +19,64 @@ def validate_change(change_root: Path) -> None:
     if missing:
         raise OpenSpecValidationError(f"missing required file(s): {', '.join(missing)}")
 
-    tasks = (change_root / "tasks.md").read_text(encoding="utf-8")
-    unchecked = re.findall(r"^- \[ \]", tasks, flags=re.MULTILINE)
-    if unchecked:
+    artifacts = {
+        name: (change_root / name).read_text(encoding="utf-8")
+        for name in required_files
+    }
+    empty = [name for name, content in artifacts.items() if not content.strip()]
+    if empty:
+        raise OpenSpecValidationError(f"empty required file(s): {', '.join(empty)}")
+
+    checkboxes: list[tuple[str, str]] = []
+    fence: str | None = None
+    for line in artifacts["tasks.md"].splitlines():
+        marker = re.match(r"^\s*(`{3,}|~{3,})", line)
+        if marker:
+            if fence is None:
+                fence = marker[1]
+            elif marker[1][0] == fence[0] and len(marker[1]) >= len(fence):
+                fence = None
+            continue
+        if fence is None:
+            task = re.match(r"^\s*(?:[-*+]|\d+[.)])\s+\[([^\]]*)\]\s*(.*)$", line)
+            if task:
+                checkboxes.append((task[1].strip(), task[2].strip()))
+    if not checkboxes or not any(description for _, description in checkboxes):
+        raise OpenSpecValidationError("no usable tracked tasks found in tasks.md")
+    incomplete = [
+        (marker, description)
+        for marker, description in checkboxes
+        if marker.lower() != "x" or not description
+    ]
+    if incomplete:
         raise OpenSpecValidationError(
-            f"{len(unchecked)} unchecked task(s) remain in {change_root / 'tasks.md'}"
+            f"{len(incomplete)} incomplete or undescribed task(s) remain in {change_root / 'tasks.md'}"
         )
 
-    delta_specs = list((change_root / "specs").glob("*/spec.md")) if (change_root / "specs").is_dir() else []
+    delta_specs = sorted((change_root / "specs").rglob("spec.md"))
     if not delta_specs:
-        raise OpenSpecValidationError("no delta specs found under specs/*/spec.md")
+        raise OpenSpecValidationError("no delta specs found under specs/**/spec.md")
 
     for spec_path in delta_specs:
         content = spec_path.read_text(encoding="utf-8")
-        if "## ADDED Requirements" not in content and "## MODIFIED Requirements" not in content and "## REMOVED Requirements" not in content:
+        if not content.strip():
+            raise OpenSpecValidationError(f"empty delta spec: {spec_path}")
+        if not re.search(
+            r"^## (?:ADDED|MODIFIED|REMOVED|RENAMED) Requirements\s*$",
+            content,
+            flags=re.MULTILINE,
+        ):
             raise OpenSpecValidationError(f"delta spec has no requirement section: {spec_path}")
+        has_requirement = re.search(
+            r"^### Requirement:\s+\S", content, flags=re.MULTILINE
+        )
+        has_rename = (
+            "## RENAMED Requirements" in content
+            and re.search(r"^-\s+FROM:\s+`?### Requirement:\s+\S", content, re.MULTILINE)
+            and re.search(r"^-\s+TO:\s+`?### Requirement:\s+\S", content, re.MULTILINE)
+        )
+        if not has_requirement and not has_rename:
+            raise OpenSpecValidationError(f"delta spec has no requirement: {spec_path}")
 
 
 def main() -> int:
@@ -47,14 +90,17 @@ def main() -> int:
     change_root = args.root / args.change_slug
     try:
         validate_change(change_root)
-    except FileNotFoundError as error:
-        print(f"OpenSpec path not found: {error.filename}", file=sys.stderr)
+    except (OSError, UnicodeError) as error:
+        print(f"OpenSpec artifact read failed: {error}", file=sys.stderr)
         return 1
     except OpenSpecValidationError as error:
         print(f"OpenSpec archive readiness failed: {error}", file=sys.stderr)
         return 1
 
-    print(f"OpenSpec archive readiness passed: {change_root}")
+    print(
+        f"OpenSpec artifact checks passed: {change_root}. "
+        "External quality gates, acceptance, and spec sync remain separately required."
+    )
     return 0
 
 
