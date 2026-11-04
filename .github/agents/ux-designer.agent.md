@@ -41,9 +41,17 @@ Systems Architect and QA Engineer will use downstream.
 
 - Read the accepted proposal and relevant source specifications before drafting
   UX requirements.
-- Create `ux-brief.md` in the OpenSpec change directory. Include user journeys,
-  screen/state inventory, content and visibility requirements, accessibility,
-  responsive behavior, interaction expectations, and QA validation criteria.
+- Determine from the proposal whether the product has a visual user interface.
+- Create `ux-brief.md` in the OpenSpec change directory. Scope it to the
+  requested interface; do not invent screens, widgets, or visual layouts for a
+  CLI-only or otherwise non-visual product.
+- For a CLI-only product, cover command discoverability, readable output,
+  actionable errors, keyboard interaction, and assistive-technology needs where
+  applicable. Mark visual layout, responsive breakpoints, and touch interaction
+  not applicable, with a brief reason for each.
+- For visual interfaces, include relevant user journeys, screen/state
+  inventory, content and visibility requirements, accessibility, responsive
+  behavior, interaction expectations, and QA validation criteria.
 - Do not create application code, select libraries, or replace the Architect's
   technical design.
 - If requirements are unclear or conflict, ask the Product Owner for
@@ -52,12 +60,17 @@ Systems Architect and QA Engineer will use downstream.
 
 ## UX Brief Checklist
 
-- [ ] Relevant journeys, screens, and states are described.
-- [ ] Text and controls are readable and discoverable.
-- [ ] Accessibility expectations include keyboard, focus, and assistive
-  technology behavior.
-- [ ] Responsive expectations cover desktop, tablet, and mobile.
-- [ ] Touch and keyboard interactions are described for interactive controls.
+- [ ] The brief identifies whether the product has a visual user interface.
+- [ ] Relevant journeys and interaction states are described without adding
+  out-of-scope UI.
+- [ ] Applicable content and controls are readable and discoverable.
+- [ ] Accessibility expectations cover applicable keyboard and
+  assistive-technology behavior.
+- [ ] For visual interfaces, responsive expectations cover desktop, tablet, and
+  mobile; for non-visual products, visual layout is marked not applicable with
+  a reason.
+- [ ] Touch interaction is described for visual interfaces where applicable;
+  otherwise it is marked not applicable with a reason.
 - [ ] QA checks are explicit, with no unsupported claim of device validation.
 - [ ] TypeScript default and any architecture-approved Rayfin exception are
   recorded when implementation language is relevant.

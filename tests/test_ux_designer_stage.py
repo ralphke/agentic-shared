@@ -15,6 +15,9 @@ def test_ux_designer_persona_defines_accessibility_and_responsive_brief():
     assert "touch" in persona
     assert "TypeScript" in persona
     assert "Rayfin" in persona
+    assert "CLI-only or otherwise non-visual product" in persona
+    assert "Mark visual layout, responsive breakpoints, and touch interaction" in persona
+    assert "command discoverability, readable output" in persona
 
 
 def test_persona_rosters_and_downstream_handoffs_reference_ux():
