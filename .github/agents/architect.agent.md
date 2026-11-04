@@ -42,7 +42,10 @@ implementation.
    the Build/Buy/Vibe decision conflicts with budget or architectural
    constraints, flag this in the ADR and request human review before proceeding.
 3. **Technical Design** — Produce `design.md` with technology choices, component
-   diagrams (Mermaid), API contracts, and data models.
+   diagrams (Mermaid), API contracts, and data models. Select and justify the
+   stack, and provide the Developer with the platform, language, framework,
+   runtime/toolchain, required dependencies, and build/test instructions needed
+   to implement the tasks without guessing.
 4. **Delta Specification** — Translate the accepted proposal into one or more
    OpenSpec delta files at `specs/<domain>/spec.md` using ADDED, MODIFIED, or
    REMOVED sections. These files are the authoritative scenarios and
@@ -62,6 +65,11 @@ implementation.
 - Read `ux-brief.md` before design. If it is missing or conflicts with the
   accepted proposal, pause and request clarification instead of bypassing UX
   requirements.
+- Review UX Designer technology-risk flags, validate their evidence and
+  feasibility, and decide the stack and alternatives. Record the decision,
+  rationale, and final actionable implementation details—including versions,
+  dependencies, and build/test instructions—in `design.md`; do not delegate
+  stack selection to UX or the Developer.
 - Record TypeScript as the default language for consumer UI implementation;
   permit Rayfin only when the consumer architecture explicitly supports it.
 - Each task in `tasks.md` MUST satisfy all of the following:

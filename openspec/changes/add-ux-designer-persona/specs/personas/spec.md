@@ -25,14 +25,38 @@ interaction expectations before the Systems Architect begins design.
   interaction
 - AND does not rely on visually hidden or undiscoverable controls or content
 
-#### Scenario: UX brief hands implementation constraints to architecture
+#### Scenario: UX Designer flags an obsolete or infeasible technology
 
-- GIVEN a UX brief includes consumer UI implementation constraints
-- WHEN the UX Designer Agent hands off to the Systems Architect
-- THEN TypeScript is recorded as the default implementation language
-- AND Rayfin is recorded only when the consumer architecture explicitly supports
-  it
-- AND the brief does not prescribe a framework or implement application code
+- GIVEN a proposal specifies a technology that appears obsolete or infeasible
+- WHEN the UX Designer Agent identifies a substantiated concern
+- THEN the UX brief flags the concern to the Systems Architect with its evidence
+  and user-impact rationale
+- AND the UX Designer does not select or prescribe a stack or replacement
+
+#### Scenario: Technology choices remain with architecture
+
+- GIVEN a UX brief raises a technology-risk concern
+- WHEN the Systems Architect completes the technical design
+- THEN the Architect evaluates the concern and records the stack decision and
+  rationale in `design.md`
+- AND the UX brief does not direct the Developer to use a technology
+
+### Requirement: Architect Provides an Implementation-Ready Technology Handoff
+
+The Systems Architect MUST document the selected and justified implementation
+stack and the information the Developer needs to build and test approved tasks
+without choosing technologies by guesswork.
+
+#### Scenario: Architect supplies implementation details
+
+- GIVEN a change requires implementation work
+- WHEN the Architect completes `design.md`
+- THEN it names the platform, language, framework, runtime/toolchain, and
+  required dependencies as applicable
+- AND provides the build and test instructions and relevant compatibility
+  constraints
+- AND evaluates any UX Designer technology-risk flags and records the decision
+  and rationale
 
 #### Scenario: QA validates UX acceptance criteria
 

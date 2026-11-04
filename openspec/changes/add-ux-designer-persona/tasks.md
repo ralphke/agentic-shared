@@ -25,3 +25,9 @@
 - [x] 3.1 Validate the change with `openspec validate
   add-ux-designer-persona --strict` and run the focused tests and
   tracked Markdown lint; resolve all findings before handoff.
+
+## 4. Technology ownership clarification
+
+- [x] 4.1 Keep stack choice with the Architect, allow evidence-based UX risk
+  flags, and provide implementation-ready details to the Developer; verify
+  these contracts with `python3 -m pytest -q tests/test_ux_designer_stage.py`.

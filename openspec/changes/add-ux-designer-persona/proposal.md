@@ -17,10 +17,10 @@ requirements a deliberate, reviewable input to architecture and QA.
 - Require keyboard and touch interaction expectations and device/form-factor
   validation to be handed to QA; retain the existing security gate before
   review or deployment.
-- Pass implementation constraints to the Architect: TypeScript is the default
-  for consumer UI implementations; Rayfin is permitted only where the consumer
-  architecture explicitly supports it. The shared persona assets do not
-  implement widgets or select a consumer's stack.
+- Keep technology selection with the Systems Architect, who documents an
+  implementation-ready stack and build/test guidance for the Developer. The UX
+  Designer may flag apparently obsolete or infeasible choices with evidence,
+  but does not choose or prescribe technologies.
 - Update persona and SDLC specifications, the shared persona roster and
   instructions, and the orchestrator's stage handoff.
 
@@ -33,7 +33,8 @@ None.
 ### Modified Capabilities
 
 - `personas`: Define the UX Designer's responsibilities, UX brief, quality
-  checks, and handoff to the Systems Architect.
+  checks, handoff to the Systems Architect, and the Architect's implementation
+  stack handoff to the Developer.
 - `sdlc-process`: Add the UX stage between proposal and architecture and specify
   the downstream QA, security, and review gates.
 

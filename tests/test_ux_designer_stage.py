@@ -13,8 +13,10 @@ def test_ux_designer_persona_defines_accessibility_and_responsive_brief():
     assert "desktop, tablet, and mobile" in persona
     assert "keyboard" in persona
     assert "touch" in persona
-    assert "TypeScript" in persona
-    assert "Rayfin" in persona
+    assert "TypeScript" not in persona
+    assert "Rayfin" not in persona
+    assert "Do not select, prescribe, or propose a replacement stack" in persona
+    assert "flag it to the Systems Architect with evidence" in persona
     assert "CLI-only or otherwise non-visual product" in persona
     assert "Mark visual layout, responsive breakpoints, and touch interaction" in persona
     assert "command discoverability, readable output" in persona
@@ -33,8 +35,20 @@ def test_persona_rosters_and_downstream_handoffs_reference_ux():
     assert "ux-designer=.github/agents/ux-designer.agent.md" in config
     assert "label the handoff PR `stage:ux`" in product_owner
     assert "Read `ux-brief.md` before design" in architect
+    assert "platform, language, framework" in architect
+    assert "build/test instructions needed" in architect
+    assert "stack selection to UX or the Developer" in architect
     assert "`ux-brief.md` is the" in developer
+    assert "specified by the Architect in `design.md`" in developer
+    assert "infer or choose the product stack from UX suggestions" in developer
     assert "UX acceptance criteria in `ux-brief.md`" in qa
+
+    persona_spec = (
+        ROOT
+        / "openspec/changes/add-ux-designer-persona/specs/personas/spec.md"
+    ).read_text()
+    assert "UX Designer flags an obsolete or infeasible technology" in persona_spec
+    assert "Architect Provides an Implementation-Ready Technology Handoff" in persona_spec
 
 
 def test_sdlc_workflow_gates_ux_before_design_and_requires_the_brief():

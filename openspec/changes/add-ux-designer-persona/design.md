@@ -33,10 +33,11 @@ See `proposal.md` for motivation and the delta specs for required behavior.
    existing design gate requires both the proposal and UX brief. Embedding the
    brief in `design.md` was considered, but a separate artifact keeps UX
    acceptance criteria independently reviewable and available to QA.
-3. **Keep the brief technology-neutral.** It records TypeScript as the default
-   consumer UI implementation language and permits Rayfin only when the
-   consumer architecture supports it. The Architect, not the UX Designer,
-   decides the consumer stack; no framework or library is selected here.
+3. **Keep the brief technology-neutral.** The Architect owns and justifies stack
+   selection and provides enough implementation, dependency, and build/test
+   detail for the Developer. The UX Designer may flag apparently obsolete or
+   infeasible proposal choices with evidence, but does not recommend a
+   replacement.
 4. **Preserve downstream ownership and gates.** The Architect consumes the
    brief, the Developer implements approved tasks, and QA validates the UX
    criteria. Security remains after QA and before review; conditional legal

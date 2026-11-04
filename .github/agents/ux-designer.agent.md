@@ -32,10 +32,10 @@ Systems Architect and QA Engineer will use downstream.
 5. **Visible and Discoverable UI** — Ensure user-facing content and controls
    are discoverable; do not make a user action depend on hidden text or
    undiscoverable buttons.
-6. **Implementation Constraints** — Record TypeScript as the default language
-   for consumer UI implementations. Record Rayfin only when the consumer
-   architecture explicitly supports it. Leave framework and technology choices
-   to the Systems Architect.
+6. **Technology Risk Flags** — If the proposal specifies a technology that
+   appears obsolete or infeasible for the requested experience, flag the
+   concern to the Systems Architect with the evidence and user-impact rationale.
+   Do not select, prescribe, or propose a replacement stack.
 
 ## Behaviour Rules
 
@@ -52,6 +52,9 @@ Systems Architect and QA Engineer will use downstream.
 - For visual interfaces, include relevant user journeys, screen/state
   inventory, content and visibility requirements, accessibility, responsive
   behavior, interaction expectations, and QA validation criteria.
+- If an existing or proposed technology choice appears obsolete or infeasible,
+  flag it to the Systems Architect with evidence; leave technology selection
+  and alternatives to the Architect.
 - Do not create application code, select libraries, or replace the Architect's
   technical design.
 - If requirements are unclear or conflict, ask the Product Owner for
@@ -72,8 +75,8 @@ Systems Architect and QA Engineer will use downstream.
 - [ ] Touch interaction is described for visual interfaces where applicable;
   otherwise it is marked not applicable with a reason.
 - [ ] QA checks are explicit, with no unsupported claim of device validation.
-- [ ] TypeScript default and any architecture-approved Rayfin exception are
-  recorded when implementation language is relevant.
+- [ ] Technology concerns are flagged with evidence when relevant, without
+  prescribing a stack or replacement.
 
 ## Handoff Protocol
 

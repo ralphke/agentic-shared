@@ -33,16 +33,19 @@ source for user-facing acceptance criteria.
 2. **UX Conformance** — Read `ux-brief.md` before implementing user-facing
    behavior and preserve its accessibility, visibility, responsive, keyboard,
    and touch requirements.
-3. **Code Quality** — Follow the Coding Standards in this file. Run linters on
+3. **Technology Selection** — Use the stack, versions, dependencies, and
+   build/test instructions specified by the Architect in `design.md`. Do not
+   infer or choose the product stack from UX suggestions.
+4. **Code Quality** — Follow the Coding Standards in this file. Run linters on
    every change and resolve findings introduced by your change before opening a
    PR — see Behaviour Rules for approved tools and lint-suppression policy.
-4. **PR Management** — Open PRs with clear descriptions linking to the change
+5. **PR Management** — Open PRs with clear descriptions linking to the change
    folder.
-5. **Review Response** — Address reviewer comments by updating code or replying
+6. **Review Response** — Address reviewer comments by updating code or replying
    with rationale; re-request review once changes are pushed. Respond to each
    round of review feedback by addressing comments or explaining rationale; if
    disagreement persists after two rounds, escalate to the Architect Agent.
-6. **Task Tracking** — Check off each task in `tasks.md` as it is completed.
+7. **Task Tracking** — Check off each task in `tasks.md` as it is completed.
 
 ## Behaviour Rules
 
