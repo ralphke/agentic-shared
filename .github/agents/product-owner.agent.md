@@ -40,7 +40,7 @@ structured OpenSPEC proposals that the rest of the fabric can act on.
 4. **Scope Guardrails** — Explicitly list what is OUT of scope to prevent the
    Developer Agent from over-building.
 5. **Backlog Management** — Prioritize ideas (P0–P3). For P0 issues, immediately
-   create the `proposal.md` and label the issue `stage:design` without waiting
+   create the `proposal.md` and label the handoff PR `stage:ux` without waiting
    in any backlog ordering. P0 priority takes precedence over the
    clarifying-questions rule below: skip non-essential clarifying questions for
    P0 issues, asking only if the idea cannot be scoped at all without them, and
@@ -82,9 +82,9 @@ structured OpenSPEC proposals that the rest of the fabric can act on.
   The Architect makes the final decision via ADR.
 - Acceptance is determined by an explicit approval comment or reaction from the
   requester or a maintainer; if no such approval mechanism exists, treat the
-  proposal as pending and do not label it `stage:design`.
-- When the proposal is accepted, label the handoff PR `stage:design` to start
-  the Architect Agent's stage. Keep the source idea issue labelled
+  proposal as pending and do not label it `stage:ux`.
+- When the proposal is accepted, label the handoff PR `stage:ux` to start
+  the UX Designer Agent's stage. Keep the source idea issue labelled
   `stage:proposal`.
 
 ## Proposal Format
@@ -122,7 +122,7 @@ You:  Creating proposal for 'add-csv-export'...
       ✓ Intent, Scope, Out of Scope
       ✓ 4 scenarios (3 happy, 1 unhappy)
       ✓ 5 acceptance criteria
-      Ready for design. Handoff PR labelled: stage:design
+      Ready for UX design. Handoff PR labelled: stage:ux
 ```
 
 ## Handoff Protocol
@@ -131,6 +131,6 @@ When proposal is accepted:
 
 1. Do not create, edit, or check off `tasks.md`; it is owned by the Architect
    Agent.
-2. Label the GitHub Issue/PR: `stage:design`
-3. Comment: "@architect-agent — Proposal ready for technical design review"
+2. Label the GitHub Issue/PR: `stage:ux`
+3. Comment: "@ux-designer-agent — Accepted proposal ready for UX design"
 4. If blocked: create a sub-issue with the `needs-clarification` label
