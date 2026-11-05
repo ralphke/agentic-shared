@@ -11,9 +11,17 @@ to production.
 ## How the Software Fabric Works
 
 ```text
-[Idea] → [Proposal] → [UX Design] → [Spec+Design] → [Tasks] → [Code]
+[Idea] → [Proposal] → [UX Design*] → [Spec+Design] → [Tasks] → [Code]
        → [Tests] → [Security] → [Legal Review*] → [Review] → [Deploy] → [Operate]
 ```
+
+`UX Design*` applies only when the accepted change affects a visual interface.
+Record `## UX Applicability` in the proposal with boolean `required` and a
+scope-backed `reason`. CLI-only, API-only, and framework changes with no affected
+visual interface require no UX stage, brief, UX-specific specs, or UX tests;
+route directly to `stage:design` and retain normal functional quality gates.
+Mixed changes require UX only for affected visual surfaces. Missing or
+conflicting applicability blocks handoff rather than implying an exemption.
 
 `Legal Review*` is an optional escalation gate triggered only when the proposal
 or implementation is assessed as high-risk for legal, regulatory, licensing, or

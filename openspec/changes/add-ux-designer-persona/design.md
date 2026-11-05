@@ -24,13 +24,15 @@ See `proposal.md` for motivation and the delta specs for required behavior.
 
 ## Decisions
 
-1. **Add `stage:ux` between `stage:proposal` and `stage:design`.** A distinct
+1. **Add conditional `stage:ux` before `stage:design` for visual changes.** A distinct
    label makes ownership and handoff observable. An optional Architect
    consultation was considered, but it would not ensure UX requirements are
    produced before implementation planning.
 2. **Use `ux-brief.md` as the handoff contract.** The UX stage validates that a
    proposal exists and directs the UX Designer to create the brief; the
-   existing design gate requires both the proposal and UX brief. Embedding the
+   design gate requires a UX brief only for affected visual interfaces.
+   Nonvisual CLI/API/framework changes go directly to architecture without UX
+   artifacts or UX tests. Embedding the
    brief in `design.md` was considered, but a separate artifact keeps UX
    acceptance criteria independently reviewable and available to QA.
 3. **Keep the brief technology-neutral.** The Architect owns and justifies stack
@@ -51,9 +53,8 @@ See `proposal.md` for motivation and the delta specs for required behavior.
 
 - **New required stage adds planning time** → Keep the UX brief proportionate
   to the proposal and focused on affected user journeys.
-- **Existing in-flight consumer changes may lack a UX brief** → Require the
-  brief before their next transition to `stage:design`; do not silently bypass
-  the gate.
+- **Existing proposals may lack applicability** → Record the accepted decision
+  before the next handoff; require briefs only for visual changes.
 - **Consumer device coverage may vary** → Require QA to document which form
   factors and interaction modes were checked and record any unavailable
   environment as a blocker rather than claiming coverage.
@@ -61,8 +62,8 @@ See `proposal.md` for motivation and the delta specs for required behavior.
 ## Migration Plan
 
 1. Add the UX persona, roster references, and `stage:ux` orchestrator gate.
-2. Update the design gate to require `ux-brief.md` alongside `proposal.md`.
-3. For in-flight work that has not passed the design gate, create the UX brief
-   before proceeding to architecture.
+2. Update the design gate to require `ux-brief.md` only for visual changes.
+3. For in-flight work, record applicability and create a brief only if required.
+   The accepted conditional-UX change governs the current routing contract.
 4. Roll back by reverting the persona, roster, workflow, and spec changes
    together; no consumer application data or runtime migration is required.

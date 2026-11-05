@@ -4,13 +4,13 @@
 
 ### Requirement: UX Brief Grounds User Needs in Evidence
 
-The UX Designer Agent MUST distinguish proposal-backed user needs from
-assumptions and unknowns, and MUST request clarification when missing context
-would materially change the experience requirements.
+For applicable visual changes, the UX Designer MUST distinguish sourced user
+needs from assumptions and unknowns, and MUST request clarification when
+missing context could materially change the experience.
 
 #### Scenario: Brief records user context and evidence
 
-- **GIVEN** an accepted proposal and relevant source specifications
+- **GIVEN** an accepted visual proposal and relevant source specifications
 - **WHEN** the UX Designer Agent prepares the brief
 - **THEN** it identifies the intended users and goals supported by the inputs
 - **AND** it distinguishes sourced facts from assumptions and open questions
@@ -25,14 +25,16 @@ would materially change the experience requirements.
 
 ### Requirement: UX Brief Defines Verifiable Experience Criteria
 
-The UX Designer Agent MUST provide scope-aligned UX acceptance criteria that
-the Systems Architect can carry into the design and QA can verify.
+For applicable visual changes, the UX Designer MUST provide scope-aligned,
+observable UX criteria with stable IDs and identifiable source needs that
+architecture preserves and QA verifies.
 
 #### Scenario: Criteria trace to approved needs
 
 - **GIVEN** a brief describes user journeys and interface requirements
 - **WHEN** the Architect and QA consume the brief
 - **THEN** each UX acceptance criterion is observable and verifiable
+- **AND** each criterion has a stable ID
 - **AND** its user need or proposal requirement is identifiable
 
 #### Scenario: Brief covers relevant interaction states
@@ -46,8 +48,10 @@ the Systems Architect can carry into the design and QA can verify.
 
 ### Requirement: UX Brief Specifies Applicable Accessibility Checks
 
-The UX Designer Agent MUST retain WCAG 2.2 AA as the accessibility target and
-translate applicable accessibility needs into specific, verifiable behavior.
+For visual changes, the UX Designer MUST retain WCAG 2.2 AA as the target and
+express applicable accessibility dimensions as verifiable behavior.
+Inapplicable dimensions MUST have reasons; no check may be claimed performed
+without validation evidence.
 
 #### Scenario: Visual interface has actionable accessibility requirements
 
@@ -68,16 +72,25 @@ translate applicable accessibility needs into specific, verifiable behavior.
 
 ### Requirement: UX Design Skill Provides a Repeatable Briefing Method
 
-The UX Designer Agent MUST use the dedicated UX design skill to produce briefs
-with consistent inputs, workflow, quality checks, and stop conditions.
+The UX Designer MUST use the dedicated UX design skill for applicable visual
+briefs. The skill MUST stop without creating UX artifacts for nonvisual
+changes and MUST preserve architecture's technology ownership and QA's
+validation ownership.
 
 #### Scenario: Skill guides brief creation
 
-- **GIVEN** an accepted proposal is ready for UX design
+- **GIVEN** an accepted visual proposal is ready for UX design
 - **WHEN** the UX Designer Agent creates `ux-brief.md`
 - **THEN** it follows the skill's evidence-grounded workflow and quality checks
 - **AND** preserves the Architect's technology ownership and QA's validation
   ownership
+
+#### Scenario: Nonvisual changes require no brief or UX tests
+
+- **GIVEN** accepted scope affects only CLI, API, or framework behavior
+- **WHEN** the skill is invoked
+- **THEN** it creates no UX artifact and returns work directly to architecture
+- **AND** functional specifications and testing remain required
 
 #### Scenario: Skill identifies a blocker
 

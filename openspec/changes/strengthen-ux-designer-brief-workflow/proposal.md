@@ -1,5 +1,22 @@
 # Proposal
 
+## UX Applicability
+
+```json
+{
+  "required": false,
+  "reason": "Shared UX persona and skill guidance only; no visual interface behavior is affected."
+}
+```
+
+## Applicability Update
+
+The accepted `conditional-ux-stage-and-validation` change supersedes the
+original nonvisual brief requirement. UX is required only for affected visual
+interfaces; nonvisual changes need no UX artifacts or UX tests. The deltas are
+reconciled accordingly. Historical task completion remains historical, not
+renewed acceptance for future apply of revised planning.
+
 ## Why
 
 The UX Designer persona names important outcomes but does not yet give the

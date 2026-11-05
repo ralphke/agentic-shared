@@ -20,8 +20,8 @@ error handling.
   traceable, testable UX brief.
 - Make evidence, assumptions, interaction states, accessibility, and
   handoff-quality checks explicit.
-- Keep the method proportionate to the experience and usable for visual and
-  non-visual products.
+- Keep the method proportionate to affected visual surfaces; nonvisual
+  changes bypass UX work under the accepted conditional-UX change.
 
 **Non-Goals:**
 
@@ -45,7 +45,7 @@ error handling.
    will ask the Product Owner when missing or conflicting information could
    change experience requirements; it will not fabricate research findings.
 3. **Use a structured, traceable brief.** The skill will direct the agent to
-   record users and goals, scope, journeys, screens or command surfaces,
+   record users and goals, scope, journeys, affected visual surfaces,
    applicable interaction states, content, accessibility, responsive behavior
    where applicable, and observable acceptance criteria tied to their source
    needs. The brief will keep open questions and technology-risk flags
@@ -55,12 +55,11 @@ error handling.
    contrast and non-color cues, zoom or reflow, error communication, reduced
    motion, and touch. Mark dimensions not applicable with a reason. Do not
    present a target as proof of conformance.
-5. **Preserve non-visual and stage-specific behavior.** For CLI-only or
-   otherwise non-visual products, follow the existing command and output
-   guidance and explicitly mark visual layout, responsive layout, and touch
-   checks not applicable with reasons. The Architect retains technology
-   decisions, and QA retains implementation validation and evidence of any
-   device checks.
+5. **Preserve nonvisual exemptions and stage ownership.** The accepted
+   `conditional-ux-stage-and-validation` change supersedes the earlier
+   nonvisual brief rule. CLI/API/framework changes with no affected visual
+   interface require no UX artifacts, specs, or tests. Architecture and QA
+   retain ordinary functional planning and validation.
 6. **Validate the authored contract, not UX quality by string presence alone.**
    Extend focused tests to assert the persona-to-skill reference and required
    skill sections and key constraints. Use Markdown lint and OpenSpec

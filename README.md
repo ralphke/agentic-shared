@@ -37,6 +37,49 @@ It currently centralizes:
 - `openspec/` - standalone OpenSpec content: configuration, source
   specifications, in-flight changes, and shared templates
 
+## Conditional UX stage
+
+UX design and UX validation apply only to changes affecting a visual interface.
+Product Owners record this in the existing accepted proposal:
+
+````markdown
+## UX Applicability
+
+```json
+{"required": false, "reason": "CLI-only change; no visual interface is affected."}
+```
+````
+
+Nonvisual CLI, API, and framework changes go directly to architecture. They need
+no UX brief, UX-specific specs, UX validation report, UX tests, or frontend
+tooling. Their functional specs, tests, coverage, security, and other applicable
+gates remain required. Mixed changes scope UX to affected visual surfaces.
+Missing or conflicting applicability requires clarification, not a default.
+
+Visual changes go through the UX Designer before architecture and preserve
+criterion IDs through design and QA validation. See the
+[UX design skill](.github/skills/ux-design/SKILL.md) and
+[QA skill](.github/skills/test-generation/SKILL.md).
+
+Before an existing proposal's next design/test handoff, add its scope-backed
+applicability section and obtain acceptance. An old missing declaration is not
+an automatic exemption, but nonvisual proposals need no new UX documents.
+
+Visual consumers configure `UX_CHECK_NAMES` as a JSON list of unique check-run
+names from their own PR-triggered UX workflows, for example
+`["Browser UX", "Accessibility"]`. QA maps brief criteria to actual results in
+`ux-validation.json`. The test-completion and security-entry gates require the
+named checks to succeed for the evaluated PR head; they wait up to five minutes
+for pending checks and fail clearly on timeout. Coverage alone is not UX proof.
+No UX configuration or report is required for nonvisual changes.
+
+Adopt the updated orchestrator together with the test-generation skill and its
+bundled Python helper. The example consumer manifest protects the orchestrator,
+so review and apply its changes explicitly when that protection is retained.
+Keep existing functional test setup; the shared workflow's normal Python/.NET
+commands are unchanged. Consumer UX suites remain in consumer-owned CI rather
+than a universal shared browser runner.
+
 ## Markdown validation
 
 Lint every tracked Markdown file from the repository root:

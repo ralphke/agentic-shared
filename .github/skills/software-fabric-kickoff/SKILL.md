@@ -51,7 +51,11 @@ store, commands act on the nearest local `openspec/` root.
    Only after Proceed, invoke `openspec-propose` to create planning artifacts,
    obtaining proposal acceptance before design.
 2. Confirm the proposal identifies scope, scenarios, acceptance criteria, and
-   applicable legal/IP risk.
+   applicable legal/IP risk. Record `## UX Applicability` with boolean
+   `required` and scope-backed `reason`. Route visual work through `ux-design`
+   before architecture; CLI-only, API-only, and framework work with no affected
+   visual interface requires no UX artifacts or UX tests. Missing or conflicting
+   applicability pauses planning; normal functional gates remain required.
 3. Present the proposal, delta specs, design, and tasks for human approval.
 4. Stop after planning. A request to start the kickoff authorizes assessment
    only until Proceed, and planning only afterward, even when it also asks for
@@ -64,7 +68,8 @@ store, commands act on the nearest local `openspec/` root.
 
 ## Guardrails
 
-- Keep Product Owner, Architect, Developer, QA, Security, Legal, and Reviewer
+- Keep Product Owner, applicable UX Designer, Architect, Developer, QA,
+  Security, Legal, and Reviewer
   handoffs traceable through the change artifacts and stage labels.
 - Do not implement code during kickoff.
 - Do not treat a proposal review as implementation approval.

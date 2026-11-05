@@ -61,8 +61,11 @@ Use this skill when a user submits:
    - `## Scenarios` — ≥3 Given/When/Then (≥1 unhappy path)
    - `## Acceptance Criteria` — binary checkboxes (≥3)
    - `## Affected Domains` — OpenSPEC domains impacted
+   - `## UX Applicability` — one fenced JSON object with boolean `required`
+     and nonempty scope-backed `reason`; true only for affected visual surfaces
 8. **Obtain proposal acceptance** — Present the proposal. Only after explicit
-   acceptance, label an existing handoff PR `stage:ux`; keep the source idea issue
+   acceptance, label an existing handoff PR `stage:ux` if visual, otherwise
+   `stage:design`; keep the source idea issue
    labelled `stage:proposal`. Do not create a PR unless asked. No design or
    implementation before its applicable acceptance and planning prerequisites.
 9. **Confirm** — Comment with link to `proposal.md`
@@ -73,8 +76,10 @@ Use this skill when a user submits:
 
 - [ ] Explicit Proceed preceded the first repository write; deferred/rejected
       intake has no repository artifacts or successful archive claim
-- [ ] proposal.md has all 7 required sections (including Build/Buy/Vibe Flag and
-      Legal/IP Notes)
+- [ ] proposal.md has the required sections, including UX Applicability,
+      Build/Buy/Vibe Flag, and Legal/IP Notes
+- [ ] CLI-only, API-only, and framework changes with no affected visual
+      interface require no UX artifacts or UX tests; functional gates remain
 - [ ] At least 3 Given/When/Then scenarios
 - [ ] At least 1 unhappy path scenario
 - [ ] At least 3 binary acceptance criteria
@@ -95,7 +100,7 @@ Created: openspec/changes/add-csv-export/proposal.md
 ✓ Scenarios — 4 scenarios (3 happy, 1 unhappy: empty dataset)
 ✓ Acceptance Criteria — 5 binary checks
 ✓ Affected Domains — idea-capture, testing-standards
-After explicit acceptance, existing handoff PR labelled: stage:ux
+After acceptance: stage:ux if visual, otherwise stage:design
 ```
 
 ---
@@ -144,4 +149,4 @@ After explicit acceptance, existing handoff PR labelled: stage:ux
 | ------------------ | ------------------------------------------------------------------- |
 | Start a proposal   | Gather problem, users, scope, scenarios, and acceptance criteria    |
 | Validate artifacts | Run `openspec context --json` and the applicable validation command |
-| Handoff            | Label an existing handoff PR `stage:ux` after proposal acceptance  |
+| Handoff            | After acceptance: `stage:ux` if visual, otherwise `stage:design`    |

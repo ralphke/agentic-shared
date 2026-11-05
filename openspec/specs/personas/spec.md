@@ -13,16 +13,19 @@ agent personas.
 
 ## Overview
 
-The Software Fabric consists of **nine SDLC-stage personas** and one supporting
+The Software Fabric consists of **ten SDLC-stage personas** and one supporting
 OpenSpec workflow agent. The stage personas own distinct stages and produce
 artifacts consumed by the next persona. The OpenSpec agent manages change
 artifacts and workflows but does not own a PR stage. All agent definitions live
 in `.github/agents/` and are referenced by Copilot instructions.
 
-The stage flow is Product Owner, Systems Architect, Developer, QA Engineer,
+The stage flow is Product Owner, UX Designer (for visual changes), Systems
+Architect, Developer, QA Engineer,
 Security Engineer, Legal & Compliance (when required), Code Reviewer,
 DevOps/SRE, and Operations SRE. Legal & Compliance is an escalation gate for
-high-risk work rather than a default stage for every change.
+high-risk work rather than a default stage for every change. Nonvisual CLI,
+API, and framework changes proceed directly from proposal to architecture,
+without UX artifacts or UX tests.
 
 ---
 
@@ -35,8 +38,9 @@ contracts.
 
 The Product Owner Agent SHALL capture explicit acceptance criteria that include
 quality measurement expectations when a change targets skill definition
-standards. (Previously: The Product Owner Agent is the entry point for all new
-work.)
+standards. The Product Owner MUST record scope-backed UX applicability in the
+accepted proposal and route visual changes to UX and nonvisual changes directly
+to architecture.
 
 #### Scenario: Skill-standard change includes measurable acceptance criteria
 
@@ -61,13 +65,22 @@ work.)
 - THEN the proposal is returned for more detail
 - AND it is not approved until the minimum scenario count is met
 
+#### Scenario: Applicability cannot be guessed
+
+- GIVEN the affected visual scope is missing or contradictory
+- WHEN the Product Owner prepares the handoff
+- THEN clarification is required before selecting a route
+- AND missing evidence is not treated as a nonvisual exemption
+
 ### Requirement: Systems Architect Agent
 
-The Architect Agent translates accepted proposals into technical designs.
+The Architect Agent MUST translate accepted proposals into technical designs.
 
 **Responsibilities:**
 
 - Review proposals for technical feasibility and alignment with existing system
+- Read `ux-brief.md` only when accepted applicability requires UX
+- Preserve applicable UX criteria in design, delta specs, and QA tasks
 - Produce `design.md` with selected technology, component diagrams (Mermaid),
   ADRs
 - Identify all integration points, API contracts, and data model changes
@@ -75,10 +88,11 @@ The Architect Agent translates accepted proposals into technical designs.
 - Ensure non-functional requirements (performance, scalability) are addressed
 - Translate the accepted proposal into OpenSpec delta specs for affected domains
 
-**Input:** `proposal.md`, existing system specs, codebase structure  
+**Input:** `proposal.md`, existing system specs, codebase structure, and a UX
+brief only for applicable visual changes\
 **Output:** `design.md`, delta specs in `specs/<domain>/spec.md`, `tasks.md`,
-Architecture Decision Records (ADRs) **Triggers:** Proposal labelled
-`stage:design`\
+Architecture Decision Records (ADRs) **Triggers:** `stage:design` after the
+applicable proposal or UX handoff\
 **Handoff:** Labels PR `stage:implement` when design is accepted  
 **Agent file:** `.github/agents/architect.agent.md`
 
@@ -99,22 +113,32 @@ Architecture Decision Records (ADRs) **Triggers:** Proposal labelled
   deprecation plan
 - AND the proposal scope is updated to include migration tasks
 
+#### Scenario: Architect requires only applicable UX inputs
+
+- GIVEN accepted applicability states no visual interface is affected
+- WHEN architecture begins
+- THEN missing UX artifacts do not block design
+- AND normal functional specs and testing tasks remain required
+
 ---
 
 ### Requirement: Developer Agent
 
-The Developer Agent implements tasks from the approved design.
+The Developer Agent MUST implement tasks from the approved design.
 
 **Responsibilities:**
 
 - Implement ONLY tasks listed in `tasks.md` — no scope creep
 - Follow project coding standards and conventions
+- Preserve UX criteria for applicable visual work without requiring UX inputs
+  for nonvisual work
 - Write implementation code with documentation for non-obvious logic
 - Open a PR per logical task group with a description referencing the change
   slug
 - Respond to code review feedback with targeted fixes within the same PR
 
-**Input:** `tasks.md`, `design.md`, existing codebase  
+**Input:** `tasks.md`, `design.md`, existing codebase, and a UX brief only when
+applicable\
 **Output:** Source code, PR with description linking to change folder  
 **Triggers:** Tasks labelled `stage:implement`  
 **Handoff:** Labels PR `stage:test` when all implementation tasks are checked
@@ -140,7 +164,8 @@ off\
 
 ### Requirement: QA Engineer Agent
 
-The QA Engineer Agent creates and validates automated tests from spec scenarios.
+The QA Engineer Agent MUST create and validate automated tests from spec
+scenarios.
 
 **Responsibilities:**
 
@@ -148,13 +173,18 @@ The QA Engineer Agent creates and validates automated tests from spec scenarios.
 - Write unit tests, integration tests, and e2e tests as appropriate
 - Achieve ≥ 80% code coverage on all new code
 - Include negative, boundary, and performance tests
-- Ensure all tests are automated and run in CI without manual steps
+- Ensure automated tests run in CI without manual steps
+- Map applicable visual UX criteria to tests or documented interaction and
+  device checks, recording results and evidence without unsupported claims
+- Require no UX brief, UX-specific specs, or UX tests for nonvisual changes
 - Update only the Testing Tasks section in the Architect-owned `tasks.md`
 
-**Input:** `spec.md` scenarios, source code from Developer Agent  
-**Output:** Test suites, coverage report, testing-task updates in `tasks.md`  
+**Input:** Spec scenarios, source code, and UX criteria only when applicable\
+**Output:** Test suites, coverage report, testing-task updates, and UX
+validation evidence only when applicable\
 **Triggers:** PR labelled `stage:test`  
-**Handoff:** Labels PR `stage:security` when coverage gate passes  
+**Handoff:** Labels PR `stage:security` when functional and applicable UX
+validation gates pass\
 **Agent file:** `.github/agents/qa-engineer.agent.md`
 
 #### Scenario: Spec scenarios become test cases
@@ -171,6 +201,22 @@ The QA Engineer Agent creates and validates automated tests from spec scenarios.
 - WHEN the QA Agent's coverage check runs
 - THEN the PR is labelled `coverage-insufficient`
 - AND a comment lists the uncovered code paths
+
+#### Scenario: QA validates UX acceptance criteria
+
+- GIVEN implementation affects a visual interface
+- WHEN QA validates the implementation
+- THEN each UX criterion maps to a passing test or documented check
+- AND applicable responsive, keyboard, touch, accessibility, and state
+  behavior has recorded evidence
+- AND unavailable required checks remain unresolved rather than passed
+
+#### Scenario: QA validates a nonvisual implementation
+
+- GIVEN accepted scope affects only CLI, API, or framework behavior
+- WHEN QA plans and runs tests
+- THEN functional scenarios, negative cases, and coverage remain required
+- AND no UX artifact, UX test, or frontend tooling is required
 
 ---
 
@@ -434,16 +480,213 @@ handoffs and execution expectations remain predictable.
   protocol
 - AND deviations are captured as tasks before implementation completion
 
+### Requirement: UX Designer Agent
+
+The UX Designer Agent MUST produce an evidence-grounded UX brief before
+architecture only when the accepted change affects a visual user interface.
+CLI-only, API-only, framework, and other nonvisual changes MUST NOT require UX
+design, a UX brief, UX-specific specs, or UX tests.
+
+#### Scenario: Visual change receives UX design
+
+- GIVEN an accepted proposal affects a visual interface
+- WHEN the Product Owner hands off the proposal
+- THEN it is routed to the UX Designer at `stage:ux`
+- AND the Designer creates `ux-brief.md` before `stage:design`
+- AND the brief covers affected journeys, states, content, discoverability,
+  accessibility, and responsive interactions
+
+#### Scenario: Accepted proposal produces a UX brief
+
+- GIVEN a proposal accepted for UX design affecting a visual interface
+- WHEN the UX Designer Agent completes its stage
+- THEN the UX brief describes user flows and all user-facing screens or states
+- AND identifies content and controls that must remain visible and discoverable
+- AND defines applicable responsive expectations for desktop, tablet, and mobile
+
+#### Scenario: UX brief defines accessible interactions
+
+- GIVEN an experience with interactive controls
+- WHEN the UX Designer Agent documents the interaction requirements
+- THEN the brief requires readable content and WCAG 2.2 AA accessibility
+- AND specifies keyboard operation, visible focus, and equivalent touch
+  interaction
+- AND does not rely on visually hidden or undiscoverable controls or content
+
+#### Scenario: Nonvisual proposal requires no UX artifacts
+
+- GIVEN accepted scope affects only CLI, API, or framework behavior
+- WHEN the proposal is handed off
+- THEN it goes directly to architecture without UX design, UX briefs,
+  UX-specific specs, or UX tests
+- AND functional planning, testing, and existing quality gates remain required
+
+#### Scenario: Nonvisual change bypasses UX without extra artifacts
+
+- GIVEN an accepted CLI-only, API-only, or framework change affects no visual
+  interface
+- WHEN the Product Owner hands off the proposal
+- THEN it goes directly to the Architect at `stage:design`
+- AND no UX stage, brief, UX-specific spec, or UX test is required
+- AND functional planning, testing, and existing quality gates still apply
+
+#### Scenario: Mixed scope limits UX to affected visual surfaces
+
+- GIVEN a change affects both visual and nonvisual behavior
+- WHEN the UX Designer prepares the brief
+- THEN UX requirements cover the affected visual surfaces
+- AND no nonvisual UX obligations are invented for the remaining behavior
+
+#### Scenario: UX Designer flags an obsolete or infeasible technology
+
+- GIVEN a proposal specifies a technology that appears obsolete or infeasible
+- WHEN the UX Designer identifies a substantiated concern
+- THEN the brief flags it with evidence and user-impact rationale
+- AND the Designer does not select or prescribe a stack or replacement
+
+#### Scenario: Technology choices remain with architecture
+
+- GIVEN a UX brief raises a technology-risk concern
+- WHEN the Architect completes the technical design
+- THEN the Architect records the stack decision and rationale in `design.md`
+- AND the brief does not direct the Developer to use a technology
+
+### Requirement: Architect Provides an Implementation-Ready Technology Handoff
+
+The Architect MUST document the selected stack, rationale, and build and test
+instructions needed to implement approved work without guessing. Applicable
+UX technology flags MUST be evaluated without requiring a UX brief for
+nonvisual changes.
+
+#### Scenario: Architect supplies implementation details
+
+- GIVEN a change requires implementation work
+- WHEN the Architect completes `design.md`
+- THEN platform, language, framework, toolchain, dependencies, compatibility,
+  and build and test instructions are supplied as applicable
+- AND any UX technology-risk flags have a recorded decision and rationale
+
+#### Scenario: Architecture handoff supports downstream UX validation
+
+- GIVEN implementation tasks affect a visual interface
+- WHEN the QA Engineer Agent validates the implementation
+- THEN each UX acceptance criterion is covered by a test or documented device
+  and interaction check
+- AND checks cover applicable desktop, tablet, and mobile behavior, keyboard,
+  and touch, with evidence and reasons for excluded dimensions
+- AND unavailable required checks remain blocked rather than passed
+- AND the change still passes the existing security gate before review or
+  deployment
+
+### Requirement: UX Brief Grounds User Needs in Evidence
+
+For applicable visual changes, the UX Designer MUST distinguish sourced user
+needs from assumptions and unknowns, and MUST request clarification when
+missing context could materially change the experience.
+
+#### Scenario: Brief records user context and evidence
+
+- GIVEN an accepted visual proposal and relevant source specifications
+- WHEN the Designer prepares the brief
+- THEN intended users and goals trace to those inputs
+- AND sourced facts, assumptions, and open questions remain distinct
+
+#### Scenario: Missing context could change the experience
+
+- GIVEN user, task, or accessibility context is missing or conflicting
+- WHEN resolving it could materially change the experience
+- THEN the Designer asks the Product Owner for specific clarification
+- AND does not invent user needs or advance an unresolved requirement
+
+### Requirement: UX Brief Defines Verifiable Experience Criteria
+
+For applicable visual changes, the UX Designer MUST provide scope-aligned,
+observable UX criteria with stable IDs and identifiable source needs that
+architecture preserves and QA verifies.
+
+#### Scenario: Criteria trace to approved needs
+
+- GIVEN a brief describes affected journeys and interface requirements
+- WHEN architecture and QA consume it
+- THEN each UX criterion has a stable ID and identifiable source need
+- AND the criterion states an observable, verifiable outcome
+
+#### Scenario: Brief covers relevant interaction states
+
+- GIVEN a visual journey includes asynchronous work or recoverable failure
+- WHEN the Designer documents the experience
+- THEN applicable loading, empty, success, error, and recovery states are
+  specified
+- AND excluded states have a concise applicability rationale
+
+### Requirement: UX Brief Specifies Applicable Accessibility Checks
+
+For visual changes, the UX Designer MUST retain WCAG 2.2 AA as the target and
+express applicable accessibility dimensions as verifiable behavior.
+Inapplicable dimensions MUST have reasons; no check may be claimed performed
+without validation evidence.
+
+#### Scenario: Visual interface has actionable accessibility requirements
+
+- GIVEN a visual interactive interface is affected
+- WHEN the Designer defines accessibility criteria
+- THEN applicable keyboard, focus, semantics, labels, contrast, non-color cues,
+  zoom or reflow, error communication, reduced motion, and touch are covered
+- AND QA can verify each criterion without guessing expected behavior
+
+#### Scenario: Accessibility dimension does not apply
+
+- GIVEN an accessibility dimension is irrelevant to the affected surface
+- WHEN the Designer records the criteria
+- THEN that dimension is marked not applicable with a concise reason
+- AND this exclusion is not presented as evidence of conformance
+
+### Requirement: UX Design Skill Provides a Repeatable Briefing Method
+
+The UX Designer MUST use the dedicated UX design skill for applicable visual
+briefs. The skill MUST stop without creating UX artifacts for nonvisual
+changes and MUST preserve architecture's technology ownership and QA's
+validation ownership.
+
+#### Scenario: Skill guides brief creation
+
+- GIVEN an accepted visual proposal is ready for UX design
+- WHEN the Designer creates the brief
+- THEN the skill's evidence-grounded workflow and checks are followed
+- AND technology selection and validation stay with their respective owners
+
+#### Scenario: Nonvisual changes require no brief or UX tests
+
+- GIVEN accepted scope affects only CLI, API, or framework behavior
+- WHEN the skill is invoked
+- THEN it creates no UX artifact and returns work directly to architecture
+- AND functional specifications and testing remain required
+
+#### Scenario: Skill receives a nonvisual change
+
+- GIVEN accepted applicability states that no visual interface is affected
+- WHEN the UX skill is invoked
+- THEN it creates no UX brief or other UX artifact
+- AND directs the work to architecture using the existing proposal decision
+
+#### Scenario: Skill identifies a blocker
+
+- GIVEN required context is missing or source requirements conflict
+- WHEN the skill's stop conditions are met
+- THEN the specific blocker and clarification needed are reported
+- AND the brief is not presented as ready
+
 ## Collaboration Contract
 
-The nine stage personas MUST follow this contract when handing off work:
+The ten stage personas MUST follow this contract when handing off work:
 
 1. **Update `tasks.md`** — check off completed items before handoff
 2. **Label the PR** — set the appropriate `stage:*` label
 3. **Comment on the PR** — provide a handoff summary with findings and blockers
 4. **Create sub-issues for blockers** — link to the main PR
-5. **Never skip a stage** — if a stage is not applicable, document why in a
-   comment
+5. **Complete every applicable stage** — record scope-backed UX applicability
+   in the proposal; nonvisual work routes directly to architecture with no
+   exemption-only UX artifact. Unknown scope blocks handoff.
 
 The OpenSpec Agent supports these stages without owning a handoff. The Legal &
 Compliance Agent is invoked only for high-risk work; when triggered, it cannot

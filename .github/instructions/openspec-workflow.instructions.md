@@ -143,6 +143,25 @@ waiver, new stage, or alternate successful archive path.
 
 ## Mandatory Planning Contract
 
+### Conditional UX Planning
+
+Each proposal must include `## UX Applicability` with exactly one fenced JSON
+object containing boolean `required` and a nonempty scope-backed `reason`.
+Only changes affecting a visual interface require the UX Designer stage and
+`ux-brief.md` before architecture. Preserve the brief's stable criterion IDs
+in design, delta scenarios, and QA tasks.
+
+CLI-only, API-only, and framework changes with no affected visual interface
+require no UX stage, brief, UX-specific specs, validation report, UX tests, or
+frontend tooling. Route accepted nonvisual proposals directly to architecture.
+Their normal functional specs, tests, and all other applicable gates remain
+required. Mixed changes limit UX work to affected visual surfaces.
+Missing or conflicting applicability pauses the handoff; do not infer it from
+missing artifacts or the mere presence of frontend files. Scope changes require
+renewed acceptance. This exemption never waives normal OpenSpec planning.
+
+### Required Artifacts and Acceptance
+
 Before implementation, require a substantively complete proposal, delta specs
 for every affected domain, design, and ordered tasks. The proposal must be
 accepted before design begins; the current proposal/spec must have explicit

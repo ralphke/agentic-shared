@@ -1,5 +1,22 @@
 # Proposal
 
+## UX Applicability
+
+```json
+{
+  "required": false,
+  "reason": "Shared persona and workflow definitions only; no visual interface behavior is affected."
+}
+```
+
+## Applicability Update
+
+The accepted `conditional-ux-stage-and-validation` change supersedes the
+original unconditional UX routing. UX is required only for affected visual
+interfaces; nonvisual changes need no UX artifacts or UX tests. The deltas are
+reconciled accordingly. Historical task completion remains historical, not
+renewed acceptance for future apply of revised planning.
+
 ## Why
 
 The current Software Fabric has no explicit owner for UX, accessibility, or

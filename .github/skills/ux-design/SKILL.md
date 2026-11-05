@@ -3,8 +3,8 @@ name: ux-design
 description:
   Produce an evidence-grounded, accessible, responsive UX brief from an
   accepted OpenSpec proposal. Use for the Software Fabric UX stage
-  (`stage:ux`). Do not invent user needs, create application code, or select
-  technologies.
+  (`stage:ux`) only for changes affecting visual interfaces. Do not invent user
+  needs, create application code, or select technologies.
 ---
 
 # Skill: UX Brief Design
@@ -17,8 +17,11 @@ acceptance criteria and explicit blockers or open questions
 
 ## When to Use This Skill
 
-Use when a change has been accepted and is ready for the UX Designer stage
-(`stage:ux`). Do not use this skill to approve a proposal, resolve product
+Use when accepted `## UX Applicability` requires UX for affected visual
+interfaces and the change is ready for `stage:ux`.
+CLI-only, API-only, and framework changes require no UX artifacts or UX tests
+when no visual interface is affected; route directly to `stage:design`.
+Do not use this skill to approve a proposal, resolve product
 scope on behalf of the Product Owner, or replace the Architect's technical
 design.
 
@@ -45,9 +48,11 @@ design.
    - Read the accepted `proposal.md` and relevant source specifications.
    - Identify the change directory and the requested user problem, outcomes,
      in-scope experience, and exclusions.
-   - Determine whether the product has a visual interface, a non-visual
-     interface such as a CLI, or both. Do not infer visual UI from the word
-     "app" or from the existence of an API.
+   - Read the accepted proposal's `## UX Applicability` JSON decision.
+     If false, stop without creating a brief or exemption-only document and
+     return to architecture. Missing or conflicting applicability requires
+     Product Owner clarification. For mixed changes, cover visual surfaces only.
+     Do not infer visual UI from the word "app" or the existence of an API.
    - If the proposal is not accepted, the change context is unavailable, or a
      conflict could change user-visible requirements, stop and report what is
      missing. Ask the Product Owner targeted questions before advancing.
@@ -68,9 +73,6 @@ design.
      outcome, including meaningful branches, decisions, and recovery paths.
    - For visual interfaces, list only affected screens or surfaces and their
      important interaction states.
-   - For non-visual interfaces, describe relevant commands or actions, input
-     expectations, output, errors, keyboard interaction, and assistive-
-     technology considerations.
    - Include a state only when the feature can reach it. Consider loading,
      empty, validation, success, failure, confirmation, cancellation, and
      recovery states as applicable.
@@ -92,10 +94,6 @@ design.
    - Describe the expected behavior across desktop, tablet, and mobile for
      visual interfaces. State layout and interaction changes, not invented
      breakpoint values or implementation choices.
-   - For CLI-only or otherwise non-visual experiences, cover command
-     discoverability, readable output, actionable errors, keyboard operation,
-     and assistive-technology needs where applicable. Mark visual layout,
-     responsive layout, and touch not applicable, each with a reason.
    - Mark other accessibility checks not applicable only when the experience
      makes them irrelevant, and briefly explain why. A not-applicable note is
      not evidence of conformance.
@@ -130,7 +128,7 @@ and stating why:
 # UX Brief: <change slug>
 
 ## Experience and Scope
-- Interface type: visual, non-visual, or both
+- Affected visual surfaces (including the visual part of a mixed change):
 - In-scope outcomes and surfaces:
 - Out of scope:
 
@@ -154,7 +152,7 @@ and stating why:
 ## Accessibility and Responsive Behavior
 - Target and applicable accessibility criteria:
 - Desktop, tablet, and mobile behavior (visual interfaces):
-- Non-visual, touch, or other not-applicable checks with reasons:
+- Touch or other not-applicable dimensions with reasons:
 
 ## UX Acceptance Criteria
 ### UX-01: <outcome>
@@ -175,6 +173,8 @@ and stating why:
 
 - [ ] The brief reflects an accepted proposal and relevant source
       specifications.
+- [ ] Accepted applicability requires visual UX; nonvisual work creates no
+      brief, UX-specific specs, UX tests, or other UX artifact.
 - [ ] User goals and material requirements have source references; assumptions
       and unknowns are clearly separated from facts.
 - [ ] The brief identifies interface type and stays within approved scope.
@@ -197,6 +197,8 @@ and stating why:
 | Condition | Required action |
 | --- | --- |
 | Proposal is not explicitly accepted | Stop; return to the Product Owner stage. |
+| Applicability is false | Create no UX artifacts; route directly to architecture. |
+| Applicability is missing or conflicting | Ask the Product Owner; do not infer an exemption. |
 | Material user or task context is missing | Ask the Product Owner targeted questions; do not invent needs. |
 | Proposal and source specifications conflict | Report the conflicting sources and request resolution before handoff. |
 | Change directory or required source cannot be identified | Report the missing path or artifact; do not write a brief to a guessed location. |

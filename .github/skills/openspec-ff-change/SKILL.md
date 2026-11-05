@@ -12,6 +12,13 @@ metadata:
 
 Fast-forward through artifact creation - generate everything needed to start implementation in one go.
 
+**Conditional UX:** Follow the Conditional UX Planning contract in
+`.github/instructions/openspec-workflow.instructions.md`. Record
+`## UX Applicability` in the proposal. Accepted visual changes require a UX
+brief before architecture; nonvisual CLI/API/framework changes require no UX
+artifacts or UX tests. Missing or conflicting applicability pauses planning.
+Normal functional specs, tests, and approval gates remain required.
+
 **Pre-Capture Intake Decision:** Before setup or capture writes, follow
 `.github/instructions/openspec-workflow.instructions.md`. Assess in conversation
 or session storage and offer Proceed, Defer, or Do not pursue. Missing input
