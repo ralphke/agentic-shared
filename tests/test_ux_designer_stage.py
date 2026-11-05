@@ -5,7 +5,9 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_ux_designer_persona_defines_accessibility_and_responsive_brief():
-    persona = (ROOT / ".github/agents/ux-designer.agent.md").read_text()
+    persona = " ".join(
+        (ROOT / ".github/agents/ux-designer.agent.md").read_text().split()
+    )
 
     assert "github_pr_label: stage:ux" in persona
     assert "ux-brief.md" in persona
@@ -16,10 +18,44 @@ def test_ux_designer_persona_defines_accessibility_and_responsive_brief():
     assert "TypeScript" not in persona
     assert "Rayfin" not in persona
     assert "Do not select, prescribe, or propose a replacement stack" in persona
-    assert "flag it to the Systems Architect with evidence" in persona
+    assert (
+        "flag it to the Systems Architect with evidence and user-impact rationale"
+        in persona
+    )
     assert "CLI-only or otherwise non-visual product" in persona
     assert "Mark visual layout, responsive breakpoints, and touch interaction" in persona
     assert "command discoverability, readable output" in persona
+
+
+def test_ux_design_skill_defines_evidence_based_brief_process():
+    persona = (ROOT / ".github/agents/ux-designer.agent.md").read_text()
+    skill = " ".join(
+        (ROOT / ".github/skills/ux-design/SKILL.md").read_text().split()
+    )
+
+    assert ".github/skills/ux-design/SKILL.md" in persona
+
+    for section in (
+        "## When to Use This Skill",
+        "## Execution Steps",
+        "## `ux-brief.md` Structure",
+        "## Quality Checks",
+        "## Stop Conditions",
+        "## Handoff",
+    ):
+        assert section in skill
+
+    for requirement in (
+        "accepted proposal",
+        "assumptions and unknowns",
+        "loading, empty, validation, success, failure",
+        "WCAG 2.2 AA",
+        "desktop, tablet, and mobile",
+        "Given/When/Then",
+        "QA chooses the validation method",
+        "do not select or recommend a replacement stack",
+    ):
+        assert requirement in skill
 
 
 def test_persona_rosters_and_downstream_handoffs_reference_ux():
