@@ -90,6 +90,15 @@ class ValidateOpenSpecChangeTests(unittest.TestCase):
         )
         validate_change(self.root)
 
+    def test_language_tagged_fence_line_does_not_hide_unfinished_tasks(self) -> None:
+        self.tasks.write_text(
+            "- [x] Actual task\n```md\n- [ ] Example\n```markdown\n"
+            "- [ ] Still in outer fence\n```\n- [ ] Unfinished task\n",
+            encoding="utf-8",
+        )
+        with self.assertRaisesRegex(OpenSpecValidationError, "1 incomplete"):
+            validate_change(self.root)
+
     def test_nested_specs_are_checked_and_empty_specs_fail(self) -> None:
         nested = self.spec.parent / "nested" / "spec.md"
         nested.parent.mkdir()
@@ -107,6 +116,16 @@ class ValidateOpenSpecChangeTests(unittest.TestCase):
 
     def test_missing_specs_fail(self) -> None:
         self.spec.unlink()
+        with self.assertRaisesRegex(OpenSpecValidationError, "no delta specs"):
+            validate_change(self.root)
+
+    def test_domainless_root_spec_does_not_count_as_a_delta(self) -> None:
+        self.spec.unlink()
+        root_spec = self.root / "specs" / "spec.md"
+        root_spec.write_text(
+            "## ADDED Requirements\n\n### Requirement: Domainless\n",
+            encoding="utf-8",
+        )
         with self.assertRaisesRegex(OpenSpecValidationError, "no delta specs"):
             validate_change(self.root)
 

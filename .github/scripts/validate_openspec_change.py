@@ -30,11 +30,15 @@ def validate_change(change_root: Path) -> None:
     checkboxes: list[tuple[str, str]] = []
     fence: str | None = None
     for line in artifacts["tasks.md"].splitlines():
-        marker = re.match(r"^\s*(`{3,}|~{3,})", line)
+        marker = re.match(r"^\s*(`{3,}|~{3,})(.*)$", line)
         if marker:
             if fence is None:
                 fence = marker[1]
-            elif marker[1][0] == fence[0] and len(marker[1]) >= len(fence):
+            elif (
+                marker[1][0] == fence[0]
+                and len(marker[1]) >= len(fence)
+                and not marker[2].strip()
+            ):
                 fence = None
             continue
         if fence is None:
@@ -53,7 +57,10 @@ def validate_change(change_root: Path) -> None:
             f"{len(incomplete)} incomplete or undescribed task(s) remain in {change_root / 'tasks.md'}"
         )
 
-    delta_specs = sorted((change_root / "specs").rglob("spec.md"))
+    specs_root = change_root / "specs"
+    delta_specs = sorted(
+        spec for spec in specs_root.rglob("spec.md") if spec.parent != specs_root
+    )
     if not delta_specs:
         raise OpenSpecValidationError("no delta specs found under specs/**/spec.md")
 
