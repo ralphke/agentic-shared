@@ -71,7 +71,7 @@ class SyncAgenticSharedTests(unittest.TestCase):
                 "new",
             )
 
-    def test_copies_command_skill_and_preserves_local_prompt_extension(self) -> None:
+    def test_retires_shared_prompt_and_preserves_local_prompt_extension(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             old_source = root / "old"
@@ -81,9 +81,19 @@ class SyncAgenticSharedTests(unittest.TestCase):
             manifest["assets"] = {"skills": "managed", "prompts": "extended"}
             manifest["protected_paths"].append(".github/prompts/local/**")
             self.write(
+                old_source,
+                ".github/prompts/opsx-apply.prompt.md",
+                "shared prompt wrapper",
+            )
+            self.write(
                 new_source,
                 ".github/skills/openspec-propose/SKILL.md",
                 "replacement skill",
+            )
+            self.write(
+                destination,
+                ".github/prompts/opsx-apply.prompt.md",
+                "shared prompt wrapper",
             )
             self.write(
                 destination,
@@ -96,7 +106,14 @@ class SyncAgenticSharedTests(unittest.TestCase):
             )
 
             self.assertEqual(
-                changed, [Path(".github/skills/openspec-propose/SKILL.md")]
+                changed,
+                [
+                    Path(".github/skills/openspec-propose/SKILL.md"),
+                    Path(".github/prompts/opsx-apply.prompt.md"),
+                ],
+            )
+            self.assertFalse(
+                (destination / ".github/prompts/opsx-apply.prompt.md").exists()
             )
             self.assertEqual(
                 (destination / ".github/skills/openspec-propose/SKILL.md").read_text(

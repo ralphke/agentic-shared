@@ -11,7 +11,6 @@ Primary shared artifacts:
 - `.github/ISSUE_TEMPLATE/`
 - `.github/agents/`
 - `.github/skills/`
-- `.github/prompts/`
 - `.github/workflows/`
 - `.github/instructions/`
 - `.github/copilot-instructions.md`
@@ -24,16 +23,15 @@ synchronized into consumer repositories.
 
 It is not a standalone application or workshop runtime. It provides shared
 definitions, skills, workflows, and spec templates for other repos to consume.
-Shared prompt wrappers are deprecated and retained only for a one-release
-migration window.
+OpenSpec workflow entry points are maintained as command skills under
+`.github/skills/`; shared prompt wrappers are not published.
 
 ## Current content model
 
 - `.github/ISSUE_TEMPLATE/` — shared issue intake forms
 - `.github/agents/` — persona definitions for the Software Fabric flow
-- `.github/skills/` — reusable playbooks for agent personas
-- `.github/prompts/` — deprecated prompt wrappers; use command skills for new
-  workflows
+- `.github/skills/` — reusable playbooks and OpenSpec command skills
+- `.github/prompts/local/` — reserved for consumer-owned prompt extensions
 - `.github/workflows/` — shared workflow definitions for consumer repos
 - `.github/scripts/` — manifest validation and synchronization tools
 - `.github/instructions/` — shared instruction files and policy guidance
@@ -88,4 +86,4 @@ repository standard:
   while retaining `openspec/` paths and verify setup with
   `openspec context --json`.
 - Command skills stop without changing artifacts when the OpenSpec CLI is
-  unavailable; they must never fall back to deprecated prompt wrappers.
+  unavailable; they do not fall back to prompt wrappers.

@@ -19,29 +19,25 @@ def normalized(content: str) -> str:
     return " ".join(content.split())
 
 
-def pair(skill: str, prompt: str) -> tuple[str, str]:
-    return (
-        f".github/skills/{skill}/SKILL.md",
-        f".github/prompts/{prompt}.prompt.md",
-    )
+def skill_path(skill: str) -> tuple[str, ...]:
+    return (f".github/skills/{skill}/SKILL.md",)
 
 
-APPLY = pair("openspec-apply-change", "opsx-apply")
-ARCHIVE = pair("openspec-archive-change", "opsx-archive")
-BULK = pair("openspec-bulk-archive-change", "opsx-bulk-archive")
-SYNC = pair("openspec-sync-specs", "opsx-sync")
-VERIFY = pair("openspec-verify-change", "opsx-verify")
-ONBOARD = pair("openspec-onboard", "opsx-onboard")
-PROPOSE = pair("openspec-propose", "opsx-propose")
-FF = pair("openspec-ff-change", "opsx-ff")
-CONTINUE = pair("openspec-continue-change", "opsx-continue")
-EXPLORE = pair("openspec-explore", "opsx-explore")
-NEW = pair("openspec-new-change", "opsx-new")
+APPLY = skill_path("openspec-apply-change")
+ARCHIVE = skill_path("openspec-archive-change")
+BULK = skill_path("openspec-bulk-archive-change")
+SYNC = skill_path("openspec-sync-specs")
+VERIFY = skill_path("openspec-verify-change")
+ONBOARD = skill_path("openspec-onboard")
+PROPOSE = skill_path("openspec-propose")
+FF = skill_path("openspec-ff-change")
+CONTINUE = skill_path("openspec-continue-change")
+EXPLORE = skill_path("openspec-explore")
+NEW = skill_path("openspec-new-change")
 INTAKE = (
     ".github/skills/idea-to-spec/SKILL.md",
     ".github/skills/software-fabric-kickoff/SKILL.md",
     ".github/agents/product-owner.agent.md",
-    ".github/prompts/sdlc-kickoff.prompt.md",
 )
 
 
@@ -116,10 +112,10 @@ class StrictOpenSpecPolicyTests(unittest.TestCase):
             "not successful archive",
             "do not repeat that decision at handoff",
         ))
-        self.assert_contract((".github/prompts/sdlc-kickoff.prompt.md",), (
-            "Stop after presenting the planning artifacts",
-            "a new explicit implementation request",
-            "do not implement during kickoff",
+        self.assert_contract(skill_path("software-fabric-kickoff"), (
+            "Stop after planning",
+            "new explicit request",
+            "Do not implement code during kickoff",
         ))
 
     def test_intake_handoffs_reuse_proceed_instead_of_prompting_again(self) -> None:

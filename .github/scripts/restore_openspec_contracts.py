@@ -73,7 +73,7 @@ class Target:
     path: Path
     intro: str
     policy: str
-    skill_name: str | None = None
+    skill_name: str
 
     def block(self, newline: bytes) -> bytes:
         return f"{START}\n\n{self.policy}\n\n{END}\n\n".encode("utf-8").replace(b"\n", newline)
@@ -84,11 +84,6 @@ INTRODUCTIONS = {
     "openspec-apply-change": "Implement tasks from an OpenSpec change.",
     "openspec-verify-change": "Verify that an implementation matches the change artifacts (specs, tasks, design).",
 }
-PROMPTS = {
-    "opsx-propose": "openspec-propose",
-    "opsx-apply": "openspec-apply-change",
-    "opsx-verify": "openspec-verify-change",
-}
 TARGETS = tuple(
     Target(
         Path(".github") / "skills" / name / "SKILL.md",
@@ -97,17 +92,6 @@ TARGETS = tuple(
         name,
     )
     for name, policy in SKILL_POLICIES.items()
-) + tuple(
-    Target(
-        Path(".github") / "prompts" / f"{prompt}.prompt.md",
-        INTRODUCTIONS[skill],
-        f"# {skill.replace('-', ' ').title()}\n\n"
-        "> **Deprecated:** This wrapper is retained for one compatibility release.\n"
-        f"> Use the `{skill}` skill for new workflows.\n"
-        "> Use this legacy wrapper only when\n"
-        "> the user explicitly invokes its literal `/opsx:` command.",
-    )
-    for prompt, skill in PROMPTS.items()
 )
 
 
@@ -134,7 +118,7 @@ def restored_content(target: Target, original: bytes) -> bytes:
         raise invalid("frontmatter must contain a string description")
     if not metadata["description"].strip():
         raise invalid("frontmatter description is empty")
-    if target.skill_name and metadata.get("name") != target.skill_name:
+    if metadata.get("name") != target.skill_name:
         raise invalid(f"frontmatter name must be {target.skill_name}")
     if text.splitlines().count(target.intro) != 1:
         raise invalid("expected exactly one generated introduction anchor")

@@ -57,21 +57,31 @@ class OpenSpecCommandSkillTests(unittest.TestCase):
                 for expectation in expectations:
                     self.assertIn(expectation.lower(), content.lower())
 
-    def test_legacy_prompts_declare_replacement_skills(self) -> None:
-        mappings = {
-            "opsx-propose.prompt.md": "openspec-propose",
-            "opsx-apply.prompt.md": "openspec-apply-change",
-            "opsx-verify.prompt.md": "openspec-verify-change",
-            "sdlc-kickoff.prompt.md": "software-fabric-kickoff",
-        }
-
-        for prompt, replacement in mappings.items():
-            with self.subTest(prompt=prompt):
-                content = (ROOT / ".github" / "prompts" / prompt).read_text(
-                    encoding="utf-8"
+    def test_shared_workflow_skills_are_present_without_shared_prompts(self) -> None:
+        skills = (
+            "openspec-apply-change",
+            "openspec-archive-change",
+            "openspec-bulk-archive-change",
+            "openspec-continue-change",
+            "openspec-explore",
+            "openspec-ff-change",
+            "openspec-new-change",
+            "openspec-onboard",
+            "openspec-propose",
+            "openspec-sync-specs",
+            "openspec-update-change",
+            "openspec-verify-change",
+            "software-fabric-kickoff",
+        )
+        for skill in skills:
+            with self.subTest(skill=skill):
+                self.assertTrue(
+                    (ROOT / ".github" / "skills" / skill / "SKILL.md").is_file()
                 )
-                self.assertIn("> **Deprecated:**", content)
-                self.assertIn(f"`{replacement}` skill", content)
+
+        self.assertEqual(
+            list((ROOT / ".github" / "prompts").glob("*.prompt.md")), []
+        )
 
     def test_restored_skills_preserve_store_root_and_stop_contracts(self) -> None:
         for name in ("openspec-propose", "openspec-apply-change", "openspec-verify-change"):

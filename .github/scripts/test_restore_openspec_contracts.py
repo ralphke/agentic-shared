@@ -30,9 +30,9 @@ class RestoreOpenSpecContractsTests(unittest.TestCase):
         self.addCleanup(temporary.cleanup)
         self.root = Path(temporary.name).resolve()
         for target in TARGETS:
-            name = f"name: {target.skill_name}\n" if target.skill_name else ""
             content = (
-                f"---\n{name}description: Generated fixture\n"
+                f"---\nname: {target.skill_name}\n"
+                "description: Generated fixture\n"
                 "metadata:\n  generatedBy: '1.14.3'\n---\n\n"
                 f"{target.intro}\n\n"
                 "**Store selection:** Keep the selected --store <id>.\n\n"
@@ -89,7 +89,9 @@ class RestoreOpenSpecContractsTests(unittest.TestCase):
             "malformed marker": original + START.encode(),
             "orphan end": original + END.encode(),
             "misplaced block": original + block,
-            "conflicting block": restored_content(target, original).replace(b"Deprecated:", b"Changed:"),
+            "conflicting block": restored_content(target, original).replace(
+                b"Node.js 26 or later", b"Node.js 25 or later"
+            ),
             "duplicate block": restored_content(target, original) + block,
             "unsupported layout": original.replace(target.intro.encode(), b"Extra\n\n" + target.intro.encode()),
             "invalid encoding": original + b"\xff",
@@ -198,11 +200,11 @@ class RestoreOpenSpecContractsTests(unittest.TestCase):
             text=True,
         )
         self.assertEqual(first.returncode, 0, first.stderr)
-        self.assertEqual(first.stdout.count("Restored:"), 6)
+        self.assertEqual(first.stdout.count("Restored:"), 3)
         before = self.snapshot()
         second = subprocess.run(command, cwd=self.root.parent, capture_output=True, text=True)
         self.assertEqual(second.returncode, 0, second.stderr)
-        self.assertEqual(second.stdout.count("Already correct:"), 6)
+        self.assertEqual(second.stdout.count("Already correct:"), 3)
         self.assertEqual(self.snapshot(), before)
 
     def test_readme_documents_update_restoration_and_validation(self) -> None:
@@ -213,7 +215,7 @@ class RestoreOpenSpecContractsTests(unittest.TestCase):
             "Before any `openspec init`, back up",
             "openspec update",
             "restore_openspec_contracts.py",
-            r"git diff -- .github\skills .github\prompts",
+            r"git diff -- .github\skills",
             "openspec context --json",
             r'.\.venv\Scripts\python.exe -m unittest discover -s .github\scripts -p "test_*.py"',
             "pip install PyYAML",
