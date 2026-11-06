@@ -99,6 +99,14 @@ class ValidateOpenSpecChangeTests(unittest.TestCase):
         with self.assertRaisesRegex(OpenSpecValidationError, "1 incomplete"):
             validate_change(self.root)
 
+    def test_outdented_task_after_nested_unclosed_fence_still_fails(self) -> None:
+        self.tasks.write_text(
+            "- [x] Parent task\n  ```md\n  - [ ] Example only\n- [ ] Actual unfinished task\n",
+            encoding="utf-8",
+        )
+        with self.assertRaisesRegex(OpenSpecValidationError, "1 incomplete"):
+            validate_change(self.root)
+
     def test_nested_specs_are_checked_and_empty_specs_fail(self) -> None:
         nested = self.spec.parent / "nested" / "spec.md"
         nested.parent.mkdir()
