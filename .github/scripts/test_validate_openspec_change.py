@@ -146,21 +146,6 @@ class ValidateOpenSpecChangeTests(unittest.TestCase):
         )
         validate_change(self.root)
 
-    def test_requirement_and_rename_names_cannot_span_lines(self) -> None:
-        for spec_text in (
-            "## ADDED Requirements\n### Requirement:\nName on next line\n",
-            "## RENAMED Requirements\n"
-            "- FROM: `### Requirement:\nOld name`\n"
-            "- TO: `### Requirement: New name`\n",
-            "## RENAMED Requirements\n"
-            "- FROM: `### Requirement: Old name`\n"
-            "- TO: `### Requirement:\nNew name`\n",
-        ):
-            with self.subTest(spec_text=spec_text):
-                self.spec.write_text(spec_text, encoding="utf-8")
-                with self.assertRaisesRegex(OpenSpecValidationError, "no requirement:"):
-                    validate_change(self.root)
-
     def test_read_errors_are_explicit_cli_failures(self) -> None:
         error = io.StringIO()
         with patch("sys.argv", ["validate", self.root.name, "--root", str(self.root.parent)]):

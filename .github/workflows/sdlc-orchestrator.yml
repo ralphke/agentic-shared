@@ -280,7 +280,8 @@ jobs:
     name: "🔒 Stage: Security"
     permissions:
       contents: read
-      pull-requests: read
+      issues: write
+      pull-requests: write
       checks: read
     if: |
       github.event_name == 'pull_request' &&
