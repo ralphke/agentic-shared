@@ -174,8 +174,7 @@ jobs:
     name: "🧪 Stage: Test"
     permissions:
       contents: read
-      issues: write
-      pull-requests: write
+      pull-requests: read
       checks: read
     if: |
       github.event_name == 'pull_request' &&
@@ -238,6 +237,20 @@ jobs:
           python3 .github/skills/test-generation/scripts/validate_ux_gate.py \
             --phase complete --base "$BASE_SHA" --head "$HEAD_SHA"
 
+  stage-test-comment:
+    name: "🧪 Stage: Test Comment"
+    needs: stage-test-gate
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    if: |
+      github.event_name == 'pull_request' &&
+      ((github.event.action == 'labeled' && github.event.label.name == 'stage:test') ||
+       (github.event.action != 'labeled' && contains(github.event.pull_request.labels.*.name, 'stage:test'))) &&
+      needs.stage-test-gate.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
       - name: Comment — test stage
         uses: actions/github-script@v7
         with:
@@ -267,8 +280,7 @@ jobs:
     name: "🔒 Stage: Security"
     permissions:
       contents: read
-      issues: write
-      pull-requests: write
+      pull-requests: read
       checks: read
     if: |
       github.event_name == 'pull_request' &&
@@ -318,13 +330,27 @@ jobs:
           echo "Automated security checks are owned by the standalone Security workflow."
           echo "Require the Security workflow to pass in branch protection before stage:security."
 
-      # ── Post security-gate status comment ───────────────────────────────
+  stage-security-comment:
+    name: "🔒 Stage: Security Comment"
+    needs: stage-security-gate
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    if: |
+      always() &&
+      github.event_name == 'pull_request' &&
+      ((github.event.action == 'labeled' && github.event.label.name == 'stage:security') ||
+       (github.event.action != 'labeled' && contains(github.event.pull_request.labels.*.name, 'stage:security'))) &&
+      needs.stage-security-gate.result != 'skipped' &&
+      needs.stage-security-gate.result != 'cancelled'
+    runs-on: ubuntu-latest
+    steps:
       - name: Comment — security stage
-        if: always()
         uses: actions/github-script@v7
         with:
           script: |
-            const success = '${{ job.status }}' === 'success';
+            const success = '${{ needs.stage-security-gate.result }}' === 'success';
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,

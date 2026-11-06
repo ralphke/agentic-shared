@@ -7,6 +7,15 @@ gates by permitting premature implementation, confirmation overrides, and archiv
 without complete spec synchronization. Restore operational agreement with
 `openspec/specs/sdlc-process/spec.md` rather than expanding the lifecycle.
 
+## UX Applicability
+
+```json
+{
+  "required": false,
+  "reason": "The scope is shared governance guidance and OpenSpec artifact validation behavior with no affected visual interface."
+}
+```
+
 ## What Changes
 
 - Add one pre-write intake decision: Proceed, Defer, or Do not pursue. Assess
