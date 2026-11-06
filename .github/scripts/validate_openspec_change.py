@@ -29,22 +29,47 @@ def validate_change(change_root: Path) -> None:
 
     checkboxes: list[tuple[str, str]] = []
     fence: str | None = None
+    fence_list_indent: int | None = None
+    last_task_indent: int | None = None
     for line in artifacts["tasks.md"].splitlines():
-        marker = re.match(r"^\s*(`{3,}|~{3,})(.*)$", line)
-        if marker:
-            if fence is None:
-                fence = marker[1]
-            elif (
-                marker[1][0] == fence[0]
-                and len(marker[1]) >= len(fence)
-                and not marker[2].strip()
+        indent = len(line) - len(line.lstrip(" "))
+        list_marker = re.match(r"^\s*(?:[-*+]|\d+[.)])\s+", line)
+
+        if fence is not None:
+            if (
+                fence_list_indent is not None
+                and line.strip()
+                and list_marker
+                and indent <= fence_list_indent
             ):
                 fence = None
+                fence_list_indent = None
+            else:
+                marker = re.match(r"^\s*(`{3,}|~{3,})(.*)$", line)
+                if marker and (
+                    marker[1][0] == fence[0]
+                    and len(marker[1]) >= len(fence)
+                    and not marker[2].strip()
+                ):
+                    fence = None
+                    fence_list_indent = None
+                    continue
+                else:
+                    continue
+
+        marker = re.match(r"^\s*(`{3,}|~{3,})(.*)$", line)
+        if marker:
+            fence = marker[1]
+            if last_task_indent is not None and indent > last_task_indent:
+                fence_list_indent = last_task_indent
+            else:
+                fence_list_indent = None
             continue
-        if fence is None:
-            task = re.match(r"^\s*(?:[-*+]|\d+[.)])\s+\[([^\]]*)\]\s*(.*)$", line)
-            if task:
-                checkboxes.append((task[1].strip(), task[2].strip()))
+
+        task = re.match(r"^\s*(?:[-*+]|\d+[.)])\s+\[([^\]]*)\]\s*(.*)$", line)
+        if task:
+            checkboxes.append((task[1].strip(), task[2].strip()))
+            last_task_indent = indent
     if not checkboxes or not any(description for _, description in checkboxes):
         raise OpenSpecValidationError("no usable tracked tasks found in tasks.md")
     incomplete = [
@@ -74,13 +99,15 @@ def validate_change(change_root: Path) -> None:
             flags=re.MULTILINE,
         ):
             raise OpenSpecValidationError(f"delta spec has no requirement section: {spec_path}")
-        has_requirement = re.search(
-            r"^### Requirement:\s+\S", content, flags=re.MULTILINE
-        )
+        has_requirement = re.search(r"^### Requirement:[ \t]+\S", content, flags=re.MULTILINE)
         has_rename = (
             "## RENAMED Requirements" in content
-            and re.search(r"^-\s+FROM:\s+`?### Requirement:\s+\S", content, re.MULTILINE)
-            and re.search(r"^-\s+TO:\s+`?### Requirement:\s+\S", content, re.MULTILINE)
+            and re.search(
+                r"^-\s+FROM:[ \t]+`?### Requirement:[ \t]+\S", content, re.MULTILINE
+            )
+            and re.search(
+                r"^-\s+TO:[ \t]+`?### Requirement:[ \t]+\S", content, re.MULTILINE
+            )
         )
         if not has_requirement and not has_rename:
             raise OpenSpecValidationError(f"delta spec has no requirement: {spec_path}")

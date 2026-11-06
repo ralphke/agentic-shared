@@ -99,6 +99,14 @@ class ValidateOpenSpecChangeTests(unittest.TestCase):
         with self.assertRaisesRegex(OpenSpecValidationError, "1 incomplete"):
             validate_change(self.root)
 
+    def test_outdented_task_after_nested_unclosed_fence_still_fails(self) -> None:
+        self.tasks.write_text(
+            "- [x] Parent task\n  ```md\n  - [ ] Example only\n- [ ] Actual unfinished task\n",
+            encoding="utf-8",
+        )
+        with self.assertRaisesRegex(OpenSpecValidationError, "1 incomplete"):
+            validate_change(self.root)
+
     def test_nested_specs_are_checked_and_empty_specs_fail(self) -> None:
         nested = self.spec.parent / "nested" / "spec.md"
         nested.parent.mkdir()
@@ -137,6 +145,21 @@ class ValidateOpenSpecChangeTests(unittest.TestCase):
             encoding="utf-8",
         )
         validate_change(self.root)
+
+    def test_requirement_and_rename_names_cannot_span_lines(self) -> None:
+        for spec_text in (
+            "## ADDED Requirements\n### Requirement:\nName on next line\n",
+            "## RENAMED Requirements\n"
+            "- FROM: `### Requirement:\nOld name`\n"
+            "- TO: `### Requirement: New name`\n",
+            "## RENAMED Requirements\n"
+            "- FROM: `### Requirement: Old name`\n"
+            "- TO: `### Requirement:\nNew name`\n",
+        ):
+            with self.subTest(spec_text=spec_text):
+                self.spec.write_text(spec_text, encoding="utf-8")
+                with self.assertRaisesRegex(OpenSpecValidationError, "no requirement:"):
+                    validate_change(self.root)
 
     def test_read_errors_are_explicit_cli_failures(self) -> None:
         error = io.StringIO()
