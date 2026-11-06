@@ -12,6 +12,13 @@ metadata:
 
 Continue working on a change by creating the next artifact.
 
+**Conditional UX:** Follow the Conditional UX Planning contract in
+`.github/instructions/openspec-workflow.instructions.md`. Record
+`## UX Applicability` in the proposal. Accepted visual changes require a UX
+brief before architecture; nonvisual CLI/API/framework changes require no UX
+artifacts or UX tests. Missing or conflicting applicability pauses planning.
+Normal functional specs, tests, and approval gates remain required.
+
 **Store selection:** If the user names a store (a store is a standalone OpenSpec repo registered on this machine) or the work lives in one, run `openspec store list --json` to discover registered store ids, then pass `--store <id>` on the commands that read or write specs and changes (`new change`, `status`, `instructions`, `list`, `show`, `validate`, `archive`, `doctor`, `context`, `schemas`, `view`). Once selected, treat `--store <id>` as sticky for the rest of the workflow. Every unscoped example of those commands below is shorthand: before running it, append the flag. For example, run `openspec status --change "<name>" --json --store "<id>"`, not the unscoped form shown below. Other commands do not take the flag. Hints printed by commands already carry the flag; keep it on follow-ups. Without a store, commands act on the nearest local `openspec/` root.
 
 **Project check:** These steps expect a project that already uses OpenSpec. Before the first step that writes anything (`new change`, `archive`, `sync specs`, or authoring an artifact file), confirm the project has a root: run `openspec list --json` (with `--store <id>` when a store is selected, since the store is then the root) and read `root`. A root object means the project is set up. `"root": null` means it is not - there is no `openspec/` directory here, and a write such as `openspec new change` would create one as a side effect. The command also exits non-zero, which is that answer rather than a broken CLI, so read the JSON instead of retrying or working around it.
@@ -69,12 +76,21 @@ In both branches, never create the root as a side effect: do not run `openspec i
    **If all planning artifacts are complete (`isPlanningComplete: true`, or legacy `isComplete: true`)**:
    - Congratulate the user
    - Show final status including the schema used
-   - Suggest: "Planning is complete! You can now implement this change. Once implementation and any tracked work are complete, archive it."
+   - Check the Mandatory Planning Contract in
+     `.github/instructions/openspec-workflow.instructions.md` before claiming
+     readiness: required proposal, specs, design, and tasks cannot be omitted or
+     skipped. Present the proposal for acceptance before design.
+   - Suggest: "Planning artifacts are ready for review. Implementation requires
+     explicit acceptance of the current proposal/spec; archive additionally
+     requires all mandatory gates and every-delta sync verification."
    - STOP
 
    ---
 
    **If artifacts are ready to create** (status shows artifacts with `status: "ready"`):
+   - Apply the Mandatory Planning Contract before selecting an artifact.
+     Obtain proposal acceptance before design; a skipped required role blocks
+     readiness and needs configuration reconciliation, not an implicit waiver.
    - Pick the FIRST artifact with `status: "ready"` from the status output
    - Get its instructions:
      ```bash

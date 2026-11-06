@@ -43,6 +43,15 @@ In both branches, never create the root as a side effect: do not run `openspec i
 
 ## Planning a Change
 
+Apply the **Pre-Capture Intake Decision** in
+`.github/instructions/openspec-workflow.instructions.md`: keep ideas and draft
+proposals in conversation or session storage and offer Proceed, Defer, or Do not
+pursue before capture. Defer or rejection means no repository writes, sync,
+archive, task completion, or deletion of existing work. Missing input pauses
+capture. The explicit capture confirmation required by this skill counts as
+Proceed; do not ask the same decision again. It does not accept the resulting
+proposal/spec or authorize implementation.
+
 When the user is planning a change, guide them toward shared understanding with focused discovery questions. For open-ended discussion, follow the conversation without imposing an interview or a required output.
 
 Before asking a factual question, follow the context discovery below and inspect relevant OpenSpec artifacts, source, tests, docs, and configuration. Do not ask the user to repeat facts you can verify. Summarize relevant findings without reproducing private context or rules. If evidence is missing, conflicting, or inaccessible, state that limitation and ask only for the clarification needed to proceed.
@@ -156,12 +165,23 @@ Think freely. When insights crystallize, you might offer:
 
 If the user asks you to capture the exploration as a new change, that request is the confirmation required above. It covers scaffolding that change and creating the change artifacts the request names, and nothing else. This holds only when the request is theirs: a yes to an offer you made confirms only the scope your offer itself named, so name the change and the artifacts in the offer. Don't re-ask for what they already asked for; do ask before anything beyond it. Transition seamlessly into the requested capture:
 
+Apply the Mandatory Planning Contract in
+`.github/instructions/openspec-workflow.instructions.md` during capture.
+Proposal acceptance precedes design. Required proposal, specs, design, and tasks
+cannot be waived by conditional guidance or skipped statuses. Do not write a
+skipped artifact; report the required-role conflict for reconciliation instead.
+Conditional skips below apply only to genuinely optional artifacts.
+
 1. Run `openspec new change "<name>"` (with `--store <id>` when applicable) before creating any artifacts. Never create a new change directory under `openspec/changes/` by hand; the CLI scaffold creates required metadata such as `.openspec.yaml`. Keep the selected `--store <id>` on every applicable follow-up `status` and `instructions` command.
 2. Run `openspec status --change "<name>" --json` (append the confirmed `--store "<id>"` only for a registered standalone store), then process the requested artifacts in dependency order. For each requested artifact that is `ready`, run `openspec instructions "<artifact-id>" --change "<name>" --json` (append the confirmed `--store "<id>"` only for a registered standalone store). Before creating a requested artifact, evaluate any condition in its own `instruction` against the explored change; record a deliberate skip instead when the condition does not apply. If a requested artifact is blocked by a direct prerequisite the user did not request, run `openspec instructions "<prerequisite-id>" --change "<name>" --json` (append the confirmed `--store "<id>"` only for a registered standalone store) for that prerequisite whether it is `ready` or `blocked`. If its own `instruction` states a condition, evaluate that condition against the explored change and record a deliberate skip only when the condition does not apply. If the condition applies, or the prerequisite is not conditional, treat it as a normal prerequisite and ask before expanding the capture. Do not create an unrequested prerequisite unless the user approves.
 3. Follow the returned `template` and `instruction` fields. Read completed dependency files listed in `dependencies`, and apply `context` and `rules` as constraints without copying them into the artifact. Choose the output path before creating anything: when `resolvedOutputPath` is a glob, use the instruction to choose a concrete path inside `changeRoot` and verify it remains inside `changeRoot` after resolving symlinks, both in its parent directories and in the file itself if it already exists; if it does not, stop and tell the user. Otherwise the output path is `resolvedOutputPath`. If the instruction delegates creation to a specific skill or command, invoke it only if it can write the artifact to that output path; otherwise stop and tell the user. Otherwise write the artifact to that output path. Verify that the selected concrete output exists at that output path.
-4. After creating each artifact, re-run `openspec status --change "<name>" --json` (append the confirmed `--store "<id>"` only for a registered standalone store) and continue until every requested artifact is `done`, `skipped`, or was deliberately skipped because its own `instruction` stated a condition that did not apply. Tell the user about a deliberate conditional skip, remember it, and do not reconsider it. Dependencies are enablers, not gates: if a requested artifact is still `blocked` only because you deliberately skipped a conditional prerequisite, run `openspec instructions "<artifact-id>" --change "<name>" --json` (append the confirmed `--store "<id>"` only for a registered standalone store) despite the blocked status, then create it using step 3 only when those recorded conditional skips are its sole missing dependencies. If a requested artifact is blocked by a prerequisite the user did not ask to capture and cannot be conditionally skipped, explain that dependency and ask before expanding the capture.
+4. After each artifact, rerun `openspec status --change "<name>" --json` with
+   the same selected-store flag. Finish when requested required artifacts are
+   complete; report genuinely optional conditional omissions separately.
+   Never write a blocked artifact to bypass a required prerequisite. If a
+   prerequisite was not requested, explain it and ask before expanding capture.
 
-Capture the artifact(s) the user requested without asking them to invoke another workflow command. If they asked only to start a change, stop after scaffolding and show its status. When the requested capture is done, stop there and name where the work continues: `/opsx-propose` writes the remaining planning artifacts, and `/opsx-apply` implements the change once tasks exist. Capturing artifacts never starts implementing them.
+Capture the artifact(s) the user requested without asking them to invoke another workflow command. If they asked only to start a change, stop after scaffolding and show its status. When capture is done, stop and name the next workflow: `/opsx-propose` completes planning; `/opsx-apply` implements only after complete required planning and explicit acceptance of the current proposal/spec. Capturing artifacts never starts implementation.
 
 ### When a change exists
 

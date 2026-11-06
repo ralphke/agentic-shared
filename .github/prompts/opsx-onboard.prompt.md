@@ -4,6 +4,15 @@ description: "Guided onboarding - walk through a complete OpenSpec workflow cycl
 
 Guide the user through their first complete OpenSpec workflow cycle. This is a teaching experience—you'll do real work in their codebase while explaining each step.
 
+**Pre-Capture Intake Decision:** Follow
+`.github/instructions/openspec-workflow.instructions.md` before setup or capture
+writes. Keep assessment and draft proposals in conversation or session storage.
+At the Phase 3 boundary offer Proceed, Defer, or Do not pursue. Missing input
+pauses capture; Defer or rejection means no repository writes, sync, archive,
+task completion, or deletion of existing work. An explicit request to create
+named repository artifacts counts as Proceed; do not repeat the decision at
+handoff. Proceed is not proposal/spec acceptance or implementation approval.
+
 **Store selection:** If the user names a store (a store is a standalone OpenSpec repo registered on this machine) or the work lives in one, run `openspec store list --json` to discover registered store ids, then pass `--store <id>` on the commands that read or write specs and changes (`new change`, `status`, `instructions`, `list`, `show`, `validate`, `archive`, `doctor`, `context`, `schemas`, `view`). Once selected, treat `--store <id>` as sticky for the rest of the workflow. Every unscoped example of those commands below is shorthand: before running it, append the flag. For example, run `openspec status --change "<name>" --json --store "<id>"`, not the unscoped form shown below. Other commands do not take the flag. Hints printed by commands already carry the flag; keep it on follow-ups. Without a store, commands act on the nearest local `openspec/` root.
 
 **Project check:** These steps expect a project that already uses OpenSpec. Before the first step that writes anything (`new change`, `archive`, `sync specs`, or authoring an artifact file), confirm the project has a root: run `openspec list --json` (with `--store <id>` when a store is selected, since the store is then the root) and read `root`. A root object means the project is set up. `"root": null` means it is not - there is no `openspec/` directory here, and a write such as `openspec new change` would create one as a side effect. The command also exits non-zero, which is that answer rather than a broken CLI, so read the JSON instead of retrying or working around it.
@@ -160,10 +169,13 @@ Spend 1-2 minutes investigating the relevant code:
 
 Explore mode (`/opsx-explore`) is for this kind of thinking—investigating before implementing. You can use it anytime you need to think through a problem.
 
-Now let's create a change to hold our work.
+Would you like to Proceed with repository capture, Defer, or Do not pursue?
 ```
 
-**PAUSE** - Wait for user acknowledgment before proceeding.
+**PAUSE** - Require explicit Proceed before Phase 4; a generic acknowledgment
+is not capture consent. If already authorized to create named artifacts, reuse
+that decision without asking again. Defer, rejection, or no answer stops here
+without repository writes.
 
 ---
 
@@ -410,6 +422,12 @@ Then ask:
 
 ## Phase 9: Apply (Implementation)
 
+Before code edits, invoke `openspec-apply-change` and follow its Mandatory
+Planning Contract: required proposal, specs, design, and tasks must be complete,
+with explicit acceptance of the current proposal/spec. Missing, skipped, or
+unaccepted required planning blocks implementation. Task approval alone does
+not prove spec acceptance.
+
 **EXPLAIN:**
 ```
 ## Implementation
@@ -437,7 +455,8 @@ All tasks done:
 - [x] Task 2
 - [x] ...
 
-The change is implemented! One more step—let's archive it.
+The change is implemented. Archive remains blocked until all mandatory gates
+pass and every delta has been synced and verified.
 ```
 
 ---
@@ -453,12 +472,14 @@ When a change is complete, we archive it. The archive path is derived from `plan
 Archived changes become your project's decision history—you can always find them later to understand why something was built a certain way.
 ```
 
-**DO:** Archive the change (`--yes` answers the confirmation prompts, which you cannot answer from a tool call):
-```bash
-openspec archive "<name>" --yes
-```
+**DO:** Invoke `openspec-archive-change` for the change and follow its mandatory
+preflight and full Quality Gate Checklist before archive-driven sync writes or
+moves. Required artifacts/tasks and every mandatory gate must be complete and
+verifiable; user confirmation cannot override mandatory gates. Sync and verify
+every delta before archive. If evidence is unavailable, pause onboarding at this
+phase and report the blockers; do not show the success recap as completed.
 
-**SHOW:**
+**SHOW only after verified archive success:**
 ```
 Archived to: `<planningHome.changesDir>/archive/<target-name>/` (the target name prepends today's date, unless the name already starts with a `YYYY-MM-DD-` prefix — then it is kept as-is, no second date)
 
@@ -522,7 +543,7 @@ No problem! Your change is saved at the `changeRoot` reported by `openspec statu
 
 To pick up where we left off later, `openspec status --change "<name>" --json` shows exactly where the change stands.
 - `/opsx-continue <name>` - Resume artifact creation
-- `/opsx-apply <name>` - Jump to implementation (if tasks exist)
+- `/opsx-apply <name>` - Implement only after complete planning and current proposal/spec acceptance
 
 The work won't be lost. Come back whenever you're ready.
 ```

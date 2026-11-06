@@ -186,6 +186,11 @@ For every new feature / endpoint, configure:
 
 Before invoking `/opsx:archive`:
 
+- [ ] Full Mandatory Planning Contract and Quality Gate Checklist in
+      `.github/instructions/openspec-workflow.instructions.md` verified; required
+      artifacts/tasks and mandatory gates cannot be waived by user confirmation
+- [ ] Every delta synced and verified before the archive move; an unsatisfied
+      delta blocks its whole change, including in bulk archive
 - [ ] SLOs configured and alerting is active
 - [ ] Runbook(s) created and linked from alerts
 - [ ] No SLO breaches in the past 24 hours

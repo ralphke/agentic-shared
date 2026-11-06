@@ -97,9 +97,20 @@ In both branches, never create the root as a side effect: do not run `openspec i
 
    Each dimension can have CRITICAL, WARNING, or SUGGESTION issues.
 
-   Verification is advisory. Respect intentional omissions such as `skip_specs: true`, optional design documents, and schemas without task tracking. Do not require or invent optional or intentionally omitted artifacts to obtain a clean report. `Not verified` describes a limit of this report, not a new archive prerequisite. Archive retains its own checks and user-confirmation behavior.
+   Verification is advisory, not gate clearance. Apply the Mandatory Planning
+   Contract and full Quality Gate Checklist in
+   `.github/instructions/openspec-workflow.instructions.md`. Missing, incomplete,
+   or skipped required artifacts and absent or stale acceptance evidence are
+   blockers, not optional omissions. User confirmation cannot override mandatory
+   gates. Preserve warnings for genuinely optional artifacts; do not invent them
+   merely to obtain a clean report.
 
-   Mark checks the schema does not define, or artifacts the status reports as intentionally skipped, as **Not applicable**. The correctness checks of a change whose readable delta specs contain REMOVED or RENAMED requirements but no ADDED or MODIFIED requirements are also **Not applicable** (see step 6). Exclude them from skipped-check counts and the archive-readiness assessment. Reserve **Not verified** for applicable checks whose evidence is missing or unusable.
+   Mark only genuinely non-applicable checks **Not applicable**, with a
+   scope-based reason; schema omissions or skip flags do not waive required
+   Fabric roles. For REMOVED/RENAMED-only deltas, ADDED/MODIFIED mapping is
+   non-applicable but removal/rename checks still run (see step 6).
+   Reserve **Not verified** for applicable checks with missing or unusable
+   evidence; mandatory unverified checks block archive readiness.
 
    If only task evidence is available for applicable checks, verify task completion only and mark the remaining applicable checks, including **Code Pattern Consistency**, as not verified with the reason "Only task evidence available".
 
@@ -108,7 +119,8 @@ In both branches, never create the root as a side effect: do not run `openspec i
 5. **Verify Completeness**
 
    **Task Completion**:
-   - If `taskTrackingConfigured` is false, report **Task Completion** as not applicable. Do not treat empty `tasks` as missing evidence.
+   - If `taskTrackingConfigured` is false, report required task tracking as a
+     blocker; do not treat schema omission as completion or non-applicability.
    - Otherwise, use the top-level `tasks` and `progress` fields. They already aggregate every readable concrete file matched by `apply.tracks`, regardless of the tracked artifact's ID; do not infer tracking from a `contextFiles` key.
    - If `unavailableTrackingFiles` is nonempty, mark **Task Completion** as not verified and include every unavailable path and reason. Continue using any readable task evidence, but do not infer completion from the partial `tasks` and `progress` fields.
    - If `taskTrackingConfigured` is true and `tasks` is empty, mark **Task Completion** as not verified and record the reason from apply `state` and `instruction`. Nonzero totals alone do not establish evaluable task descriptions.
@@ -118,7 +130,9 @@ In both branches, never create the root as a side effect: do not run `openspec i
      - Recommendation: "Complete task: <description>" or "Mark as done if already implemented"
 
    **Spec Coverage**:
-   - If status marks the spec artifact skipped by `skip_specs: true`, or the schema defines no spec artifact (no artifact whose `artifactPaths.<id>.outputPath` is under `specs/`), report the spec-dependent checks as not applicable.
+   - If the required specs role is skipped, absent, or ambiguously mapped,
+     report a Fabric planning blocker and mark its applicable checks not verified,
+     not non-applicable. Do not invent missing artifacts during verification.
    - Otherwise, `contextFiles` is keyed by artifact id, and artifact ids come from the active schema, so do not assume an id such as `specs`. The spec artifacts are those whose `artifactPaths.<id>.outputPath` is under `specs/`; read their files from `contextFiles.<id>`. If those spec files are absent or empty, mark **Spec Coverage**, **Requirement Implementation Mapping**, and **Scenario Coverage** as not verified; do not treat any of them as clean.
    - If delta specs exist in those spec files:
      - Extract all requirements (marked with "### Requirement:", or listed as `FROM:`/`TO:` pairs under `## RENAMED Requirements`) and note the delta section each one sits under: `## ADDED`, `## MODIFIED`, `## REMOVED`, or `## RENAMED Requirements`. The section decides what the check looks for.
@@ -226,9 +240,13 @@ In both branches, never create the root as a side effect: do not run `openspec i
 
    **Final Assessment**:
    - If CRITICAL issues: "X critical issue(s) found. Fix before archiving." If any check was skipped, also name every skipped check and its reason.
-   - If no CRITICAL issues, one or more warnings, and no checks were skipped: "No critical issues. Y warning(s) to consider. Ready for archive (with noted improvements)."
-   - If only suggestions and no checks were skipped: "No critical issues or warnings. Z suggestion(s) to consider. Ready for archive (with noted improvements)."
-   - If no issues and no checks were skipped: "All checks passed. Ready for archive."
+   - If no CRITICAL issues and no checks were skipped: report passing checks
+     and counts of warnings/suggestions, without automatically claiming archive
+     readiness. A warning exposing a mandatory failure (such as missing scenario
+     tests) is an archive blocker regardless of report severity.
+   - Claim archive readiness only when every mandatory gate has current passing
+     evidence and every delta has been synced and verified. Otherwise list each
+     unmet or unverifiable prerequisite. Optional warnings alone do not block.
    - If any check was skipped and there are no CRITICAL issues: do not claim readiness. Say "No critical issues found in the checks that ran. <check(s)> not verified: <reason>." Include the warning count when nonzero.
    - Include the suggestion count when nonzero in every final assessment.
 

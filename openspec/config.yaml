@@ -57,8 +57,12 @@ rules:
 operations:
   apply:
     guidance:
+      - Require complete proposal, delta specs, design, and tasks and explicit acceptance of the current proposal/spec before implementation; skipped required artifacts and CLI readiness are not waivers.
       - Do not archive active changes merely because all tasks are complete.
       - Keep implementation scoped to the approved change.
   archive:
     guidance:
       - Confirm tests, security review, code review, CI, and coverage gates before archiving.
+      - Block archive-driven sync writes and moves if required artifacts/tasks or any mandatory gate is incomplete or unverifiable; user confirmation cannot override mandatory gates.
+      - Follow the full archive checklist in .github/instructions/openspec-workflow.instructions.md, including acceptance, scenario tests, removed references, and applicable legal and operational gates.
+      - Sync and verify every delta before archive, including bulk archive; never archive a change with excluded or unverified deltas.

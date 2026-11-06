@@ -11,9 +11,17 @@ to production.
 ## How the Software Fabric Works
 
 ```text
-[Idea] → [Proposal] → [UX Design] → [Spec+Design] → [Tasks] → [Code]
+[Idea] → [Proposal] → [UX Design*] → [Spec+Design] → [Tasks] → [Code]
        → [Tests] → [Security] → [Legal Review*] → [Review] → [Deploy] → [Operate]
 ```
+
+`UX Design*` applies only when the accepted change affects a visual interface.
+Record `## UX Applicability` in the proposal with boolean `required` and a
+scope-backed `reason`. CLI-only, API-only, and framework changes with no affected
+visual interface require no UX stage, brief, UX-specific specs, or UX tests;
+route directly to `stage:design` and retain normal functional quality gates.
+Mixed changes require UX only for affected visual surfaces. Missing or
+conflicting applicability blocks handoff rather than implying an exemption.
 
 `Legal Review*` is an optional escalation gate triggered only when the proposal
 or implementation is assessed as high-risk for legal, regulatory, licensing, or
@@ -65,7 +73,17 @@ All specs live in `openspec/`:
 
 ## Key Rules for All Personas
 
-1. **No code before spec** — `tasks.md` must exist before implementation
+Before capturing a new idea, follow the **Pre-Capture Intake Decision** in
+`.github/instructions/openspec-workflow.instructions.md`: assess outside the
+worktree and offer Proceed, Defer, or Do not pursue. Missing input pauses capture.
+Defer or rejection ends intake without repository writes or successful archive;
+it never authorizes deleting existing work. Explicit Proceed is capture
+authorization only, not proposal/spec acceptance or implementation approval.
+
+1. **No code before accepted planning** — complete proposal, delta specs, design,
+   and tasks are required; verify explicit acceptance of the current
+   proposal/spec before implementation. CLI readiness or skipped required
+   artifacts cannot waive this gate.
 2. **No merge without security** — security gate must pass
 3. **No release without legal review when the proposal is high-risk** — if a
    solution risks fines, legal violations, unauthorized handling of PII or
@@ -74,6 +92,13 @@ All specs live in `openspec/`:
 4. **No deploy without tests** — coverage ≥ 80%
 5. **No archive without SLOs** — operations must be configured
 6. **Document decisions** — use ADRs for architectural choices
+7. **No archive overrides** — required artifacts/tasks and every mandatory quality
+   gate must be complete and verifiable before archive-driven sync or moves.
+   Confirmation cannot override them. Sync and verify every delta before archive,
+   including bulk archive; an unsatisfied delta blocks its whole change.
+   Follow `.github/instructions/openspec-workflow.instructions.md` for the
+   complete planning and archive checklist; optional-artifact warnings remain
+   informative rather than mandatory.
 
 ## High-Risk Trigger for Legal Review
 

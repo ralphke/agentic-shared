@@ -24,6 +24,7 @@ jobs:
       - name: Checkout change
         uses: actions/checkout@v7
 
+      # This job checks artifacts and optionally PR evidence, not all Fabric gates.
       - name: Validate OpenSpec artifacts and completed tasks
         run: python3 .github/scripts/validate_openspec_change.py '${{ inputs.change_slug }}'
 

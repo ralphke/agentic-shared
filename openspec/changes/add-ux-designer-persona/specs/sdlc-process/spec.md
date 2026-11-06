@@ -4,17 +4,15 @@
 
 ### Requirement: Ordered Agent Handoffs
 
-Each agent stage MUST complete before the next begins, signalled by PR labels.
-The UX Designer stage follows proposal and precedes architecture; the Architect
-MUST receive the UX brief before beginning design. Legal review is a conditional
-gate after security review and before code review. A change with legal-risk
-triggers MUST receive `stage:legal`; it may advance to `stage:review` only after
-a `legal:approved` disposition is present. A change labelled `legal:blocked`
-MUST NOT advance to code review or deployment.
+Each applicable stage MUST complete before the next begins, signalled by PR
+labels. Visual changes MUST pass UX before architecture; nonvisual changes
+MUST route directly to architecture. Legal-risk changes MUST pass conditional
+legal review after security and before review. A `legal:blocked` change MUST
+NOT advance to review or deployment.
 
 | Stage Label       | Responsible Persona | Next Stage                      |
 | ----------------- | ------------------- | ------------------------------- |
-| `stage:proposal`  | Product Owner       | `stage:ux`                      |
+| `stage:proposal`  | Product Owner       | `stage:ux` or `stage:design`    |
 | `stage:ux`        | UX Designer         | `stage:design`                  |
 | `stage:design`    | Architect           | `stage:implement`               |
 | `stage:implement` | Developer           | `stage:test`                    |
@@ -27,7 +25,7 @@ MUST NOT advance to code review or deployment.
 
 #### Scenario: Proposal hands off to UX before architecture
 
-- GIVEN a proposal accepted for architecture work
+- GIVEN an accepted proposal affects a visual interface
 - WHEN the Product Owner completes the proposal stage
 - THEN the work is routed to `stage:ux`
 - AND the Architect does not begin until the UX Designer has produced the UX
@@ -36,9 +34,17 @@ MUST NOT advance to code review or deployment.
 
 #### Scenario: Missing UX brief blocks architecture
 
-- GIVEN a pull request labelled `stage:design` without a UX brief
+- GIVEN a visual change labelled `stage:design` without a UX brief
 - WHEN the design-stage gate validates its required artifacts
 - THEN the gate blocks the Architect handoff and reports the missing UX brief
+
+#### Scenario: Nonvisual proposal bypasses UX work
+
+- GIVEN accepted applicability records no affected visual interface
+- WHEN the Product Owner hands off the proposal
+- THEN work goes directly to `stage:design`
+- AND no UX stage, brief, UX-specific spec, or UX test is required
+- AND ordinary functional specs, tests, and other gates remain required
 
 #### Scenario: Stage label gates merge
 
@@ -49,7 +55,7 @@ MUST NOT advance to code review or deployment.
 
 #### Scenario: UX criteria and security gate remain in downstream order
 
-- GIVEN implementation includes UX acceptance criteria from the UX brief
+- GIVEN visual implementation includes UX acceptance criteria from the brief
 - WHEN the change advances through testing and security
 - THEN QA validates the UX criteria, including applicable responsive, keyboard,
   and touch behavior
@@ -68,3 +74,39 @@ MUST NOT advance to code review or deployment.
 - WHEN `stage:deploy` is applied
 - THEN the SDLC orchestrator fails the deployment gate
 - AND the pull request remains blocked pending remediation or counsel sign-off
+
+#### Scenario: Proposal hands off to UX only when necessary
+
+- GIVEN an accepted proposal affects a visual interface
+- WHEN the Product Owner completes the proposal stage
+- THEN work is routed to `stage:ux`
+- AND the UX Designer hands the completed brief to `stage:design`
+
+#### Scenario: Missing applicable UX brief blocks architecture
+
+- GIVEN a visual change labelled `stage:design` without a completed brief
+- WHEN the design gate checks artifacts
+- THEN it blocks handoff and reports the missing or incomplete brief
+
+#### Scenario: Nonvisual proposal hands off directly to architecture
+
+- GIVEN accepted applicability records no affected visual interface
+- WHEN the Product Owner completes the proposal stage
+- THEN the next stage is `stage:design` without UX work
+- AND a mistakenly applied `stage:ux` reports the correct route without
+  demanding a UX artifact
+
+#### Scenario: Applicable UX validation precedes security
+
+- GIVEN implementation includes applicable visual UX criteria
+- WHEN test completion or security entry is evaluated
+- THEN required UX checks must pass with traceable evidence
+- AND passing code coverage alone cannot satisfy UX validation
+- AND security still precedes review and deployment
+
+#### Scenario: Updated changes are checked again
+
+- GIVEN a PR changes after applicability or UX evidence was checked
+- WHEN its head is updated while a relevant stage is active
+- THEN applicable gates evaluate the current artifacts again
+- AND prior successful checks do not automatically satisfy changed scope

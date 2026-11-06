@@ -4,17 +4,26 @@
 
 ### Requirement: UX Designer Agent
 
-The UX Designer Agent MUST turn an accepted proposal into a reviewable UX brief
-covering user flows, readable content, accessibility, responsive layouts, and
-interaction expectations before the Systems Architect begins design.
+The UX Designer Agent MUST produce an evidence-grounded UX brief before
+architecture only when the accepted change affects a visual user interface.
+CLI-only, API-only, framework, and other nonvisual changes MUST NOT require UX
+design, a UX brief, UX-specific specs, or UX tests.
 
 #### Scenario: Accepted proposal produces a UX brief
 
-- GIVEN a proposal accepted for UX design
+- GIVEN a proposal accepted for UX design affecting a visual interface
 - WHEN the UX Designer Agent completes its stage
 - THEN the UX brief describes user flows and all user-facing screens or states
 - AND identifies content and controls that must remain visible and discoverable
 - AND defines responsive expectations for desktop, tablet, and mobile
+
+#### Scenario: Nonvisual proposal requires no UX artifacts
+
+- GIVEN accepted scope affects only CLI, API, or framework behavior
+- WHEN the proposal is handed off
+- THEN it goes directly to architecture without UX design, UX briefs,
+  UX-specific specs, or UX tests
+- AND functional planning, testing, and existing quality gates remain required
 
 #### Scenario: UX brief defines accessible interactions
 
@@ -43,9 +52,10 @@ interaction expectations before the Systems Architect begins design.
 
 ### Requirement: Architect Provides an Implementation-Ready Technology Handoff
 
-The Systems Architect MUST document the selected and justified implementation
-stack and the information the Developer needs to build and test approved tasks
-without choosing technologies by guesswork.
+The Architect MUST document the selected stack, rationale, and build and test
+instructions needed to implement approved work without guessing. Applicable
+UX technology flags MUST be evaluated without requiring a UX brief for
+nonvisual changes.
 
 #### Scenario: Architect supplies implementation details
 
@@ -58,12 +68,14 @@ without choosing technologies by guesswork.
 - AND evaluates any UX Designer technology-risk flags and records the decision
   and rationale
 
-#### Scenario: QA validates UX acceptance criteria
+#### Scenario: Architecture handoff supports downstream UX validation
 
-- GIVEN implementation tasks include interactive widgets or responsive layouts
+- GIVEN implementation tasks affect a visual interface
 - WHEN the QA Engineer Agent validates the implementation
 - THEN each UX acceptance criterion is covered by a test or documented device
   and interaction check
-- AND checks cover desktop, tablet, and mobile form factors, keyboard, and touch
+- AND checks cover applicable desktop, tablet, and mobile behavior, keyboard,
+  and touch, with evidence and reasons for excluded dimensions
+- AND unavailable required checks remain blocked rather than passed
 - AND the change still passes the existing security gate before review or
   deployment

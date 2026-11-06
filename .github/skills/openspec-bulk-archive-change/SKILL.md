@@ -14,6 +14,13 @@ Archive multiple completed changes in a single operation.
 
 This skill allows you to batch-archive changes, handling spec conflicts intelligently by checking the codebase to determine what's actually implemented.
 
+**Mandatory Fabric preflight:** Before any archive-driven sync writes or moves,
+read `.github/instructions/openspec-workflow.instructions.md` and verify its
+Mandatory Planning Contract and full Quality Gate Checklist for each change.
+Required artifacts/tasks and every mandatory gate must be complete and verifiable.
+User confirmation cannot override mandatory gates. Optional-artifact warnings
+remain informative. A missing optional guidance lookup does not waive preflight.
+
 **Store selection:** If the user names a store (a store is a standalone OpenSpec repo registered on this machine) or the work lives in one, run `openspec store list --json` to discover registered store ids, then pass `--store <id>` on the commands that read or write specs and changes (`new change`, `status`, `instructions`, `list`, `show`, `validate`, `archive`, `doctor`, `context`, `schemas`, `view`). Once selected, treat `--store <id>` as sticky for the rest of the workflow. Every unscoped example of those commands below is shorthand: before running it, append the flag. For example, run `openspec status --change "<name>" --json --store "<id>"`, not the unscoped form shown below. Other commands do not take the flag. Hints printed by commands already carry the flag; keep it on follow-ups. Without a store, commands act on the nearest local `openspec/` root.
 
 **Project check:** These steps expect a project that already uses OpenSpec. Before the first step that writes anything (`new change`, `archive`, `sync specs`, or authoring an artifact file), confirm the project has a root: run `openspec list --json` (with `--store <id>` when a store is selected, since the store is then the root) and read `root`. A root object means the project is set up. `"root": null` means it is not - there is no `openspec/` directory here, and a write such as `openspec new change` would create one as a side effect. The command also exits non-zero, which is that answer rather than a broken CLI, so read the JSON instead of retrying or working around it.
@@ -85,6 +92,13 @@ In both branches, never create the root as a side effect: do not run `openspec i
    a. **Artifact status** - Run `openspec status --change "<name>" --json`
       - Parse `schemaName`, `artifacts`, `planningHome`, `changeRoot`, `artifactPaths`, and `actionContext`
       - Note which artifacts are `done` vs other states
+      - Resolve required proposal, specs, design, and task roles and their
+        transitive dependencies through returned schema paths. Missing,
+        incomplete, skipped, or ambiguous required roles block the entire change.
+        `skip_specs` is not a waiver; genuinely optional artifacts remain warnings.
+      - Verify current proposal/spec acceptance and the full mandatory Quality
+        Gate Checklist. Unmet or unverifiable evidence marks the change `Blocked`
+        before any sync writes or moves. Leave blocked changes out of conflicts.
 
    b. **Task completion** - Find the `changes` entry from the list response whose `name` exactly matches this change
       - Require nonnegative integer `totalTasks` and `completedTasks`, with `completedTasks <= totalTasks`
@@ -92,7 +106,8 @@ In both branches, never create the root as a side effect: do not run `openspec i
       - The CLI resolves the schema's tracked task files, including custom artifact names, output paths, and globs
       - Do not infer task completion from artifact status, an artifact id of `tasks`, or the absence of a top-level `tasks.md`
       - The CLI counts only `x`/`X` checkbox markers as complete; other markers remain incomplete
-      - If `totalTasks` is zero, note as "No tasks"
+      - Incomplete tasks block the whole change. Zero counts alone do not prove
+        completion: missing or empty required task tracking also blocks it.
 
    c. **Delta specs** - Check `artifactPaths.specs.existingOutputPaths` from status JSON
       - List which capability specs exist
@@ -100,8 +115,8 @@ In both branches, never create the root as a side effect: do not run `openspec i
       - Treat this list as the only delta-spec source. If the `specs` entry is
         missing or the list is empty, perform no spec sync or specs-instruction
         lookup for that change; do not infer deltas from unrelated artifacts.
-      - Evaluate this independently for every change, including mixed-schema
-        batches where some schemas have no `specs` artifact.
+      - Evaluate each change independently. A missing required specs role or
+        output blocks that change, even when its schema omits it.
 
    d. **Archive target** - Compute each change's target name once and record it as that change's `<target-name>`
       - Use the change name as-is when it already starts with a `YYYY-MM-DD-` prefix; otherwise prepend the current date as `YYYY-MM-DD-<name>` (same rule as `openspec archive`)
@@ -132,14 +147,16 @@ In both branches, never create the root as a side effect: do not run `openspec i
       - Check for related files, functions, or tests
 
    c. **Determine resolution**:
-      - If only one change is actually implemented -> sync that one's specs
-      - If both implemented -> apply in chronological order (older first, newer overwrites)
-      - If neither implemented -> skip spec sync, warn user
+      - Missing implementation evidence blocks the entire affected change,
+        including all its deltas; remove that change from the eligible batch.
+      - If both are implemented, establish an evidence-backed order compatible
+        with both accepted changes. Chronology alone cannot justify overwriting
+        contradictory requirements; unresolved conflicts block affected changes.
+      - Recompute conflicts using only eligible changes.
 
    d. **Record resolution** for each conflict:
-      - An inclusion or exclusion decision for every delta spec, keyed by change and `<capability-path>`
-      - Which included delta specs to apply and in what order
-      - Which delta specs to exclude from sync because their implementation is missing
+      - Eligibility for each whole change and every blocking reason
+      - All delta specs of eligible changes and their coherent merge order
       - Rationale (what was found in codebase)
 
 6. **Show consolidated status table**
@@ -152,18 +169,18 @@ In both branches, never create the root as a side effect: do not run `openspec i
    | schema-management   | Done      | 5/5   | 2 delta | None      | Ready  |
    | project-config      | Done      | 3/3   | 1 delta | None      | Ready  |
    | add-oauth           | Done      | 4/4   | 1 delta | identity/user-auth (!) | Ready* |
-   | add-verify-skill    | 1 left    | 2/5   | None    | None      | Warn   |
+   | add-verify-skill    | 1 left    | 2/5   | None    | None      | Blocked |
    ```
 
    For conflicts, show the resolution:
    ```text
    * Conflict resolution:
-     - identity/user-auth spec: Will apply add-oauth then add-jwt (both implemented, chronological order)
+     - identity/user-auth spec: Will apply add-oauth then add-jwt (both implemented and compatible)
    ```
 
-   For incomplete changes, show warnings:
+   For incomplete required work or unverifiable gates, show blockers:
    ```text
-   Warnings:
+   Blockers:
    - add-verify-skill: 1 incomplete artifact, 3 incomplete tasks
    ```
 
@@ -171,19 +188,16 @@ In both branches, never create the root as a side effect: do not run `openspec i
 
    Ask the user a single confirmation question:
 
-   - "Archive N changes?" with options based on status
-   - Options might include:
-     - "Archive all N changes"
-     - "Archive only N ready changes (skip incomplete)"
-     - "Cancel"
-
-   If there are incomplete changes, make clear they'll be archived with warnings.
+   Offer only "Archive N ready changes" and "Cancel". If none are eligible,
+   report the blockers and stop. Blocked changes cannot be confirmed into the
+   batch. Show genuinely optional warnings separately.
 
    Route on the answer by intent, not by exact label — you wrote these labels,
    so match what the user picked rather than the wording above:
    - "Cancel" — stop, do not archive. Report that nothing was archived and skip the remaining steps.
-   - The archive-everything option — proceed with every selected change that is not `Blocked`
-   - The ready-only option — proceed with only the changes the step 6 table marks `Ready` or `Ready*`, and record the rest as Skipped in step 8d, except `Blocked` changes, which stay Failed with `Archive directory already exists`. If a `Ready*` change's conflict partner is skipped, re-derive that conflict's resolution using only the changes being archived.
+   - The ready-changes option — proceed only with `Ready` or `Ready*` changes;
+     record blocked changes as Failed with their actual reasons. Recompute
+     conflict ordering if the eligible selection changes.
    - Anything else — ask again rather than archiving
 
    Before step 8 writes the first main spec or moves any change, fetch every
@@ -198,34 +212,42 @@ In both branches, never create the root as a side effect: do not run `openspec i
 
 8. **Execute archive for each confirmed change**
 
-   Before processing, carry the recorded decisions from step 5 (after any step 7 re-derivation) into two per-delta sets:
-   - `includedDeltas`: all non-conflicting delta specs from confirmed changes plus conflict deltas selected for sync
-   - `excludedDeltas`: conflict deltas from confirmed changes excluded because their implementation is missing
-   - A single change can have both included and excluded delta specs. Keep the decision per delta; do not collapse it into a per-change sync flag.
+   Before processing, retain all delta paths for each eligible change from
+   `artifactPaths.specs.existingOutputPaths`. No delta may be excluded from an
+   archived change. Recheck gates if artifacts or evidence changed.
 
    Process changes in the determined order (respecting conflict resolution):
 
-   a. **Sync included delta specs**:
-      - Run the `openspec-sync-specs` workflow inline (agent-driven intelligent merge) only for changes with entries in `includedDeltas`, passing only the included delta paths and explicitly instructing it to ignore that change's `excludedDeltas`. Wait for it to finish.
+   a. **Sync every delta of the eligible change**:
+      - Run the `openspec-sync-specs` workflow inline (agent-driven intelligent
+        merge) for the full delta list and wait for completion. Apply the single
+        archive workflow's missing-main-spec and retirement assessment before
+        writing; a sync blocker blocks the whole affected change.
       - If the sync reports any stop or blocking condition, treat the sync as failed. Stop processing that change immediately. Before continuing to the next change, record this change's outcome as Failed in the batch results, including the sync blocking/error condition.
       - Do not perform the post-sync content comparison and do not move its `changeRoot`; leave the change intact.
-      - For conflicts, apply in resolved order.
+      - For conflicts, apply in resolved order. If a change fails, stop later
+        changes sharing its capabilities or depending on it and report them as
+        blocked; only independent eligible changes may continue.
       - Pass that change's fetched specs-rule snapshot into inline sync; inline
         sync must reuse it without fetching instructions again
       - Apply artifact rules only to main specs produced by that change. They do
         not change conflict resolution, archive behavior, or CLI contracts, and
         their text is not copied into an output file
       - Do not delegate to a background task — step 8c would move `changeRoot` out from under a sync that is still reading it.
-      - If a change has no included delta specs, do not run the sync workflow for it.
+      - A missing required delta list blocks the change rather than skipping sync.
 
-   b. **Verify included delta specs before moving changeRoot**:
-      - Re-run the comparison only for delta specs in `includedDeltas` against main spec at `<planningHome.root>/openspec/specs/<capability-path>/spec.md` (use the store-aware `planningHome.root` from step 3 status JSON, not a hardcoded repo path).
+   b. **Verify every delta before moving changeRoot**:
+      - Re-run comparison for every delta against the main spec at
+        `<planningHome.root>/openspec/specs/<capability-path>/spec.md` (use the
+        store-aware root, not a hardcoded repo path). Apply the single archive
+        workflow's structural checks too, including already-synced deltas.
       - Verify that main specs are updated:
         - ADDED requirements present
         - MODIFIED requirements carrying scenario and description changes named in the delta, with their other scenarios intact
         - REMOVED requirements gone — and where this sync retired a capability (removed its last requirement, leaving `## Requirements` empty), its main spec deleted rather than left empty.
         - RENAMED requirements present under the new name and absent under the old one
-      - Do not verify delta specs in `excludedDeltas`; they are intentionally left unsynced.
+      - No unverified delta is permitted. Report any partial main-spec writes on
+        failure without claiming rollback.
       - If sync failed or any capability does not match verification, report what differs and fail/skip moving that change's `changeRoot` — do not archive that change. `changeRoot` remains intact.
 
    c. **Perform the archive**:
@@ -248,7 +270,8 @@ In both branches, never create the root as a side effect: do not run `openspec i
       - Success: archived successfully
       - Failed: error during archive or spec verification (record error)
       - Skipped: user chose not to archive (if applicable)
-      - Sync skipped: for every delta in `excludedDeltas`, report `sync skipped` with the change, `<capability-path>`, and recorded reason. This is distinct from skipping the archive.
+      - Blocked: leave the whole change active and report its reason; never
+        describe an archived change as partially synced.
 
 9. **Display summary**
 
@@ -262,13 +285,13 @@ In both branches, never create the root as a side effect: do not run `openspec i
    - project-config -> archive/2026-01-19-project-config/
    - add-oauth -> archive/2026-01-19-add-oauth/
 
-   Skipped 1 change:
-   - add-verify-skill (user chose not to archive incomplete)
+   Blocked 1 change:
+   - add-verify-skill (required artifacts/tasks incomplete)
 
    Spec sync summary:
    - 4 delta specs synced to main specs
-   - 1 delta spec sync skipped (add-jwt, identity/user-auth: implementation not found)
-   - 1 conflict resolved (identity/user-auth: synced add-oauth, skipped add-jwt)
+   - Every delta of each archived change synced and verified
+   - Missing implementation blocks its whole change, not just its spec sync
    ```
 
    If any failures:
@@ -291,7 +314,7 @@ Checking add-jwt:
 - Delta adds "JWT Token Handling" requirement
 - Searching codebase... no JWT implementation found
 
-Resolution: Only add-oauth is implemented. Will sync add-oauth specs only.
+Resolution: Block add-jwt entirely. Only add-oauth is eligible for sync and archive.
 ```
 
 Example 2: Both implemented
@@ -307,7 +330,8 @@ Checking add-graphql (created 2026-01-15):
 - Searching codebase... found src/api/graphql.ts
 
 Resolution: Both implemented. Will apply add-rest-api specs first,
-then add-graphql specs (chronological order, newer takes precedence).
+then add-graphql specs only if both accepted changes remain satisfied;
+otherwise block the conflicting changes pending resolution.
 ```
 
 **Output On Success**
@@ -333,7 +357,7 @@ Archived N changes:
 - <change-1> -> archive/<target-name-1>/
 
 Skipped M changes:
-- <change-2> (user chose not to archive incomplete)
+- <change-2> (not selected for archive)
 
 Failed K changes:
 - <change-3>: Archive directory already exists
@@ -351,8 +375,8 @@ No active changes found. Create a new change to get started.
 - Allow any number of changes (1+ is fine, 2+ is the typical use case)
 - Always prompt for selection, never auto-select
 - Detect spec conflicts early and resolve by checking codebase
-- When both changes are implemented, apply specs in chronological order
-- Skip spec sync only when implementation is missing (warn user)
+- Require an evidence-backed merge order; unresolved contradictions block affected changes
+- Missing implementation blocks the entire affected change, never just one delta
 - Show clear per-change status before confirming
 - Use single confirmation for entire batch
 - Never archive after the user cancels the confirmation — a cancelled batch archives nothing
@@ -361,15 +385,14 @@ No active changes found. Create a new change to get started.
 - Archive directory target uses the current date, computed once in step 3d and reused at the move: YYYY-MM-DD-<name>; a name that already starts with a `YYYY-MM-DD-` prefix is used as-is (never stack a second date)
 - If archive target exists, fail that change but continue with others
 - Check every archive target in step 3, before the first main-spec write; a change whose target exists is never synced or moved
-- If sync is requested, run the `openspec-sync-specs` workflow inline (agent-driven) for each change with included delta specs
-- Carry the per-delta `includedDeltas` and `excludedDeltas` decisions into execution; sync and verify only included deltas
-- Report every excluded delta as `sync skipped` without treating the archive itself as skipped
+- Run the `openspec-sync-specs` workflow inline (agent-driven) for every eligible change
+- Sync and verify every delta before moving its changeRoot; no per-delta exclusions
 - Never archive a change while a spec sync is still in flight — run the sync inline and verify main specs at `<planningHome.root>/openspec/specs/<capability-path>/spec.md` before moving `changeRoot`
 - Fetch archive inputs once per selected root before spec inspection or moves
 - Fetch all required specs-rule snapshots before the batch's first main-spec write or move
 - A failed archive-inputs lookup never blocks the batch; it proceeds with no context or guidance
 - A failed specs instruction lookup stops the whole batch atomically
-- Changes without concrete `artifactPaths.specs.existingOutputPaths` continue without spec sync
+- Missing required specs or task tracking blocks the entire affected change
 - Apply relevant runtime context across the batch and report conflicts
 - Operation guidance remains advisory; consider every entry and explain rejected advice
 - Keep runtime inputs, conflict analysis, CLI-derived values, and artifact rules separate

@@ -38,7 +38,7 @@ that guide implementation.
 | `openspec instructions [artifact] [--change <name>] [--json]` | Get next-step instructions for a change                                              |
 | `openspec templates [--json]`                                 | List available templates                                                             |
 | `openspec schemas [--json]`                                   | List available workflow schemas                                                      |
-| `openspec archive <change> --json [--yes]`                    | Archive a completed change; use `--yes` only after confirming all tasks are complete |
+| `openspec archive <change> --json [--yes]`                    | Archive only after mandatory preflight and every-delta sync verification; `--yes` answers prompts, never waives gates |
 
 ### Interactive CLI Commands (use when prompted by the user)
 
@@ -79,6 +79,14 @@ When the user wants to propose a new change:
 
 ## Best Practices
 
+- Follow the Mandatory Planning Contract and full Quality Gate Checklist in
+  `.github/instructions/openspec-workflow.instructions.md`. Implementation
+  requires complete proposal, specs, design, tasks, and explicit acceptance of
+  the current proposal/spec. Missing or skipped required artifacts block it.
+- Use `openspec-archive-change` or `openspec-bulk-archive-change` for archive
+  preflight. Required artifacts/tasks and mandatory gates must be complete and
+  verifiable before sync writes or moves; user confirmation cannot override them.
+  Sync and verify every delta before archive, never just a selected subset.
 - Always use `--json` flag when you need to parse output programmatically
 - Run `openspec validate` after creating or modifying artifacts
 - Check `openspec status` before starting work to understand the current state

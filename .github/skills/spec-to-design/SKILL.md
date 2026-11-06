@@ -16,14 +16,19 @@ description:
 
 ## When to Use This Skill
 
-Use when a PR/issue is labelled `stage:design` by the Product Owner Agent.
+Use at `stage:design`, after UX for visual changes or directly after proposal
+acceptance for nonvisual changes.
 
 ---
 
 ## Execution Steps
 
 1. **Read proposal.md** — Understand intent, scope, scenarios, and acceptance
-   criteria
+   criteria. Read its `## UX Applicability` decision; missing or conflicting
+   scope blocks design. If true, require `ux-brief.md` and preserve its stable
+   criterion IDs in design, delta scenarios, and QA tasks. CLI-only, API-only,
+   and framework changes with no affected visual interface require no UX
+   artifacts or UX tests; normal functional specs and tests remain required.
 2. **Analyse codebase** — Identify affected modules, existing patterns,
    integration points
 3. **Check existing specs** — Review relevant domain specs in `openspec/specs/`
@@ -72,6 +77,8 @@ Use when a PR/issue is labelled `stage:design` by the Product Owner Agent.
       packages)
 - [ ] tasks.md tasks are atomic (no multi-concern tasks)
 - [ ] Testing tasks included for every spec scenario
+- [ ] Applicable visual UX criteria trace to design, scenarios, and QA tasks;
+      no nonvisual UX artifacts or tests are required
 - [ ] Security tasks included if any new auth/data-handling logic
 
 ---

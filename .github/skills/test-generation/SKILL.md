@@ -11,6 +11,13 @@ description:
 **Persona:** QA Engineer Agent **Input:** `spec.md` scenarios + source code from
 Developer Agent **Output:** Test suites with ≥ 80% coverage on new code
 
+Read `## UX Applicability` in the accepted proposal first. Missing or conflicting
+scope requires clarification. CLI-only, API-only, and framework changes with no
+affected visual interface require no UX artifacts, UX-specific specs, UX tests,
+or frontend tooling. Their functional specs, tests, and quality gates remain.
+For visual changes only, also consume `ux-brief.md` and produce criterion-level
+validation evidence.
+
 ---
 
 ## When to Use This Skill
@@ -27,6 +34,10 @@ Use when a PR is labelled `stage:test` by the Developer Agent.
 3. **Inspect source code** — Understand the implementation to determine test
    levels
 4. **Plan test coverage** — Map scenarios to test level (unit/integration/e2e)
+   and, for visual changes only, map every stable UX criterion ID to a test or
+   documented check. Cover applicable states, WCAG 2.2 AA behavior, responsive
+   desktop/tablet/mobile layouts, keyboard/focus, and touch. Explain excluded
+   dimensions and distinguish real devices from emulation.
 5. **Write tests** — One test function per scenario using project test framework
 6. **Add AI failure pattern tests** — Explicitly add tests for patterns common
    in AI-generated code that may not appear in spec scenarios:
@@ -43,7 +54,9 @@ Use when a PR is labelled `stage:test` by the Developer Agent.
 8. **Mock externals** — Mock all HTTP calls, database queries, file I/O
 9. **Run tests** — Execute test suite and capture coverage report
 10. **Fill gaps** — Add targeted tests for uncovered lines (≥ 80% required)
-11. **Label PR** — Apply `stage:security` when coverage gate passes
+11. **Label PR** — Apply `stage:security` only after functional gates and
+    applicable UX validation pass. Unavailable required checks remain blocked,
+    not passed; code coverage alone cannot prove UX quality.
 
 ---
 
@@ -90,6 +103,9 @@ ExportToCsv_WithEmptyDataset_ReturnsEmptyCsv
 - [ ] No `time.sleep()` or wall-clock dependencies
 - [ ] Tests pass deterministically (run 3x to verify)
 - [ ] Tests run in < 30s for unit suite, < 5min for integration suite
+- [ ] For visual changes, each UX criterion has a result and evidence; required
+      consumer UX automation passes for the evaluated revision
+- [ ] Nonvisual changes require no UX report, runner, or device checks
 
 ---
 
@@ -103,6 +119,51 @@ ExportToCsv_WithEmptyDataset_ReturnsEmptyCsv
   updates.
 
 ## Scripts & Tools
+
+The shared helper travels with this skill. Validate a handoff locally:
+
+```powershell
+python .github/skills/test-generation/scripts/validate_ux_gate.py openspec/changes/<slug> --phase design
+```
+
+Use phase `ux` for proposal entry, `design` or `test` for applicable brief
+checks. Nonvisual changes require only their proposal decision, never UX files.
+
+### Visual evidence and consumer CI
+
+Only visual changes create `ux-validation.json` in their change directory:
+
+```json
+{
+  "criteria": [
+    {
+      "id": "UX-01",
+      "method": "automated",
+      "result": "passed",
+      "evidence": "https://github.com/owner/repo/actions/runs/123"
+    }
+  ]
+}
+```
+
+List every brief criterion exactly once. `method` is `automated` or `manual`;
+`result` is `passed`, `failed`, or `blocked`. Evidence must identify the actual
+test result or documented check. A required unavailable check stays blocked.
+Record device versus emulated coverage in that evidence; non-applicable
+dimensions need scope-backed reasons in the accepted brief.
+
+Configure the trusted repository variable `UX_CHECK_NAMES`, for example
+`["Browser UX", "Accessibility"]`, with unique check-run names produced by
+consumer-owned CI. Those workflows execute the consumer's existing UX suites
+on PR updates. Do not select an orchestrator gate itself or install a browser
+stack merely for nonvisual work.
+
+Phase `complete` or `security` checks the report and requires those checks to
+succeed for `--head <full-PR-head-SHA>` in `--repository <owner/repo>`.
+The helper waits up to five minutes for pending checks, then fails explicitly.
+It reads all check-run pages and rejects ambiguous names, stale revisions,
+skips, failures, and missing evidence. Report completeness does not certify
+manual conformance; QA and review still evaluate the referenced evidence.
 
 - Run the repository test command and its coverage command for the detected
   language.

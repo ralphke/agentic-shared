@@ -3,7 +3,7 @@ on:
   issues:
     types: [labeled]
   pull_request:
-    types: [labeled, unlabeled, ready_for_review]
+    types: [opened, reopened, synchronize, labeled, unlabeled, ready_for_review]
 
 permissions:
   issues: write
@@ -32,9 +32,12 @@ jobs:
               body: [
                 '## 🏭 Software Fabric — Idea Received',
                 '',
-                'Your idea has been queued for the autonomous SDLC pipeline.',
+                'Your idea has been received for assessment, not repository capture.',
                 '',
-                '**Next step:** The Product Owner Agent will transform this idea into an OpenSpec proposal.',
+                '**Next step:** The Product Owner Agent will assess it and offer Proceed, Defer, or Do not pursue before any repository writes.',
+                'A raw idea, label, priority, or kickoff alone does not authorize capture. Missing input pauses capture.',
+                'Defer or rejection writes no repository files, never deletes existing work, and is not successful archive.',
+                'An explicit request to create named repository artifacts counts as Proceed; do not repeat that decision at handoff.',
                 '',
                 '**To start the pipeline now**, run in VS Code Copilot chat:',
                 '```',
@@ -48,7 +51,7 @@ jobs:
                 '',
                 '**Pipeline stages:**',
                 '1. 📋 Proposal (Product Owner)',
-                '2. 🎨 UX Design (UX Designer)',
+                '2. 🎨 UX Design when visual interfaces are affected (UX Designer)',
                 '3. 🏗️ Design + Tasks (Architect)',
                 '4. 💻 Implementation (Developer)',
                 '5. 🧪 Tests (QA Engineer)',
@@ -76,38 +79,23 @@ jobs:
     name: "🎨 Stage: UX Design"
     if: |
       github.event_name == 'pull_request' &&
-      github.event.action == 'labeled' &&
-      github.event.label.name == 'stage:ux'
+      ((github.event.action == 'labeled' && github.event.label.name == 'stage:ux') ||
+       (github.event.action != 'labeled' && contains(github.event.pull_request.labels.*.name, 'stage:ux')))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Validate proposal artifact
+      - name: Validate UX applicability
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           set -euo pipefail
-          mapfile -t change_dirs < <(
-            git diff --name-only "$BASE_SHA" "$HEAD_SHA" \
-              | grep -E '^openspec/changes/[^/]+/' \
-              | cut -d/ -f1-3 \
-              | sort -u
-          )
-
-          if [ "${#change_dirs[@]}" -eq 0 ]; then
-            echo "::error::stage:ux requires a change folder under openspec/changes/<slug>/."
-            exit 1
-          fi
-
-          for dir in "${change_dirs[@]}"; do
-            if [ ! -f "$dir/proposal.md" ]; then
-              echo "::error file=$dir::Missing proposal artifact. Expected proposal.md before UX design."
-              exit 1
-            fi
-          done
+          python3 .github/skills/test-generation/scripts/validate_ux_gate.py \
+            --phase ux --base "$BASE_SHA" --head "$HEAD_SHA"
 
       - name: Comment — UX design stage started
         uses: actions/github-script@v7
@@ -122,11 +110,13 @@ jobs:
                 '',
                 '**UX Designer Agent** — your turn.',
                 '',
-                'Create `openspec/changes/<slug>/ux-brief.md` from the accepted proposal.',
+                'Read each accepted proposal UX Applicability decision.',
+                'For visual changes only: create `openspec/changes/<slug>/ux-brief.md`.',
                 'Cover readable content, WCAG 2.2 AA accessibility, visible and discoverable controls,',
                 'responsive desktop/tablet/mobile behavior, and keyboard and touch interactions.',
                 '',
-                'Pass the completed brief to the Architect by applying `stage:design`.',
+                'For nonvisual CLI/API/framework changes: create no UX artifacts or UX tests; go directly to `stage:design`.',
+                'Pass the completed visual brief to the Architect by applying `stage:design`.',
               ].join('\n')
             });
 
@@ -135,42 +125,23 @@ jobs:
     name: "🏗️ Stage: Design"
     if: |
       github.event_name == 'pull_request' &&
-      github.event.action == 'labeled' &&
-      github.event.label.name == 'stage:design'
+      ((github.event.action == 'labeled' && github.event.label.name == 'stage:design') ||
+       (github.event.action != 'labeled' && contains(github.event.pull_request.labels.*.name, 'stage:design')))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Validate proposal and UX brief artifacts
+      - name: Validate proposal and applicable UX brief
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           set -euo pipefail
-          mapfile -t change_dirs < <(
-            git diff --name-only "$BASE_SHA" "$HEAD_SHA" \
-              | grep -E '^openspec/changes/[^/]+/' \
-              | cut -d/ -f1-3 \
-              | sort -u
-          )
-
-          if [ "${#change_dirs[@]}" -eq 0 ]; then
-            echo "::error::stage:design requires a change folder under openspec/changes/<slug>/."
-            exit 1
-          fi
-
-          for dir in "${change_dirs[@]}"; do
-            if [ ! -f "$dir/proposal.md" ]; then
-              echo "::error file=$dir::Missing proposal stage artifact. Expected proposal.md before the Architect stage."
-              exit 1
-            fi
-            if [ ! -f "$dir/ux-brief.md" ]; then
-              echo "::error file=$dir::Missing UX handoff artifact. Expected ux-brief.md before the Architect stage."
-              exit 1
-            fi
-          done
+          python3 .github/skills/test-generation/scripts/validate_ux_gate.py \
+            --phase design --base "$BASE_SHA" --head "$HEAD_SHA"
 
       - name: Comment — design stage started
         uses: actions/github-script@v7
@@ -184,10 +155,11 @@ jobs:
                 '## 🏗️ Stage: Design',
                 '',
                 '**Architect Agent** — your turn.',
+                'Require a UX brief only for accepted visual applicability; nonvisual work goes directly to functional design.',
                 '',
                 'Run in VS Code Copilot chat:',
                 '```',
-                'Use the openspec-apply-change skill; select the registered OpenSpec store when working in one.',
+                'Use the spec-to-design skill after proposal acceptance; select the registered OpenSpec store when working in one.',
                 '```',
                 '',
                 'Expected outputs:',
@@ -200,15 +172,30 @@ jobs:
   # ─── STAGE GATE: IMPLEMENT → TEST ─────────────────────────────────────────
   stage-test-gate:
     name: "🧪 Stage: Test"
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+      checks: read
     if: |
       github.event_name == 'pull_request' &&
-      github.event.action == 'labeled' &&
-      github.event.label.name == 'stage:test'
+      ((github.event.action == 'labeled' && github.event.label.name == 'stage:test') ||
+       (github.event.action != 'labeled' && contains(github.event.pull_request.labels.*.name, 'stage:test')))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Validate test UX inputs
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          python3 .github/skills/test-generation/scripts/validate_ux_gate.py \
+            --phase test --base "$BASE_SHA" --head "$HEAD_SHA"
 
       - name: Validate test stage artifacts
         env:
@@ -240,6 +227,17 @@ jobs:
         if: hashFiles('**/*.csproj') != ''
         run: dotnet test --no-build --collect:"XPlat Code Coverage" -q
 
+      - name: Validate applicable UX completion
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          GH_TOKEN: ${{ github.token }}
+          UX_CHECK_NAMES: ${{ vars.UX_CHECK_NAMES }}
+        run: |
+          set -euo pipefail
+          python3 .github/skills/test-generation/scripts/validate_ux_gate.py \
+            --phase complete --base "$BASE_SHA" --head "$HEAD_SHA"
+
       - name: Comment — test stage
         uses: actions/github-script@v7
         with:
@@ -254,6 +252,8 @@ jobs:
                 '**QA Engineer Agent** — your turn.',
                 '',
                 'Generate tests from spec scenarios and achieve ≥80% coverage.',
+                'Use the test-generation skill. For visual changes, validate every UX criterion and record actual evidence.',
+                'CLI/API/framework changes with no affected visual interface need no UX artifacts, UX tests, or UX tooling.',
                 '',
                 'Run in VS Code Copilot chat:',
                 '```',
@@ -265,13 +265,32 @@ jobs:
   # ─── STAGE GATE: TEST → SECURITY ──────────────────────────────────────────
   stage-security-gate:
     name: "🔒 Stage: Security"
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+      checks: read
     if: |
       github.event_name == 'pull_request' &&
-      github.event.action == 'labeled' &&
-      github.event.label.name == 'stage:security'
+      ((github.event.action == 'labeled' && github.event.label.name == 'stage:security') ||
+       (github.event.action != 'labeled' && contains(github.event.pull_request.labels.*.name, 'stage:security')))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Require applicable UX validation before security
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          GH_TOKEN: ${{ github.token }}
+          UX_CHECK_NAMES: ${{ vars.UX_CHECK_NAMES }}
+        run: |
+          set -euo pipefail
+          python3 .github/skills/test-generation/scripts/validate_ux_gate.py \
+            --phase security --base "$BASE_SHA" --head "$HEAD_SHA"
 
       - name: Verify security automation checks are present and green
         env:
@@ -332,9 +351,9 @@ jobs:
               ].join('\n') : [
                 '## 🔒 Stage: Security — ❌ AUTOMATED GATE FAILED',
                 '',
-                '**Merge is BLOCKED.** One or more automated security checks failed.',
+                '**Merge is BLOCKED.** A required UX validation or automated security check failed.',
                 '',
-                'Check the `Security` workflow run logs for details.',
+                'Check this gate and the `Security` workflow run logs for details.',
                 '',
                 '**Developer Agent** — remediate all flagged issues and re-push.',
                 '',

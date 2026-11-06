@@ -1,8 +1,14 @@
 # Proposal: [Title]
 
 Use this template to capture a new idea and convert it into a Software Fabric
-OpenSPEC change. Copy to `openspec/changes/<your-slug>/proposal.md` and fill in
-all sections — or run `/opsx:propose <slug>` in VS Code Copilot and the Product
+OpenSPEC change. Preview ideas and draft proposals in conversation or session
+storage outside the worktree first. Follow the Pre-Capture Intake Decision:
+Proceed, Defer, or Do not pursue. Only explicit Proceed permits repository
+capture; defer/rejection writes no repository files and is not archive.
+Preserve existing work; cleanup requires separate explicit authorization.
+
+After Proceed, scaffold using the OpenSpec CLI and fill in
+`openspec/changes/<your-slug>/proposal.md` — or run `/opsx:propose <slug>` in VS Code Copilot and the Product
 Owner Agent will guide you through each section.
 
 ---

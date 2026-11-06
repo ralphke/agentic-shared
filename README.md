@@ -37,6 +37,49 @@ It currently centralizes:
 - `openspec/` - standalone OpenSpec content: configuration, source
   specifications, in-flight changes, and shared templates
 
+## Conditional UX stage
+
+UX design and UX validation apply only to changes affecting a visual interface.
+Product Owners record this in the existing accepted proposal:
+
+````markdown
+## UX Applicability
+
+```json
+{"required": false, "reason": "CLI-only change; no visual interface is affected."}
+```
+````
+
+Nonvisual CLI, API, and framework changes go directly to architecture. They need
+no UX brief, UX-specific specs, UX validation report, UX tests, or frontend
+tooling. Their functional specs, tests, coverage, security, and other applicable
+gates remain required. Mixed changes scope UX to affected visual surfaces.
+Missing or conflicting applicability requires clarification, not a default.
+
+Visual changes go through the UX Designer before architecture and preserve
+criterion IDs through design and QA validation. See the
+[UX design skill](.github/skills/ux-design/SKILL.md) and
+[QA skill](.github/skills/test-generation/SKILL.md).
+
+Before an existing proposal's next design/test handoff, add its scope-backed
+applicability section and obtain acceptance. An old missing declaration is not
+an automatic exemption, but nonvisual proposals need no new UX documents.
+
+Visual consumers configure `UX_CHECK_NAMES` as a JSON list of unique check-run
+names from their own PR-triggered UX workflows, for example
+`["Browser UX", "Accessibility"]`. QA maps brief criteria to actual results in
+`ux-validation.json`. The test-completion and security-entry gates require the
+named checks to succeed for the evaluated PR head; they wait up to five minutes
+for pending checks and fail clearly on timeout. Coverage alone is not UX proof.
+No UX configuration or report is required for nonvisual changes.
+
+Adopt the updated orchestrator together with the test-generation skill and its
+bundled Python helper. The example consumer manifest protects the orchestrator,
+so review and apply its changes explicitly when that protection is retained.
+Keep existing functional test setup; the shared workflow's normal Python/.NET
+commands are unchanged. Consumer UX suites remain in consumer-owned CI rather
+than a universal shared browser runner.
+
 ## Markdown validation
 
 Lint every tracked Markdown file from the repository root:
@@ -184,6 +227,40 @@ those paths are aligned.
 - Avoid editing synchronized files directly in consumer repositories unless the
   change is immediately promoted back here.
 
+### Mandatory Software Fabric gates
+
+Ideas and draft proposals have an early **Proceed / Defer / Do not pursue**
+decision before any repository capture write, including initialization and
+scaffolding. Assess in conversation or session storage outside the worktree.
+Raw ideas, labels, P0 priority, and kickoff do not authorize capture; an explicit
+request to create named repository artifacts counts as Proceed without another
+prompt at handoff. Missing input keeps capture paused.
+
+Defer or rejection needs no delivery gates and leaves repository files untouched.
+It is not successful archive or task completion and never deletes existing work;
+cleanup of an already captured proposal needs separate explicit authorization.
+Proceed authorizes capture only, not acceptance of the resulting proposal/spec.
+
+Implementation requires complete proposal, delta specs, design, and ordered
+tasks plus explicit acceptance of the current proposal/spec. Existing
+conversation approval or linked review can supply acceptance evidence; file
+existence and CLI readiness alone cannot. Skipped required artifacts or a schema
+omitting a required role block readiness rather than waive it.
+
+Single and bulk archive require complete required artifacts/tasks and verifiable
+passing evidence for every mandatory quality gate in
+`.github/instructions/openspec-workflow.instructions.md`. User confirmation
+cannot override mandatory gates. Every delta of an archived change must be synced
+and verified in the main specs; a blocked delta blocks its whole change.
+Genuinely optional artifacts keep informative warnings.
+
+The conventional-path `validate_openspec_change.py` checks local planning files,
+delta presence, and usable completed task checkboxes. It does not certify
+substantive planning acceptance, scenario coverage, external CI, review, security,
+legal or operational gates, or completed spec sync. The archive-readiness workflow
+also checks PR evidence only when a PR is supplied; a green run is not complete
+Software Fabric archive clearance.
+
 ### After updating the OpenSpec CLI assets
 
 Run this maintainer procedure in this canonical repository, not a consumer.
@@ -225,7 +302,12 @@ regeneration; it does not automate the CLI update itself.
 The restoration script only targets the three propose/apply/verify command
 skills and their three legacy wrappers. Human diff review remains necessary:
 recognizing the file layout does not prove a future CLI's semantics are
-compatible. Pull-request CI independently checks committed policy and
+compatible. Restoration does not rewrite generated bodies. Reconcile apply,
+archive/bulk-archive, sync, verification, planning, and onboarding bodies against
+the mandatory gates; never release regenerated confirmation overrides,
+premature implementation, or archive-without-sync choices. The strict policy
+contract tests check these paths alongside the restoration fixtures.
+Pull-request CI independently checks committed policy and
 restoration fixtures; it must not repair the checkout before testing. The
 `Shared script contracts` job runs only in `ralphke/agentic-shared` and
 skips consumer repositories, which do not receive this repository's script tests

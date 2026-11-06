@@ -1,8 +1,8 @@
 ---
 agent: agent
 description: >
-  Full autonomous SDLC kickoff. Takes a raw idea and runs the complete Software
-  Fabric pipeline: propose → design → implement → test → verify → deploy-ready.
+  Planning-first SDLC kickoff with a pre-capture intake decision. Stops after
+  planning; a new explicit request starts implementation and downstream gates.
 tools:
   [
     execute/getTerminalOutput,
@@ -19,11 +19,22 @@ tools:
 
 > **Deprecated:** This wrapper is retained for one compatibility release. Use
 > the `software-fabric-kickoff` skill for new workflows; it requires Node.js 26+
-> and the OpenSpec CLI. Until that release, this prompt continues to run the
-> pipeline below as-is.
+> and the OpenSpec CLI. The intake decision, planning boundary, and mandatory
+> gates below also apply to this compatibility path.
 
 You are orchestrating the complete **Software Fabric** autonomous SDLC pipeline.
 Run each persona in sequence, handing off artifacts between stages.
+
+## Pre-Capture Intake Decision
+
+Before setup or capture writes, follow
+`.github/instructions/openspec-workflow.instructions.md`. Assess ideas and draft
+proposals in conversation or session storage and offer Proceed, Defer, or Do not
+pursue. Missing input pauses capture. Defer or rejection means no repository
+writes, sync, archive, task completion, or deletion of existing work. An explicit
+request to create named repository artifacts counts as Proceed; do not repeat
+the decision at handoff. A kickoff alone does not. Proceed is not proposal/spec
+acceptance or implementation approval.
 
 Before Step 1, verify Node.js 26+ and the OpenSpec CLI are installed. If either
 is missing, tell the user to install them (or use the `software-fabric-kickoff`
@@ -38,7 +49,9 @@ skill instead) and stop.
 Act as **Product Owner Agent** (`.github/agents/product-owner.agent.md`):
 
 - Ask the user for the idea if not already provided
-- Create `openspec/changes/<slug>/proposal.md`
+- Only after explicit Proceed, use the `openspec-propose` skill's prerequisite,
+  root, schema, and scaffold checks to create the proposal; do not hand-create
+  the change directory or initialize implicitly
 - Include Build/Buy/Vibe and Legal/IP Notes sections when applicable
 - Echo: "✓ Proposal created: openspec/changes/\<slug>/proposal.md"
 - Pause and show the proposal for human review
@@ -59,11 +72,16 @@ Act as **Systems Architect Agent** (`.github/agents/architect.agent.md`):
   merge, or resume from the existing artifacts.
 - Echo: "✓ Design complete. N implementation tasks, M testing tasks, P security
   tasks"
+- Stop after presenting the planning artifacts. Require explicit acceptance of
+  the current proposal/spec and a new explicit implementation request before
+  Step 3. Complete proposal, delta specs, design, and tasks are mandatory.
 
 ## Step 3 — Implementation
 
 Act as **Developer Agent** (`.github/agents/developer.agent.md`):
 
+- Invoke `openspec-apply-change` only after the new explicit request and all
+  Mandatory Planning Contract checks pass; do not implement during kickoff.
 - Implement all implementation tasks from `tasks.md`
 - If a task cannot be completed due to ambiguity or missing information, pause
   and ask the user for clarification before proceeding to remaining tasks
@@ -135,8 +153,10 @@ Ready for:
 
 ```text
 Use this prompt to start a completely autonomous SDLC run.
-The pipeline will pause at Step 1 for human proposal approval, then run
-autonomously through all remaining stages, looping back to Step 3 only when
+The pipeline first pauses for the pre-capture intake decision, then at Step 1
+for proposal acceptance and after Step 2 for current proposal/spec acceptance.
+Kickoff stops after planning; a new explicit request starts gated apply work.
+Subsequent implementation loops back to Step 3 only when
 Security or Code Review blocks the change (capped at 3 retry cycles per stage
 before escalating to the user).
 ```
