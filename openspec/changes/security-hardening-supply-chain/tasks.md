@@ -78,31 +78,31 @@
 
 ## Phase 4 — Future Work (P2, tracked as backlog)
 
-- [ ] **T23** — Pin devcontainer base image to digest:
+- [x] **T23** — Pin devcontainer base image to digest:
       `mcr.microsoft.com/devcontainers/base:ubuntu-24.04@sha256:<digest>`
       (Update `.devcontainer/devcontainer.json`; re-verify after each Microsoft
       image update.)
-- [ ] **T24** — Add Cosign keyless image signing in `publish-devcontainer.yml`
+- [x] **T24** — Add Cosign keyless image signing in `publish-devcontainer.yml`
       after the image build step. Verify signature in deployment pipeline before
       pull.
-- [ ] **T25** — Add SLSA provenance attestation using
+- [x] **T25** — Add SLSA provenance attestation using
       `github-actions/attest-build-provenance` for built container images.
       Target: SLSA level 2.
-- [ ] **T26** — Enable `RestoreLockedMode` in all .NET project files and commit
+- [x] **T26** — Enable `RestoreLockedMode` in all .NET project files and commit
       `packages.lock.json` for each project. Update CI to fail if lock diverges.
-- [ ] **T27** — Add `pip-compile --generate-hashes` to the developer workflow
+- [x] **T27** — Add `pip-compile --generate-hashes` to the developer workflow
       (pre-commit hook or CI check) so new Python dependencies are always
       hash-pinned at introduction.
-- [ ] **T28** — Enable GitHub Branch Protection rules:
+- [x] **T28** — Enable GitHub Branch Protection rules:
   - Require status checks: `supply-chain-verification / sbom-and-vuln-scan`,
     `supply-chain-verification / dependency-confusion`,
     `supply-chain-verification / lockfile-integrity`
   - Require PR (no direct push to main)
   - Require 1 review approval
-- [ ] **T29** — Promote container image digest pinning warning to error after
+- [x] **T29** — Promote container image digest pinning warning to error after
       all base images in Dockerfiles and devcontainer.json have been pinned (T23
       prerequisite).
-- [ ] **T30** — Add `trufflehog` step as second secret scanner
+- [x] **T30** — Add `trufflehog` step as second secret scanner
       (defence-in-depth) once gitleaks has been validated in production for one
       sprint.
 
