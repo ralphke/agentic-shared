@@ -23,8 +23,6 @@ on:
     types: [fabric-evidence-changed]
   check_run:
     types: [completed, rerequested]
-  schedule:
-    - cron: "*/5 * * * *"
 
 permissions:
   contents: read
