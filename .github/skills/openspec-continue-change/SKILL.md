@@ -6,18 +6,11 @@ license: MIT
 compatibility: Requires openspec CLI.
 metadata:
   author: openspec
-  version: "1.0"
+  
   generatedBy: "1.16.0"
 ---
 
 Continue working on a change by creating the next artifact.
-
-**Conditional UX:** Follow the Conditional UX Planning contract in
-`.github/instructions/openspec-workflow.instructions.md`. Record
-`## UX Applicability` in the proposal. Accepted visual changes require a UX
-brief before architecture; nonvisual CLI/API/framework changes require no UX
-artifacts or UX tests. Missing or conflicting applicability pauses planning.
-Normal functional specs, tests, and approval gates remain required.
 
 **Store selection:** If the user names a store (a store is a standalone OpenSpec repo registered on this machine) or the work lives in one, run `openspec store list --json` to discover registered store ids, then pass `--store <id>` on the commands that read or write specs and changes (`new change`, `status`, `instructions`, `list`, `show`, `validate`, `archive`, `doctor`, `context`, `schemas`, `view`). Once selected, treat `--store <id>` as sticky for the rest of the workflow. Every unscoped example of those commands below is shorthand: before running it, append the flag. For example, run `openspec status --change "<name>" --json --store "<id>"`, not the unscoped form shown below. Other commands do not take the flag. Hints printed by commands already carry the flag; keep it on follow-ups. Without a store, commands act on the nearest local `openspec/` root.
 
@@ -50,7 +43,7 @@ In both branches, never create the root as a side effect: do not run `openspec i
 
    Mark the most recently modified change as "(Recommended)" since it's likely what the user wants to continue.
 
-   Always announce: "Using change: <name>" and how to override (e.g., `/opsx-continue <other>`).
+   Always announce: "Using change: <name>" and how to override (e.g., `/openspec-continue-change <other>`).
 
 2. **Check current status**
    ```bash
@@ -76,21 +69,12 @@ In both branches, never create the root as a side effect: do not run `openspec i
    **If all planning artifacts are complete (`isPlanningComplete: true`, or legacy `isComplete: true`)**:
    - Congratulate the user
    - Show final status including the schema used
-   - Check the Mandatory Planning Contract in
-     `.github/instructions/openspec-workflow.instructions.md` before claiming
-     readiness: required proposal, specs, design, and tasks cannot be omitted or
-     skipped. Present the proposal for acceptance before design.
-   - Suggest: "Planning artifacts are ready for review. Implementation requires
-     explicit acceptance of the current proposal/spec; archive additionally
-     requires all mandatory gates and every-delta sync verification."
+   - Suggest: "Planning is complete! You can now implement this change. Once implementation and any tracked work are complete, archive it."
    - STOP
 
    ---
 
    **If artifacts are ready to create** (status shows artifacts with `status: "ready"`):
-   - Apply the Mandatory Planning Contract before selecting an artifact.
-     Obtain proposal acceptance before design; a skipped required role blocks
-     readiness and needs configuration reconciliation, not an implicit waiver.
    - Pick the FIRST artifact with `status: "ready"` from the status output
    - Get its instructions:
      ```bash

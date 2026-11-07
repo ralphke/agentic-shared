@@ -8,7 +8,7 @@ import yaml
 
 
 ROOT = Path(__file__).resolve().parents[2]
-WORKFLOW = ".github/instructions/openspec-workflow.instructions.md"
+WORKFLOW = ".github/instructions/fabric-workflow.instructions.md"
 
 
 def read(path: str) -> str:
@@ -23,17 +23,17 @@ def skill_path(skill: str) -> tuple[str, ...]:
     return (f".github/skills/{skill}/SKILL.md",)
 
 
-APPLY = skill_path("openspec-apply-change")
-ARCHIVE = skill_path("openspec-archive-change")
-BULK = skill_path("openspec-bulk-archive-change")
-SYNC = skill_path("openspec-sync-specs")
-VERIFY = skill_path("openspec-verify-change")
-ONBOARD = skill_path("openspec-onboard")
-PROPOSE = skill_path("openspec-propose")
-FF = skill_path("openspec-ff-change")
-CONTINUE = skill_path("openspec-continue-change")
-EXPLORE = skill_path("openspec-explore")
-NEW = skill_path("openspec-new-change")
+APPLY = skill_path("fabric-apply-change")
+ARCHIVE = skill_path("fabric-archive-change")
+BULK = skill_path("fabric-bulk-archive-change")
+SYNC = skill_path("fabric-sync-specs")
+VERIFY = skill_path("fabric-verify-change")
+ONBOARD = skill_path("fabric-onboard")
+PROPOSE = skill_path("fabric-propose")
+FF = skill_path("fabric-ff-change")
+CONTINUE = skill_path("fabric-continue-change")
+EXPLORE = skill_path("fabric-explore")
+NEW = skill_path("fabric-new-change")
 INTAKE = (
     ".github/skills/idea-to-spec/SKILL.md",
     ".github/skills/software-fabric-kickoff/SKILL.md",
@@ -41,7 +41,7 @@ INTAKE = (
 )
 
 
-class StrictOpenSpecPolicyTests(unittest.TestCase):
+class StrictFabricPolicyTests(unittest.TestCase):
     def assert_contract(self, paths: tuple[str, ...], phrases: tuple[str, ...]) -> None:
         for path in paths:
             with self.subTest(path=path):
@@ -50,7 +50,7 @@ class StrictOpenSpecPolicyTests(unittest.TestCase):
                     self.assertIn(phrase, content)
 
     def test_capture_entry_points_offer_one_no_write_exit(self) -> None:
-        self.assert_contract(PROPOSE + FF + NEW + ONBOARD + EXPLORE + INTAKE, (
+        self.assert_contract(FF + NEW + ONBOARD + EXPLORE + INTAKE, (
             "Pre-Capture Intake Decision",
             WORKFLOW,
             "Proceed, Defer, or Do not pursue",
@@ -71,7 +71,7 @@ class StrictOpenSpecPolicyTests(unittest.TestCase):
             "do not ask the same decision again",
             "Proceed permits capture, not acceptance",
         ))
-        self.assert_contract(PROPOSE + FF + NEW + ONBOARD + INTAKE, (
+        self.assert_contract(FF + NEW + ONBOARD + INTAKE, (
             "named repository artifacts counts as Proceed",
         ))
         self.assert_contract(("README.md",), (
@@ -81,7 +81,7 @@ class StrictOpenSpecPolicyTests(unittest.TestCase):
         ))
 
     def test_intake_boundary_precedes_scaffold_in_every_capture_path(self) -> None:
-        for path in PROPOSE + FF + NEW + ONBOARD + EXPLORE:
+        for path in FF + NEW + ONBOARD + EXPLORE:
             with self.subTest(path=path):
                 content = read(path)
                 self.assertLess(
@@ -119,7 +119,7 @@ class StrictOpenSpecPolicyTests(unittest.TestCase):
         ))
 
     def test_intake_handoffs_reuse_proceed_instead_of_prompting_again(self) -> None:
-        self.assert_contract(PROPOSE + FF + NEW + ONBOARD + INTAKE, (
+        self.assert_contract(FF + NEW + ONBOARD + INTAKE, (
             "do not repeat",
         ))
         self.assert_contract(EXPLORE, (
@@ -186,6 +186,33 @@ class StrictOpenSpecPolicyTests(unittest.TestCase):
             "RENAMED requirements present under the new name",
         ))
 
+    def test_trusted_archive_evidence_precedes_mutation_in_every_entry(self) -> None:
+        self.assert_contract(ARCHIVE + BULK, (
+            "Trusted revision-bound archive evidence",
+            "author-supplied passing manifest",
+            "nonzero collector result",
+        ))
+        for path in ARCHIVE + BULK:
+            content = read(path)
+            self.assertLess(content.index("Trusted revision-bound archive evidence"),
+                            content.index("**Steps**"))
+        self.assert_contract(SYNC, (
+            "trusted archive preflight before the first main-spec write",
+            "never establishes archive eligibility",
+        ))
+        self.assert_contract((WORKFLOW,), (
+            "Never execute the evaluator or policy from the PR head",
+            "not an inferred repository from the selected spec store",
+            "changed trusted-base SHA blocks preflight",
+            "collector regenerates evidence from trusted sources",
+            "--deployed-repository",
+            "Never supply a mapping as input",
+            "Operational gates use the verified deployed revision",
+            "verified same-SHA path remains supported",
+            "explicit controlled merge path re-evaluates evidence",
+            "do not give GitHub checks a TTL",
+        ))
+
     def test_bulk_blocks_whole_changes_and_verifies_full_delta_list(self) -> None:
         self.assert_contract(BULK, (
             "Missing implementation evidence blocks the entire affected change",
@@ -219,16 +246,16 @@ class StrictOpenSpecPolicyTests(unittest.TestCase):
 
     def test_onboarding_uses_gated_apply_and_archive(self) -> None:
         self.assert_contract(ONBOARD, (
-            "invoke `openspec-apply-change`",
+            "invoke `fabric-apply-change`",
             "explicit acceptance of the current proposal/spec",
-            "Invoke `openspec-archive-change`",
+            "Invoke `fabric-archive-change`",
             "user confirmation cannot override mandatory gates",
             "Sync and verify every delta before archive",
             "SHOW only after verified archive success",
         ))
 
     def test_planning_handoffs_require_acceptance_and_never_waive_required_roles(self) -> None:
-        self.assert_contract(PROPOSE + FF, (
+        self.assert_contract(FF, (
             "obtain acceptance before design",
             "mandatory Fabric proposal, specs, design, and task roles",
             "do not treat it as satisfied",
@@ -291,10 +318,10 @@ class StrictOpenSpecPolicyTests(unittest.TestCase):
             " ".join(config["operations"]["archive"]["guidance"]),
         )
 
-    def test_readme_distinguishes_restoration_and_external_gate_evidence(self) -> None:
+    def test_readme_distinguishes_ownership_and_external_gate_evidence(self) -> None:
         self.assert_contract(("README.md",), (
             "User confirmation cannot override mandatory gates",
-            "Restoration does not rewrite generated bodies",
+            "Fabric policy is never restored into upstream skill bodies",
             "green run is not complete Software Fabric archive clearance",
             "Genuinely optional artifacts",
         ))

@@ -1,0 +1,71 @@
+name: Fabric Archive Gate
+
+on:
+  workflow_dispatch:
+    inputs:
+      revision:
+        description: Full evaluated change commit SHA
+        required: true
+        type: string
+      deployed_revision:
+        description: Explicit full deployed SHA (mapping required when different)
+        required: true
+        type: string
+      deployed_repository:
+        description: Explicit deployment repository OWNER/REPO; never inferred from store
+        required: true
+        type: string
+      change_slug:
+        description: Change identity for archive preflight
+        required: true
+        type: string
+      store_id:
+        description: local for canonical root, or store:ID for selected registered store
+        required: true
+        type: string
+      pr_number:
+        description: PR whose merged revision is being archived
+        required: true
+        type: string
+      release_id:
+        description: Published release ID (required unless trusted release/deployment scope exempts it)
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  checks: read
+  pull-requests: read
+  deployments: read
+
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
+
+jobs:
+  archive-gate:
+    name: Fabric archive preflight
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout trusted default branch only
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+      - name: Generate fresh deployed-revision evidence without spec writes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVALUATED_REVISION: ${{ inputs.revision }}
+          DEPLOYED_REVISION: ${{ inputs.deployed_revision }}
+          DEPLOYED_REPOSITORY: ${{ inputs.deployed_repository }}
+          CHANGE_SLUG: ${{ inputs.change_slug }}
+          STORE_ID: ${{ inputs.store_id }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+          RELEASE_ID: ${{ inputs.release_id }}
+        run: >-
+          python3 .github/skills/fabric-verify-change/scripts/collect_fabric_evidence.py
+          --lifecycle archive --revision "$EVALUATED_REVISION"
+          --deployed-revision "$DEPLOYED_REVISION" --deployed-repository "$DEPLOYED_REPOSITORY"
+          --change "$CHANGE_SLUG" --store "$STORE_ID" --pr "$PR_NUMBER"
+          --release-id "$RELEASE_ID"

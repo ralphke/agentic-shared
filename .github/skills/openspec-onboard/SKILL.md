@@ -6,20 +6,11 @@ license: MIT
 compatibility: Requires openspec CLI.
 metadata:
   author: openspec
-  version: "1.0"
+  
   generatedBy: "1.16.0"
 ---
 
 Guide the user through their first complete OpenSpec workflow cycle. This is a teaching experience—you'll do real work in their codebase while explaining each step.
-
-**Pre-Capture Intake Decision:** Follow
-`.github/instructions/openspec-workflow.instructions.md` before setup or capture
-writes. Keep assessment and draft proposals in conversation or session storage.
-At the Phase 3 boundary offer Proceed, Defer, or Do not pursue. Missing input
-pauses capture; Defer or rejection means no repository writes, sync, archive,
-task completion, or deletion of existing work. An explicit request to create
-named repository artifacts counts as Proceed; do not repeat the decision at
-handoff. Proceed is not proposal/spec acceptance or implementation approval.
 
 **Store selection:** If the user names a store (a store is a standalone OpenSpec repo registered on this machine) or the work lives in one, run `openspec store list --json` to discover registered store ids, then pass `--store <id>` on the commands that read or write specs and changes (`new change`, `status`, `instructions`, `list`, `show`, `validate`, `archive`, `doctor`, `context`, `schemas`, `view`). Once selected, treat `--store <id>` as sticky for the rest of the workflow. Every unscoped example of those commands below is shorthand: before running it, append the flag. For example, run `openspec status --change "<name>" --json --store "<id>"`, not the unscoped form shown below. Other commands do not take the flag. Hints printed by commands already carry the flag; keep it on follow-ups. Without a store, commands act on the nearest local `openspec/` root.
 
@@ -48,7 +39,7 @@ openspec --version 2>&1 || echo "CLI_NOT_INSTALLED"
 ```
 
 **If CLI not installed:**
-> OpenSpec CLI is not installed. Install it first, then come back to `/opsx-onboard`.
+> OpenSpec CLI is not installed. Install it first, then come back to `/openspec-onboard`.
 
 Stop here if not installed.
 
@@ -175,15 +166,12 @@ Spend 1-2 minutes investigating the relevant code:
 │   [Optional: ASCII diagram if helpful]  │
 └─────────────────────────────────────────┘
 
-Explore mode (`/opsx-explore`) is for this kind of thinking—investigating before implementing. You can use it anytime you need to think through a problem.
+Explore mode (`/openspec-explore`) is for this kind of thinking—investigating before implementing. You can use it anytime you need to think through a problem.
 
-Would you like to Proceed with repository capture, Defer, or Do not pursue?
+Now let's create a change to hold our work.
 ```
 
-**PAUSE** - Require explicit Proceed before Phase 4; a generic acknowledgment
-is not capture consent. If already authorized to create named artifacts, reuse
-that decision without asking again. Defer, rejection, or no answer stops here
-without repository writes.
+**PAUSE** - Wait for user acknowledgment before proceeding.
 
 ---
 
@@ -430,12 +418,6 @@ Then ask:
 
 ## Phase 9: Apply (Implementation)
 
-Before code edits, invoke `openspec-apply-change` and follow its Mandatory
-Planning Contract: required proposal, specs, design, and tasks must be complete,
-with explicit acceptance of the current proposal/spec. Missing, skipped, or
-unaccepted required planning blocks implementation. Task approval alone does
-not prove spec acceptance.
-
 **EXPLAIN:**
 ```
 ## Implementation
@@ -463,8 +445,7 @@ All tasks done:
 - [x] Task 2
 - [x] ...
 
-The change is implemented. Archive remains blocked until all mandatory gates
-pass and every delta has been synced and verified.
+The change is implemented! One more step—let's archive it.
 ```
 
 ---
@@ -480,14 +461,12 @@ When a change is complete, we archive it. The archive path is derived from `plan
 Archived changes become your project's decision history—you can always find them later to understand why something was built a certain way.
 ```
 
-**DO:** Invoke `openspec-archive-change` for the change and follow its mandatory
-preflight and full Quality Gate Checklist before archive-driven sync writes or
-moves. Required artifacts/tasks and every mandatory gate must be complete and
-verifiable; user confirmation cannot override mandatory gates. Sync and verify
-every delta before archive. If evidence is unavailable, pause onboarding at this
-phase and report the blockers; do not show the success recap as completed.
+**DO:** Archive the change (`--yes` answers the confirmation prompts, which you cannot answer from a tool call):
+```bash
+openspec archive "<name>" --yes
+```
 
-**SHOW only after verified archive success:**
+**SHOW:**
 ```
 Archived to: `<planningHome.changesDir>/archive/<target-name>/` (the target name prepends today's date, unless the name already starts with a `YYYY-MM-DD-` prefix — then it is kept as-is, no second date)
 
@@ -522,20 +501,20 @@ This same rhythm works for any size change—a small fix or a major feature.
 
  | Command          | What it does                               |
  |------------------|--------------------------------------------|
- | `/opsx-propose` | Create a change and generate all artifacts |
- | `/opsx-explore` | Think through problems before/during work  |
- | `/opsx-apply`   | Implement tasks from a change              |
- | `/opsx-archive` | Archive a completed change                 |
- | `/opsx-new`     | Start a new change, one artifact at a time |
- | `/opsx-continue` | Continue working on an existing change    |
- | `/opsx-ff`      | Fast-forward: create all artifacts at once |
- | `/opsx-verify`  | Verify implementation matches artifacts    |
+ | `/openspec-propose` | Create a change and generate all artifacts |
+ | `/openspec-explore` | Think through problems before/during work  |
+ | `/openspec-apply-change`   | Implement tasks from a change              |
+ | `/openspec-archive-change` | Archive a completed change                 |
+ | `/openspec-new-change`     | Start a new change, one artifact at a time |
+ | `/openspec-continue-change` | Continue working on an existing change    |
+ | `/openspec-ff-change`      | Fast-forward: create all artifacts at once |
+ | `/openspec-verify-change`  | Verify implementation matches artifacts    |
 
 ---
 
 ## What's Next?
 
-Try `/opsx-propose` on something you actually want to build. You've got the rhythm now!
+Try `/openspec-propose` on something you actually want to build. You've got the rhythm now!
 ```
 
 ---
@@ -550,8 +529,8 @@ If the user says they need to stop, want to pause, or seem disengaged:
 No problem! Your change is saved at the `changeRoot` reported by `openspec status --change "<name>" --json`.
 
 To pick up where we left off later, `openspec status --change "<name>" --json` shows exactly where the change stands.
-- `/opsx-continue <name>` - Resume artifact creation
-- `/opsx-apply <name>` - Implement only after complete planning and current proposal/spec acceptance
+- `/openspec-continue-change <name>` - Resume artifact creation
+- `/openspec-apply-change <name>` - Jump to implementation (if tasks exist)
 
 The work won't be lost. Come back whenever you're ready.
 ```
@@ -569,16 +548,16 @@ If the user says they just want to see the commands or skip the tutorial:
 
  | Command                  | What it does                               |
  |--------------------------|--------------------------------------------|
- | `/opsx-propose <name>`  | Create a change and generate all artifacts |
- | `/opsx-explore`         | Think through problems (no code changes)   |
- | `/opsx-apply <name>`    | Implement tasks                            |
- | `/opsx-archive <name>`  | Archive when done                          |
- | `/opsx-new <name>`      | Start a new change, step by step           |
- | `/opsx-continue <name>` | Continue an existing change                |
- | `/opsx-ff <name>`       | Fast-forward: all artifacts at once        |
- | `/opsx-verify <name>`   | Verify implementation                      |
+ | `/openspec-propose <name>`  | Create a change and generate all artifacts |
+ | `/openspec-explore`         | Think through problems (no code changes)   |
+ | `/openspec-apply-change <name>`    | Implement tasks                            |
+ | `/openspec-archive-change <name>`  | Archive when done                          |
+ | `/openspec-new-change <name>`      | Start a new change, step by step           |
+ | `/openspec-continue-change <name>` | Continue an existing change                |
+ | `/openspec-ff-change <name>`       | Fast-forward: all artifacts at once        |
+ | `/openspec-verify-change <name>`   | Verify implementation                      |
 
-Try `/opsx-propose` to start your first change.
+Try `/openspec-propose` to start your first change.
 ```
 
 Exit gracefully.

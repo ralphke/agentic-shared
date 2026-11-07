@@ -33,3 +33,31 @@ jobs:
 
       - name: Run all shared script tests
         run: python -m unittest discover -s .github/scripts -p "test_*.py"
+
+  openspec-compatibility:
+    name: OpenSpec compatibility
+    if: github.repository == 'ralphke/agentic-shared'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "26"
+
+      - name: Install supported OpenSpec
+        run: npm install -g @fission-ai/openspec@1.16.0
+
+      - name: Verify integration compatibility
+        run: |
+          python .github/skills/software-fabric-kickoff/scripts/check_openspec_compatibility.py
+          python -m unittest discover -s tests -p "test_fabric_openspec_compatibility_cli.py"
+          python -m unittest discover -s tests -p "test_fabric_skill_ownership_cli.py"

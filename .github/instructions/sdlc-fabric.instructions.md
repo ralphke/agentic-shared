@@ -8,6 +8,22 @@ This repository uses the **Software Fabric** pattern: a spec-driven autonomous
 SDLC where AI agent personas collaborate through a structured pipeline from idea
 to production.
 
+## Work Mode
+
+Existing Fabric consumers use Fabric mode by default. For the current work,
+a user may explicitly select standalone OpenSpec, in which case Fabric agent
+orchestration is not an OpenSpec requirement. This selection does not bypass
+repository-level merge or release controls. In Fabric mode, use
+`fabric-propose` for new planning and preserve all applicable Fabric gates.
+The Software Fabric personas and all stage, intake, and planning rules in this
+integration govern Fabric mode only.
+For an explicit standalone selection, use the corresponding upstream skill
+unchanged and do not perform these Fabric agent steps. The advisory selector
+is `python .github/skills/fabric-propose/scripts/route_fabric_workflow.py --action <action>`; append
+`--mode standalone` only for an explicit selection. Do not infer that mode from
+an upstream skill name. Mode and selected store remain sticky across handoffs.
+GitHub stage labels describe orchestration; they do not enforce gate clearance.
+
 ## How the Software Fabric Works
 
 ```text
@@ -53,14 +69,14 @@ review.
 ## To Start a New Feature
 
 1. Create a GitHub Issue using the "💡 Idea Capture" template, OR
-2. Run `/opsx:propose <idea-slug>` in VS Code Copilot chat
+2. Run `/fabric-propose <idea-slug>` in VS Code Copilot chat
 
 ## To Work on an Existing Change
 
 ```text
-/opsx:apply <change-slug>    # Implement tasks
-/opsx:sync <change-slug>     # Preview spec merge
-/opsx:archive <change-slug>  # Complete the change
+/fabric-apply-change <change-slug>    # Implement tasks
+/fabric-sync-specs <change-slug>     # Preview spec merge
+/fabric-archive-change <change-slug>  # Complete the change
 ```
 
 ## Spec Location Convention
@@ -74,7 +90,7 @@ All specs live in `openspec/`:
 ## Key Rules for All Personas
 
 Before capturing a new idea, follow the **Pre-Capture Intake Decision** in
-`.github/instructions/openspec-workflow.instructions.md`: assess outside the
+`.github/instructions/fabric-workflow.instructions.md`: assess outside the
 worktree and offer Proceed, Defer, or Do not pursue. Missing input pauses capture.
 Defer or rejection ends intake without repository writes or successful archive;
 it never authorizes deleting existing work. Explicit Proceed is capture
@@ -96,7 +112,7 @@ authorization only, not proposal/spec acceptance or implementation approval.
    gate must be complete and verifiable before archive-driven sync or moves.
    Confirmation cannot override them. Sync and verify every delta before archive,
    including bulk archive; an unsatisfied delta blocks its whole change.
-   Follow `.github/instructions/openspec-workflow.instructions.md` for the
+   Follow `.github/instructions/fabric-workflow.instructions.md` for the
    complete planning and archive checklist; optional-artifact warnings remain
    informative rather than mandatory.
 

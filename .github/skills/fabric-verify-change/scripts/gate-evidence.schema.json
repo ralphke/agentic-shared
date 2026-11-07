@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:software-fabric:gate-evidence:1",
+  "title": "Externally generated Fabric gate evidence (structural schema only)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "repository", "identity", "lifecycle", "revision", "trusted_base_revision", "config_sha256", "generated_at", "gates", "archive_context"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "repository": {"type": "string", "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"},
+    "identity": {"type": "string", "minLength": 1},
+    "lifecycle": {"enum": ["merge", "release", "archive"]},
+    "revision": {"$ref": "#/$defs/revision"},
+    "trusted_base_revision": {"$ref": "#/$defs/revision"},
+    "config_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "generated_at": {"$ref": "#/$defs/time"},
+    "gates": {"type": "array", "minItems": 10, "items": {"$ref": "#/$defs/gate"}},
+    "archive_context": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/archive_context"}]}
+  },
+  "$defs": {
+    "archive_context": {
+      "type": "object", "additionalProperties": false,
+      "required": ["store", "change", "pr", "release_id", "deployed_revision", "release_revision", "release_reference", "deployed_repository", "mapping"],
+      "properties": {
+        "store": {"type": "string", "minLength": 1},
+        "change": {"type": "string", "minLength": 1},
+        "pr": {"type": "integer", "minimum": 1},
+        "release_id": {"type": ["integer", "null"], "minimum": 1},
+        "deployed_revision": {"$ref": "#/$defs/revision"},
+        "release_revision": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/revision"}]},
+        "release_reference": {"type": ["string", "null"]},
+        "deployed_repository": {"type": "string", "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"},
+        "mapping": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/mapping_result"}]}
+      }
+    },
+    "mapping_result": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source", "reference", "observed_at", "expires_at", "record_sha256", "completed_at"],
+      "properties": {
+        "source": {"$ref": "#/$defs/source"},
+        "reference": {"$ref": "#/$defs/reference"},
+        "observed_at": {"$ref": "#/$defs/time"},
+        "expires_at": {"$ref": "#/$defs/time"},
+        "record_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "completed_at": {"$ref": "#/$defs/time"}
+      }
+    },
+    "revision": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "time": {"type": "string", "format": "date-time", "pattern": "Z$"},
+    "reference": {"type": "string", "pattern": "^https://api\\.github\\.com/repos/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/(check-runs/[1-9][0-9]*|pulls/[1-9][0-9]*/reviews/[1-9][0-9]*|deployments/[1-9][0-9]*/statuses/[1-9][0-9]*)$"},
+    "source": {
+      "oneOf": [
+        {"type": "object", "additionalProperties": false, "required": ["kind", "app_id", "name"], "properties": {"kind": {"const": "check"}, "app_id": {"type": "integer", "minimum": 1}, "name": {"type": "string", "minLength": 1}}},
+        {"type": "object", "additionalProperties": false, "required": ["kind", "reviewer_ids", "marker"], "properties": {"kind": {"const": "review"}, "reviewer_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "integer", "minimum": 1}}, "marker": {"type": "string"}}},
+        {"type": "object", "additionalProperties": false, "required": ["kind", "environment", "creator_id", "status_creator_id"], "properties": {"kind": {"const": "deployment"}, "environment": {"type": "string", "minLength": 1}, "creator_id": {"type": "integer", "minimum": 1}, "status_creator_id": {"type": "integer", "minimum": 1}}}
+      ]
+    },
+    "scope": {
+      "type": "object", "additionalProperties": false,
+      "required": ["gate", "revision", "lifecycle", "required", "scope_rule", "reason"],
+      "properties": {
+        "gate": {"type": "string", "minLength": 1},
+        "revision": {"$ref": "#/$defs/revision"},
+        "lifecycle": {"enum": ["merge", "release", "archive"]},
+        "identity": {"type": "string", "minLength": 1},
+        "required": {"type": "boolean"},
+        "scope_rule": {"type": ["string", "null"]},
+        "reason": {"type": ["string", "null"]}
+      }
+    },
+    "gate": {
+      "type": "object", "additionalProperties": false,
+      "required": ["gate", "applicable", "status", "revision", "source", "reference", "observed_at", "scope", "scope_reference", "scope_observed_at"],
+      "properties": {
+        "gate": {"enum": ["planning", "acceptance", "tasks", "scenarios", "ci", "security", "coverage", "code_review", "spec", "legal", "release_readiness", "deployment", "slo", "alerts", "runbook", "stability", "postmortem"]},
+        "applicable": {"type": "boolean"},
+        "status": {"enum": ["passed", "not_applicable"]},
+        "revision": {"$ref": "#/$defs/revision"},
+        "source": {"$ref": "#/$defs/source"},
+        "reference": {"$ref": "#/$defs/reference"},
+        "observed_at": {"$ref": "#/$defs/time"},
+        "scope": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/scope"}]},
+        "scope_reference": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/reference"}]},
+        "scope_observed_at": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/time"}]}
+      }
+    }
+  }
+}

@@ -69,7 +69,7 @@ observable, resilient, and operationally documented before archiving.
   to improve skills or workflows. Base recommendations on repository issue,
   pull request, review, and workflow evidence. Do not use for product feature
   implementation, incident response, or unapproved policy changes.
-- [`openspec-archive-change`](../skills/openspec-archive-change/SKILL.md) — Use
+- [`fabric-archive-change`](../skills/fabric-archive-change/SKILL.md) — Use
   when asked to archive a completed OpenSpec change, only after required
   planning and tasks, all mandatory quality gates, every delta sync and
   verification, and the operational criteria below pass. Follow the skill's
@@ -204,7 +204,7 @@ For every new feature / endpoint, configure:
 Before invoking `/openspec archive`:
 
 - [ ] Full Mandatory Planning Contract and Quality Gate Checklist in
-      `.github/instructions/openspec-workflow.instructions.md` verified; required
+      `.github/instructions/fabric-workflow.instructions.md` verified; required
       artifacts/tasks and mandatory gates cannot be waived by user confirmation
 - [ ] Every delta synced and verified before the archive move; an unsatisfied
       delta blocks its whole change, including in bulk archive

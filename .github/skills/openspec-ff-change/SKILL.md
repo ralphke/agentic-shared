@@ -6,26 +6,11 @@ license: MIT
 compatibility: Requires openspec CLI.
 metadata:
   author: openspec
-  version: "1.0"
+  
   generatedBy: "1.16.0"
 ---
 
 Fast-forward through artifact creation - generate everything needed to start implementation in one go.
-
-**Conditional UX:** Follow the Conditional UX Planning contract in
-`.github/instructions/openspec-workflow.instructions.md`. Record
-`## UX Applicability` in the proposal. Accepted visual changes require a UX
-brief before architecture; nonvisual CLI/API/framework changes require no UX
-artifacts or UX tests. Missing or conflicting applicability pauses planning.
-Normal functional specs, tests, and approval gates remain required.
-
-**Pre-Capture Intake Decision:** Before setup or capture writes, follow
-`.github/instructions/openspec-workflow.instructions.md`. Assess in conversation
-or session storage and offer Proceed, Defer, or Do not pursue. Missing input
-pauses capture; Defer or rejection means no repository writes, sync, archive,
-task completion, or deletion of existing work. An explicit request to create
-named repository artifacts counts as Proceed; do not repeat the decision at
-handoff. Proceed is not proposal/spec acceptance or implementation approval.
 
 **Store selection:** If the user names a store (a store is a standalone OpenSpec repo registered on this machine) or the work lives in one, run `openspec store list --json` to discover registered store ids, then pass `--store <id>` on the commands that read or write specs and changes (`new change`, `status`, `instructions`, `list`, `show`, `validate`, `archive`, `doctor`, `context`, `schemas`, `view`). Once selected, treat `--store <id>` as sticky for the rest of the workflow. Every unscoped example of those commands below is shorthand: before running it, append the flag. For example, run `openspec status --change "<name>" --json --store "<id>"`, not the unscoped form shown below. Other commands do not take the flag. Hints printed by commands already carry the flag; keep it on follow-ups. Without a store, commands act on the nearest local `openspec/` root.
 
@@ -54,11 +39,6 @@ In both branches, never create the root as a side effect: do not run `openspec i
    **IMPORTANT**: Do NOT proceed without understanding what the user wants to build.
 
 2. **Create the change directory**
-
-   Require explicit Proceed under the Pre-Capture Intake Decision before this
-   first capture write. If deferred, rejected, or unanswered, stop without
-   repository writes; fast-forward does not waive this boundary.
-
    ```bash
    openspec new change "<name>"
    ```
@@ -80,11 +60,6 @@ In both branches, never create the root as a side effect: do not run `openspec i
    Loop through artifacts in dependency order (artifacts with no pending dependencies first):
 
    a. **For each artifact that is `ready` (dependencies satisfied)**:
-      - Follow the Mandatory Planning Contract in
-        `.github/instructions/openspec-workflow.instructions.md`. Present the
-        proposal and obtain acceptance before design. Required proposal, specs,
-        design, and tasks remain mandatory even if schema guidance calls one
-        optional; skipped required roles block readiness and require reconciliation.
       - Get instructions:
         ```bash
         openspec instructions <artifact-id> --change "<name>" --json
@@ -110,20 +85,13 @@ In both branches, never create the root as a side effect: do not run `openspec i
 
    b. **Continue until every artifact in the required set exists (not just `apply.requires`)**
       - After creating each artifact, re-run `openspec status --change "<name>" --json`
-      - The required set includes mandatory Fabric proposal, specs, design, and
-        task roles plus `applyRequires` and every artifact reachable through
-        `requires` edges in `status --json`. Walk them transitively and stop on
-        an omitted or ambiguous required role. Leave other optional artifacts alone.
+      - The required set is `applyRequires` plus every artifact reachable from those by following the `requires` edges in `status --json` - walk them transitively (spec-driven closes over proposal, specs, design, tasks). Leave artifacts outside that set alone
       - `status` is file-existence only, so an `applyRequires` artifact reading `done` does NOT mean its dependencies exist - writing `tasks.md` early marks `tasks` done while `specs` was never written. Use each artifact's `requires` edges, not its `status`, to build the required set: a `done` artifact still lists what it depends on
-      - Do not write an artifact reported `skipped`. If it serves a required
-        Fabric role, report a blocker and stop until the configuration is
-        reconciled; do not treat it as satisfied.
+      - An artifact already reading `status: "skipped"` is satisfied: the change declares `skip_specs` in `.openspec.yaml`, so its files must NOT exist. Never try to create one
       - Create every artifact in the required set that is missing, then re-check - creating one can unblock others
-      - Skip only genuinely optional artifacts outside mandatory Fabric roles
-        when their instructions mark them conditional. Explain optional omissions.
-      - Do not write blocked artifacts to bypass missing required dependencies.
-      - Finish only when every mandatory role and transitive required artifact
-        is substantively complete, not merely present.
+      - Skip one only when `status` already reports it `skipped`, or when its own `instruction` says it is conditional: run `openspec instructions <artifact-id> --change "<name>" --json` and skip only if its `instruction` field marks it optional (e.g. "create only if..."). Spec-driven's `design.md` qualifies; `specs` qualifies only via the `skipped` status above, never by your own judgment. Tell the user, and do not reconsider it
+      - Dependencies are enablers, not gates: if a required artifact is still `blocked` only because you skipped a conditional dependency, write it anyway
+      - Stop when every artifact in the required set is `done`, `skipped`, or was deliberately skipped
 
    c. **If an artifact requires user input** (critically unclear context):
       - Ask the user to clarify
@@ -139,9 +107,8 @@ In both branches, never create the root as a side effect: do not run `openspec i
 After completing all artifacts, summarize:
 - Change name and location
 - List of artifacts created with brief descriptions, plus any conditional artifact you skipped and why
-- What's ready: "Planning artifacts are complete for review."
-- Prompt: "Accept the current proposal/spec before requesting apply; implementation
-  remains blocked until acceptance and all mandatory planning checks pass."
+- What's ready: "All artifacts needed for implementation are ready."
+- Prompt: "Run `/openspec-apply-change` or ask me to implement to start working on the tasks."
 
 **Artifact Creation Guidelines**
 

@@ -6,18 +6,11 @@ license: MIT
 compatibility: Requires openspec CLI.
 metadata:
   author: openspec
-  version: "1.0"
+  
   generatedBy: "1.16.0"
 ---
 
 Archive a completed change in the experimental workflow.
-
-**Mandatory Fabric preflight:** Before any archive-driven sync writes or moves,
-read `.github/instructions/openspec-workflow.instructions.md` and verify its
-Mandatory Planning Contract and full Quality Gate Checklist for this change.
-Required artifacts/tasks and every mandatory gate must be complete and verifiable.
-User confirmation cannot override mandatory gates. Optional-artifact warnings
-remain informative. A missing optional guidance lookup does not waive preflight.
 
 **Store selection:** If the user names a store (a store is a standalone OpenSpec repo registered on this machine) or the work lives in one, run `openspec store list --json` to discover registered store ids, then pass `--store <id>` on the commands that read or write specs and changes (`new change`, `status`, `instructions`, `list`, `show`, `validate`, `archive`, `doctor`, `context`, `schemas`, `view`). Once selected, treat `--store <id>` as sticky for the rest of the workflow. Every unscoped example of those commands below is shorthand: before running it, append the flag. For example, run `openspec status --change "<name>" --json --store "<id>"`, not the unscoped form shown below. Other commands do not take the flag. Hints printed by commands already carry the flag; keep it on follow-ups. Without a store, commands act on the nearest local `openspec/` root.
 
@@ -48,7 +41,7 @@ In both branches, never create the root as a side effect: do not run `openspec i
    When prompting, show only active changes (not already archived).
    Include the schema used for each change if available.
 
-   Always announce: "Using change: <name>" and how to override (e.g., `/opsx-archive <other>`).
+   Always announce: "Using change: <name>" and how to override (e.g., `/openspec-archive-change <other>`).
 
    **Load current archive inputs before the existing archive checks:**
 
@@ -86,12 +79,10 @@ In both branches, never create the root as a side effect: do not run `openspec i
    - `planningHome`, `changeRoot`, `artifactPaths`, and `actionContext`: path and scope context
    - `artifacts`: List of artifacts with their status (`done`, `skipped`, or other)
 
-   Resolve required artifact roles through the schema's returned paths and
-   transitive dependencies, not conventional filenames alone. Require complete
-   proposal, delta specs, design, and tasks and current proposal/spec acceptance.
-   Missing, incomplete, skipped, or ambiguously mapped required artifacts block
-   archive: report them and stop before sync writes or moves. `skip_specs` cannot
-   waive a required role. Only genuinely optional incomplete artifacts are warnings.
+   **If any artifacts are neither `done` nor `skipped`** (skipped artifacts satisfy the requirement - the change declares skip_specs):
+   - Display warning listing incomplete artifacts
+   - Ask the user to confirm they want to proceed
+   - Proceed if user confirms
 
 3. **Check task completion status**
 
@@ -111,23 +102,18 @@ In both branches, never create the root as a side effect: do not run `openspec i
    other markers, including unfamiliar ones, remain incomplete.
 
    **If incomplete tasks found:**
-   - Report the incomplete tasks and stop before sync writes or moves.
+   - Display warning showing count of incomplete tasks
+   - Ask the user to confirm they want to proceed
+   - Proceed if user confirms
 
-   **If `totalTasks` is zero:** Verify the required task tracking has usable
-   tasks; missing or empty required tracking blocks archive. Zero counts alone
-   are not evidence of completion.
-
-   Verify every mandatory Quality Gate Checklist item from the Fabric preflight
-   before continuing. Missing or stale evidence is a blocker, not a warning.
+   **If `totalTasks` is zero:** Proceed without a task-related warning.
 
 4. **Assess delta spec sync state**
 
    Use `artifactPaths.specs.existingOutputPaths` from status JSON as the only
    delta-spec source. If the `specs` entry is missing or
-   `existingOutputPaths` is empty, stop if the required specs role has no output;
-   do not infer delta specs from unrelated artifacts or claim missing specs are
-   synced. Report the missing required specs as a blocker, not a successful
-   no-sync archive.
+   `existingOutputPaths` is empty, proceed without a sync prompt and do not infer
+   delta specs from other artifacts.
 
    **If delta specs exist:**
    - Compare each delta spec with its corresponding main spec at `<planningHome.root>/openspec/specs/<capability-path>/spec.md` (use the store-aware `planningHome.root` from step 2, not a hardcoded repo path)
@@ -140,15 +126,14 @@ In both branches, never create the root as a side effect: do not run `openspec i
    - Continue assessing the remaining capabilities even when one is sync-blocked. Show a combined summary before prompting.
 
    **Prompt options:**
-   - If any capability is sync-blocked: report the blocker and stop; do not sync or archive.
-   - Otherwise, if changes needed: "Sync and verify", "Cancel"
-   - Otherwise, if already synced: verify every delta's content using the checks
-     below, then offer "Archive verified change", "Cancel".
+   - If any capability is sync-blocked: explain why and offer only "Archive without syncing", "Cancel"
+   - Otherwise, if changes needed: "Sync now (recommended)", "Archive without syncing"
+   - Otherwise, if already synced: "Archive now", "Sync anyway", "Cancel"
 
    Route on the answer:
    - "Cancel" — stop, do not archive
-   - "Archive verified change" — proceed only if every delta's comparison passed
-   - "Sync and verify" — sync, then verify below; any blocker stops the operation
+   - "Archive without syncing" or "Archive now" — proceed to archive
+   - "Sync now" or "Sync anyway" — sync, then verify (below). Do not start any sync while a capability is sync-blocked; explain the blocker and repeat the available choices.
    - Anything else — ask again rather than archiving
 
    Before a selected sync writes any main spec, run
@@ -183,11 +168,6 @@ In both branches, never create the root as a side effect: do not run `openspec i
 
 5. **Perform the archive**
 
-   Proceed only after the mandatory preflight passes and every delta has been
-   synced and verified (including already-synced deltas). Recheck eligibility if
-   evidence or artifacts changed. On failure keep the change active and report
-   any main-spec writes already made; do not claim rollback.
-
    Create an `archive` directory under `planningHome.changesDir` if it doesn't exist:
    ```bash
    mkdir -p "<planningHome.changesDir>/archive"
@@ -210,7 +190,7 @@ In both branches, never create the root as a side effect: do not run `openspec i
    - Schema that was used
    - Archive location
    - Whether specs were synced (if applicable)
-   - Any genuinely optional warnings, separately from mandatory gate results
+   - Note about any warnings (incomplete artifacts/tasks)
 
 **Output On Success**
 
@@ -220,19 +200,18 @@ In both branches, never create the root as a side effect: do not run `openspec i
 **Change:** <change-name>
 **Schema:** <schema-name>
 **Archived to:** the archive path derived from `planningHome.changesDir`/<target-name>/
-**Specs:** ✓ Synced and verified (every delta passed step 4)
+**Specs:** <"✓ Synced to main specs" only if the step 4 verification passed; otherwise "No delta specs" or "Sync skipped">
 
-All required artifacts and tasks complete. All mandatory gates verified.
-<List genuinely optional warnings, if any.>
+<"All artifacts complete. All tasks complete." — or, if archived with warnings, list them instead (e.g. "Archived with 2 incomplete tasks")>
 ```
 
 **Guardrails**
 - Announce the selected change; prompt for selection when it is ambiguous
 - Use artifact graph (openspec status --json) for completion checking
-- Block unmet or unverifiable required artifacts/tasks and mandatory gates; confirmation cannot waive them
+- Don't block archive on warnings - just inform and confirm
 - Preserve .openspec.yaml when moving to archive (it moves with the directory)
 - Show clear summary of what happened
-- When sync is needed, run the `openspec-sync-specs` workflow inline (agent-driven)
+- If sync is requested, run the `openspec-sync-specs` workflow inline (agent-driven)
 - Never archive while a spec sync is still in flight — run the sync inline and verify the main specs before moving `changeRoot`
 - If delta specs exist, always run the sync assessment and show the combined summary before prompting
 - Apply relevant runtime context and report conflicts; operation guidance remains advisory

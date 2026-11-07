@@ -9,15 +9,19 @@ license: MIT
 compatibility: Requires Node.js 26 or later and the OpenSpec CLI.
 metadata:
   author: agentic-shared
-  version: "1.0"
+  
 ---
 
 # Software Fabric Kickoff
 
+This is a Fabric entry point. For an explicit standalone OpenSpec selection,
+use `openspec-propose` unchanged instead of performing the Fabric steps below.
+Repository merge and release controls remain unchanged.
+
 ## Pre-Capture Intake Decision
 
 Before setup or capture writes, follow
-`.github/instructions/openspec-workflow.instructions.md`. Assess the idea or
+`.github/instructions/fabric-workflow.instructions.md`. Assess the idea or
 draft proposal in conversation or session storage and offer Proceed, Defer, or
 Do not pursue. Missing input pauses capture. Defer or rejection means no
 repository writes, sync, archive, task completion, or deletion of existing work.
@@ -32,7 +36,7 @@ workflow action. If unavailable, stop without changing artifacts or code and
 provide:
 
 ```powershell
-npm install -g @fission-ai/openspec@latest
+npm install -g @fission-ai/openspec@1.16.0
 openspec init
 openspec context --json
 ```
@@ -48,7 +52,7 @@ store, commands act on the nearest local `openspec/` root.
 ## Workflow
 
 1. Assess the user's idea and resolve the Pre-Capture Intake Decision first.
-   Only after Proceed, invoke `openspec-propose` to create planning artifacts,
+   Only after Proceed, invoke `fabric-propose` to create planning artifacts,
    obtaining proposal acceptance before design.
 2. Confirm the proposal identifies scope, scenarios, acceptance criteria, and
    applicable legal/IP risk. Record `## UX Applicability` with boolean
@@ -60,9 +64,9 @@ store, commands act on the nearest local `openspec/` root.
 4. Stop after planning. A request to start the kickoff authorizes assessment
    only until Proceed, and planning only afterward, even when it also asks for
    implementation.
-5. After the user makes a new explicit request, invoke `openspec-apply-change`
+5. After the user makes a new explicit request, invoke `fabric-apply-change`
    for the selected change.
-6. When implementation and tests are complete, invoke `openspec-verify-change`.
+6. When implementation and tests are complete, invoke `fabric-verify-change`.
 7. Require tests, coverage, security, conditional legal approval, code review,
    and CI gates before archive.
 

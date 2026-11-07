@@ -1,136 +1,79 @@
-#!/usr/bin/env python3
-"""Contract tests for shared OpenSpec command skills."""
+"""Contracts for independently owned OpenSpec and Fabric workflows."""
 
-from __future__ import annotations
-
-import re
-import unittest
 from pathlib import Path
+import sys
+import unittest
+
+import yaml
 
 
 ROOT = Path(__file__).resolve().parents[2]
-SKILLS = {
-    "openspec-propose": {
-        "planning only",
-        "Do not edit project code",
-        "openspec status --change",
-    },
-    "openspec-apply-change": {
-        "openspec instructions apply --change",
-        "contextFiles",
-        "Do not mark partial or deferred work complete",
-    },
-    "openspec-verify-change": {
-        "Completeness",
-        "Correctness",
-        "Coherence",
-        "legal approval",
-        "openspec store list --json",
-        "--store <id>",
-    },
-    "software-fabric-kickoff": {
-        "Stop after planning",
-        "new explicit request",
-        "Do not implement code during kickoff",
-        "openspec store list --json",
-        "--store <id>",
-    },
-}
+sys.path.insert(0, str(ROOT / ".github" / "skills" / "fabric-propose" / "scripts"))
+from route_fabric_workflow import ACTIONS, route
 
 
 class OpenSpecCommandSkillTests(unittest.TestCase):
-    def test_command_skills_have_required_metadata_and_guards(self) -> None:
-        for name, expectations in SKILLS.items():
-            with self.subTest(name=name):
-                path = ROOT / ".github" / "skills" / name / "SKILL.md"
-                content = path.read_text(encoding="utf-8")
-
-                self.assertTrue(content.startswith("---\n"))
-                self.assertIn(f"name: {name}\n", content)
-                self.assertIn("description:", content)
-                self.assertIn("Node.js 26 or later", content)
-                self.assertIn("openspec context --json", content)
-                self.assertRegex(
-                    content,
-                    re.compile(r"(?:do not|never).*fall back to (?:a )?legacy prompt", re.I),
-                )
-                for expectation in expectations:
-                    self.assertIn(expectation.lower(), content.lower())
-
-    def test_shared_workflow_skills_are_present_without_shared_prompts(self) -> None:
-        skills = (
-            "openspec-apply-change",
-            "openspec-archive-change",
-            "openspec-bulk-archive-change",
-            "openspec-continue-change",
-            "openspec-explore",
-            "openspec-ff-change",
-            "openspec-new-change",
-            "openspec-onboard",
-            "openspec-propose",
-            "openspec-sync-specs",
-            "openspec-update-change",
-            "openspec-verify-change",
-            "software-fabric-kickoff",
-        )
-        for skill in skills:
-            with self.subTest(skill=skill):
-                self.assertTrue(
-                    (ROOT / ".github" / "skills" / skill / "SKILL.md").is_file()
-                )
-
-        self.assertEqual(
-            list((ROOT / ".github" / "prompts").glob("*.prompt.md")), []
-        )
-
-    def test_restored_skills_preserve_store_root_and_stop_contracts(self) -> None:
-        for name in ("openspec-propose", "openspec-apply-change", "openspec-verify-change"):
-            with self.subTest(name=name):
-                content = (ROOT / ".github" / "skills" / name / "SKILL.md").read_text(
+    def test_default_and_explicit_standalone_routes_select_separate_skills(self) -> None:
+        for action in ACTIONS:
+            with self.subTest(action=action):
+                default = route(action)
+                standalone = route(action, "standalone")
+                self.assertNotEqual(default["skill"], standalone["skill"])
+                for result in (default, standalone):
+                    path = ROOT / ".github" / "skills" / result["skill"] / "SKILL.md"
+                    self.assertTrue(path.is_file(), path)
+                    metadata = yaml.safe_load(path.read_text(encoding="utf-8").split("---", 2)[1])
+                    self.assertEqual(metadata["name"], result["skill"])
+                    self.assertEqual(result["repository_controls"], "unchanged")
+                    self.assertEqual(result["kind"], "advisory")
+                fabric = (ROOT / ".github" / "skills" / default["skill"] / "SKILL.md").read_text(
                     encoding="utf-8"
                 )
-                for phrase in (
-                    "node --version",
-                    "openspec --version",
-                    "openspec store list --json",
-                    "--store <id>",
-                    "openspec context --json",
-                    "older than 26, stop without changing artifacts",
-                    "Never initialize implicitly or use a stale root",
-                    "auto-selected versus explicit-request",
-                    "**Project check:**",
-                    "**Store selection:**",
-                ):
-                    self.assertIn(phrase, content)
-                self.assertEqual(content.count("<!-- agentic-shared:policy:start -->"), 1)
-                self.assertEqual(content.count("<!-- agentic-shared:policy:end -->"), 1)
+                self.assertIn(standalone["skill"], fabric)
+                self.assertIn("standalone", fabric)
 
-    def test_idea_issue_and_direct_proposal_are_supported_entry_paths(self) -> None:
-        proposal_skill = (
-            ROOT / ".github" / "skills" / "openspec-propose" / "SKILL.md"
+    def test_unknown_modes_and_actions_are_not_silent_defaults(self) -> None:
+        for action, mode in (("apply", "automatic"), ("delete", "fabric")):
+            with self.subTest(action=action, mode=mode):
+                with self.assertRaises(ValueError):
+                    route(action, mode)
+
+    def test_upstream_skills_do_not_embed_fabric_policy(self) -> None:
+        for suffix in ACTIONS.values():
+            path = ROOT / ".github" / "skills" / f"openspec-{suffix}" / "SKILL.md"
+            with self.subTest(path=path):
+                content = path.read_text(encoding="utf-8")
+                self.assertNotIn("agentic-shared:policy", content)
+                self.assertNotIn("Mandatory Fabric preflight", content)
+                self.assertNotIn("Node.js 26", content)
+                self.assertNotIn("fabric-workflow.instructions.md", content)
+        self.assertFalse((ROOT / ".github" / "scripts" / "restore_openspec_contracts.py").exists())
+        self.assertEqual(list((ROOT / ".github" / "prompts").glob("*.prompt.md")), [])
+
+    def test_fabric_apply_blocks_missing_acceptance_before_implementation(self) -> None:
+        content = (
+            ROOT / ".github" / "skills" / "fabric-apply-change" / "SKILL.md"
         ).read_text(encoding="utf-8")
+        self.assertIn("Missing or stale acceptance evidence blocks implementation", content)
+        self.assertIn("Report the blocker and stop before code edits", content)
+        self.assertLess(content.index("Missing or stale acceptance"), content.index("**Implement tasks"))
+        upstream = (
+            ROOT / ".github" / "skills" / "openspec-apply-change" / "SKILL.md"
+        ).read_text(encoding="utf-8")
+        self.assertNotIn("Mandatory Planning Contract", upstream)
+
+    def test_orchestrator_and_intake_use_fabric_owned_entry_points(self) -> None:
         orchestrator = (ROOT / ".github" / "workflows" / "sdlc-orchestrator.yml").read_text(
             encoding="utf-8"
         )
-        idea_template = (ROOT / ".github" / "ISSUE_TEMPLATE" / "idea-capture.yml").read_text(
-            encoding="utf-8"
-        )
-
-        self.assertIn("GitHub issue labelled `idea`", proposal_skill)
-        self.assertIn("Direct `/opsx:propose <description>` invocation is a valid alternative", proposal_skill)
-        self.assertIn("labels:\n  - idea\n  - stage:proposal", idea_template)
-        self.assertIn("include issue #${context.issue.number}", orchestrator)
+        for name in ("fabric-apply-change", "fabric-verify-change"):
+            self.assertIn(f"{name} skill", orchestrator)
         self.assertIn("software-fabric-kickoff skill", orchestrator)
-
-    def test_orchestrator_uses_command_skills_for_stage_handoffs(self) -> None:
-        orchestrator = (ROOT / ".github" / "workflows" / "sdlc-orchestrator.yml").read_text(
+        proposal = (ROOT / ".github" / "skills" / "fabric-propose" / "SKILL.md").read_text(
             encoding="utf-8"
         )
-
-        self.assertIn("openspec-apply-change skill", orchestrator)
-        self.assertIn("openspec-verify-change skill", orchestrator)
-        self.assertNotIn("/opsx:apply", orchestrator)
-        self.assertNotIn("/opsx:verify", orchestrator)
+        self.assertIn("GitHub issue labelled `idea`", proposal)
+        self.assertIn("/fabric-propose <description>", proposal)
 
 
 if __name__ == "__main__":
