@@ -40,25 +40,22 @@ TRUSTED_FILES = (
     ".github/skills/fabric-verify-change/scripts/gate-evidence.schema.json",
 )
 RUNTIME_PATH = Path(".github/skills/fabric-verify-change/scripts")
-SENSITIVE_MANIFEST_KEYS = {
-    "trusted_base_revision",
-    "deployed_revision",
-    "release_revision",
-    "release_reference",
-    "mapping",
-}
+SAFE_MANIFEST_KEYS = (
+    "schema_version",
+    "repository",
+    "identity",
+    "lifecycle",
+    "revision",
+    "config_sha256",
+    "generated_at",
+    "gates",
+)
 
 
-def redact_manifest(value):
-    """Recursively redact sensitive manifest fields before writing to logs/stdout."""
-    if isinstance(value, dict):
-        return {
-            key: ("[REDACTED]" if key in SENSITIVE_MANIFEST_KEYS else redact_manifest(item))
-            for key, item in value.items()
-        }
-    if isinstance(value, list):
-        return [redact_manifest(item) for item in value]
-    return value
+def safe_manifest_for_output(manifest):
+    """Return a strict allowlisted view for stdout/log output."""
+    require(isinstance(manifest, dict), "invalid manifest")
+    return {key: manifest[key] for key in SAFE_MANIFEST_KEYS if key in manifest}
 
 
 class GitHubAPI:
@@ -443,7 +440,7 @@ def main():
                              change=arguments.change, pr_number=arguments.pr,
                              store=arguments.store, release_id=arguments.release_id or None,
                              deployed_repository=arguments.deployed_repository)
-        safe_manifest = redact_manifest(manifest)
+        safe_manifest = safe_manifest_for_output(manifest)
         print(json.dumps(safe_manifest, sort_keys=True))
         return 0
     except (GateError, OSError, KeyError, TypeError) as error:
