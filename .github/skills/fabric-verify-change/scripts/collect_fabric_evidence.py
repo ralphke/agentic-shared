@@ -40,6 +40,22 @@ TRUSTED_FILES = (
     ".github/skills/fabric-verify-change/scripts/gate-evidence.schema.json",
 )
 RUNTIME_PATH = Path(".github/skills/fabric-verify-change/scripts")
+SAFE_MANIFEST_KEYS = (
+    "schema_version",
+    "repository",
+    "identity",
+    "lifecycle",
+    "revision",
+    "config_sha256",
+    "generated_at",
+    "gates",
+)
+
+
+def safe_manifest_for_output(manifest):
+    """Return a strict allowlisted view for stdout/log output."""
+    require(isinstance(manifest, dict), "invalid manifest")
+    return {key: manifest[key] for key in SAFE_MANIFEST_KEYS if key in manifest}
 
 
 class GitHubAPI:
@@ -424,7 +440,8 @@ def main():
                              change=arguments.change, pr_number=arguments.pr,
                              store=arguments.store, release_id=arguments.release_id or None,
                              deployed_repository=arguments.deployed_repository)
-        print(json.dumps(manifest, sort_keys=True))
+        safe_manifest = safe_manifest_for_output(manifest)
+        print(json.dumps(safe_manifest, sort_keys=True))
         return 0
     except (GateError, OSError, KeyError, TypeError) as error:
         print(f"Fabric gate blocked: {error}", file=sys.stderr)
