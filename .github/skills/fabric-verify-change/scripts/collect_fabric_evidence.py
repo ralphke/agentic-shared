@@ -40,6 +40,25 @@ TRUSTED_FILES = (
     ".github/skills/fabric-verify-change/scripts/gate-evidence.schema.json",
 )
 RUNTIME_PATH = Path(".github/skills/fabric-verify-change/scripts")
+SENSITIVE_MANIFEST_KEYS = {
+    "trusted_base_revision",
+    "deployed_revision",
+    "release_revision",
+    "release_reference",
+    "mapping",
+}
+
+
+def redact_manifest(value):
+    """Recursively redact sensitive manifest fields before writing to logs/stdout."""
+    if isinstance(value, dict):
+        return {
+            key: ("[REDACTED]" if key in SENSITIVE_MANIFEST_KEYS else redact_manifest(item))
+            for key, item in value.items()
+        }
+    if isinstance(value, list):
+        return [redact_manifest(item) for item in value]
+    return value
 
 
 class GitHubAPI:
@@ -424,7 +443,8 @@ def main():
                              change=arguments.change, pr_number=arguments.pr,
                              store=arguments.store, release_id=arguments.release_id or None,
                              deployed_repository=arguments.deployed_repository)
-        print(json.dumps(manifest, sort_keys=True))
+        safe_manifest = redact_manifest(manifest)
+        print(json.dumps(safe_manifest, sort_keys=True))
         return 0
     except (GateError, OSError, KeyError, TypeError) as error:
         print(f"Fabric gate blocked: {error}", file=sys.stderr)
