@@ -8,6 +8,9 @@ import zipfile
 from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 from unittest.mock import patch
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from scripts import fabric_trace
 
