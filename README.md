@@ -117,6 +117,11 @@ Recommended pattern:
 
 ## Consumer manifest
 
+This canonical source repository includes `.agentic-shared.yml` with every asset
+group set to `local`, so default manifest validation works without synchronizing
+the source repository against itself. Its release pin is a reference baseline,
+not a claim that the current worktree matches that release.
+
 Consumer repositories should copy `.agentic-shared.example.yml` to
 `.agentic-shared.yml` and pin a tagged release. The manifest declares which
 asset groups are shared and whether each group is `managed`, `extended`, or

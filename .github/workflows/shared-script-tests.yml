@@ -56,6 +56,9 @@ jobs:
       - name: Install supported OpenSpec
         run: npm install -g @fission-ai/openspec@1.16.0
 
+      - name: Install test dependencies
+        run: python -m pip install --disable-pip-version-check PyYAML
+
       - name: Verify integration compatibility
         run: |
           python .github/skills/software-fabric-kickoff/scripts/check_openspec_compatibility.py
