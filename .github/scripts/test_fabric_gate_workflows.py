@@ -72,8 +72,26 @@ class GateWorkflowTests(unittest.TestCase):
         self.assertIn("--mode invalidate", non_dispatch)
         self.assertNotIn("--execute-merge", non_dispatch)
         events = workflow.get("on", workflow.get(True))
-        self.assertIn("schedule", events)
         self.assertIn("repository_dispatch", events)
+
+    def test_protected_operations_require_explicit_opt_in(self):
+        for lifecycle in ("merge", "release"):
+            with self.subTest(lifecycle=lifecycle):
+                jobs = self.workflow(lifecycle)["jobs"]
+                protected = jobs[f"{lifecycle}-gate"]
+                self.assertTrue(protected["if"].startswith(
+                    "vars.FABRIC_PROTECTED_OPERATIONS_ENABLED == 'true' &&"))
+                notice = jobs["configuration-notice"]
+                self.assertEqual(notice["if"],
+                                 "vars.FABRIC_PROTECTED_OPERATIONS_ENABLED != 'true'")
+                self.assertNotIn("environment", notice)
+                self.assertNotIn("env", notice)
+                self.assertEqual(len(notice["steps"]), 1)
+                command = notice["steps"][0]["run"]
+                self.assertIn("Not configured; not enforced", command)
+                self.assertNotIn("python", command)
+                self.assertNotIn("gh ", command)
+                self.assertNotIn("secrets.", command)
 
     def test_documented_required_checks_are_actually_published(self):
         document = (ROOT / "doc/fabric-gate-evidence.md").read_text(encoding="utf-8")

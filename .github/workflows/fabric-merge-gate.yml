@@ -34,6 +34,7 @@ jobs:
   merge-gate:
     name: Fabric protected merge control
     if: >-
+      vars.FABRIC_PROTECTED_OPERATIONS_ENABLED == 'true' &&
       github.ref == format('refs/heads/{0}', github.event.repository.default_branch) &&
       (github.event_name != 'check_run' ||
        (github.event.check_run.name != 'Fabric / merge' &&
@@ -67,3 +68,14 @@ jobs:
           else
             python3 "$controller" --mode invalidate
           fi
+
+  configuration-notice:
+    name: Fabric protected operations not enabled
+    if: vars.FABRIC_PROTECTED_OPERATIONS_ENABLED != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report disabled enforcement
+        run: |
+          echo "::warning::Fabric protected operations are disabled. No Fabric approval, merge, release, or revocation is performed."
+          echo "### Fabric protected operations: disabled" >> "$GITHUB_STEP_SUMMARY"
+          echo "Not configured; not enforced. Configure the dedicated App, protected environment, branch restrictions, policy and trusted evidence providers before setting FABRIC_PROTECTED_OPERATIONS_ENABLED=true. See doc/fabric-gate-evidence.md." >> "$GITHUB_STEP_SUMMARY"

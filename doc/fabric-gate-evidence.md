@@ -24,6 +24,26 @@ No new runtime dependency or general mapping platform is introduced.
 IDs are zero and reviewer IDs are empty. Missing/disabled configuration,
 unavailable services and missing applicability never mean non-applicable.
 
+### Temporary opt-in for protected operations
+
+Merge and release controller jobs run only when the repository Actions variable
+`FABRIC_PROTECTED_OPERATIONS_ENABLED` equals the exact string `true`. Unset,
+`false`, or any other value leaves them disabled without requiring an App token
+or environment approval. A separate notice job reports **not configured; not
+enforced**. It does not publish `Fabric / merge` or `Fabric / release`, revoke
+checks, merge a PR, or publish a release. Do not treat the notice job or workflow
+completion as gate approval or configure it as the sole required security check.
+
+Normal CI/security workflows are unaffected. Archive preflight and direct
+controller calls retain their fail-closed requirements. This switch is not an
+advisory replacement for protected operations and does not waive Fabric gates.
+Disabling it does not revoke existing App verdicts or change repository rules.
+
+Complete and verify the administrator prerequisites below, including real policy
+identities and trusted evidence providers, before setting the variable to `true`
+in Settings > Secrets and variables > Actions > Variables. Enabling the variable
+alone does not configure or bypass any controller prerequisite.
+
 ## Sources, applicability and substantive limits
 
 Every lifecycle includes planning, current proposal/spec acceptance, required
