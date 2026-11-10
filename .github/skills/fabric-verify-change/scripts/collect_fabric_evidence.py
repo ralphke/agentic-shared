@@ -40,6 +40,22 @@ TRUSTED_FILES = (
     ".github/skills/fabric-verify-change/scripts/gate-evidence.schema.json",
 )
 RUNTIME_PATH = Path(".github/skills/fabric-verify-change/scripts")
+SAFE_MANIFEST_KEYS = (
+    "schema_version",
+    "repository",
+    "identity",
+    "lifecycle",
+    "revision",
+    "config_sha256",
+    "generated_at",
+    "gates",
+)
+
+
+def safe_manifest_for_output(manifest):
+    """Return a strict allowlisted view for stdout/log output."""
+    require(isinstance(manifest, dict), "invalid manifest")
+    return {key: manifest[key] for key in SAFE_MANIFEST_KEYS if key in manifest}
 
 
 class GitHubAPI:
