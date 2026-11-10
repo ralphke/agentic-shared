@@ -54,19 +54,6 @@ class SharedScriptWorkflowTests(unittest.TestCase):
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         self.assertIn("skips consumer repositories", readme)
 
-    def test_compatibility_job_installs_exact_supported_version(self) -> None:
-        job = self.workflow["jobs"]["openspec-compatibility"]
-        steps = job["steps"]
-        self.assertEqual(job["if"], "github.repository == 'ralphke/agentic-shared'")
-        self.assertEqual(steps[2]["with"]["node-version"], "26")
-        self.assertEqual(steps[3]["run"], "npm install -g @fission-ai/openspec@1.16.0")
-        self.assertEqual(
-            steps[4]["run"], "python -m pip install --disable-pip-version-check PyYAML"
-        )
-        self.assertIn("check_openspec_compatibility.py", steps[5]["run"])
-        self.assertIn("test_fabric_openspec_compatibility_cli.py", steps[5]["run"])
-        self.assertIn("test_fabric_skill_ownership_cli.py", steps[5]["run"])
-
 
 if __name__ == "__main__":
     unittest.main()

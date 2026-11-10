@@ -19,7 +19,7 @@ explicit Proceed.
 Use this skill when a user submits:
 
 - A GitHub Issue with label `idea`
-- A `/fabric-propose <description>` command
+- A `/opsx:propose <description>` command
 - A raw idea in chat that needs structuring
 
 ---
@@ -35,18 +35,17 @@ Use this skill when a user submits:
    clarify material ambiguity before any capture, asking ≤ 3 focused questions.
    Keep the idea and draft proposal in conversation or session storage.
 5. **Pre-Capture Intake Decision** — Follow
-   `.github/instructions/fabric-workflow.instructions.md`. Offer Proceed,
+   `.github/instructions/openspec-workflow.instructions.md`. Offer Proceed,
    Defer, or Do not pursue. Missing input pauses capture. Defer or rejection
    means no repository writes, sync, archive, task completion, or deletion of
    existing work. A request to create named repository artifacts counts as
    Proceed; do not repeat the decision at handoff. An issue, priority, or raw
    idea alone does not. Proceed is not proposal/spec acceptance or permission
    to implement.
-6. **Capture after Proceed** — Use the `fabric-propose` compatibility and
-   selected-root checks and the schema paths to scaffold with
-   `openspec new change "<slug>"` and obtain proposal instructions. Preserve
-   any selected store flag. Never hand-create a change directory or initialize
-   implicitly. Capture only the proposal within this skill's scope.
+6. **Capture after Proceed** — Use `openspec-propose` prerequisites, selected
+   root, and schema paths to scaffold with `openspec new change "<slug>"` and
+   obtain proposal instructions. Never hand-create a change directory or
+   initialize implicitly. Capture only the proposal within this skill's scope.
 7. **Write proposal.md** — Only after Proceed, fill in all required sections:
    - `## Intent` — 1-2 paragraphs explaining why (what users need, not how to
      build it)

@@ -6,7 +6,7 @@ license: MIT
 compatibility: Requires openspec CLI.
 metadata:
   author: openspec
-  
+  version: "1.0"
   generatedBy: "1.16.0"
 ---
 
@@ -42,7 +42,7 @@ In both branches, never create the root as a side effect: do not run `openspec i
 
    When prompting, show changes that have delta specs (under `specs/` directory).
 
-   Always announce: "Using change: <name>" and how to override (e.g., `/openspec-sync-specs <other>`).
+   Always announce: "Using change: <name>" and how to override (e.g., `/opsx-sync <other>`).
 
 2. **Resolve change context**
 
@@ -63,12 +63,13 @@ In both branches, never create the root as a side effect: do not run `openspec i
 
    Sync every path in `existingOutputPaths` unless the caller narrowed the set.
    A caller narrows it by naming an explicit list of complete entries from
-   `existingOutputPaths` — copy those absolute values verbatim. Archive does
-   this inline, and a user can too (for example, by selecting the entry ending
+   `existingOutputPaths` — copy those absolute values verbatim. A direct user
+   request can do this (for example, by selecting the entry ending
    in `/specs/billing/invoices/spec.md`).
-   Then sync only the named paths and leave the remaining delta specs untouched:
-   bulk archive excludes a delta whose implementation it could not find, and
-   syncing it anyway would write a main spec the caller deliberately withheld.
+   Then sync only the named paths and leave the remaining delta specs untouched.
+   Partial direct sync does not establish archive readiness. Archive callers,
+   including bulk archive, must sync and verify every delta of each eligible
+   change; missing implementation blocks the entire affected change.
    Carry that narrowed selection through step 4; never widen it back to the full
    list. If a named path is not in `existingOutputPaths`, do not sync it —
    report it and stop, rather than dropping it silently. If the named list is
