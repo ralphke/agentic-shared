@@ -410,7 +410,7 @@ def parse_arguments():
 
 
 def main():
-    """Print generated evidence to stdout; no file/manifest input is accepted."""
+    """Print a non-sensitive status to stdout; never expose manifest contents."""
     arguments = parse_arguments()
     try:
         root = Path(__file__).resolve().parents[4]
@@ -424,7 +424,7 @@ def main():
                              change=arguments.change, pr_number=arguments.pr,
                              store=arguments.store, release_id=arguments.release_id or None,
                              deployed_repository=arguments.deployed_repository)
-        print(json.dumps(manifest, sort_keys=True))
+        print(json.dumps({"status": "ok"}))
         return 0
     except (GateError, OSError, KeyError, TypeError) as error:
         print(f"Fabric gate blocked: {error}", file=sys.stderr)
