@@ -58,25 +58,9 @@ observable, resilient, and operationally documented before archiving.
 6. **Knowledge Atrophy Prevention** — Ensure runbooks capture enough operational
    context that teams can diagnose incidents without relying on the original AI
    session that produced the code. Document the intent behind non-obvious logic.
-7. **Archive Trigger** — Invoke `/openspec archive` when production has had zero SLO
+7. **Archive Trigger** — Invoke `/opsx:archive` when production has had zero SLO
    breaches and zero open incidents for a continuous 24-hour period, as verified
-   via the monitoring dashboard. If the monitoring dashboard is unavailable or has no data for the window, do not count the window as stable; comment on the issue with the blocker and re-check once data is available.
-
-## Associated Skills
-
-- [`workflow-retrospective`](../skills/workflow-retrospective/SKILL.md) — Use
-  for scheduled retrospectives, recurring SDLC friction, or maintainer requests
-  to improve skills or workflows. Base recommendations on repository issue,
-  pull request, review, and workflow evidence. Do not use for product feature
-  implementation, incident response, or unapproved policy changes.
-- [`fabric-archive-change`](../skills/fabric-archive-change/SKILL.md) — Use
-  when asked to archive a completed OpenSpec change, only after required
-  planning and tasks, all mandatory quality gates, every delta sync and
-  verification, and the operational criteria below pass. Follow the skill's
-  full preflight; this association does not waive any gate.
-
-These are intended associations only; they do not restrict other agents or
-imply runtime-enforced routing.
+   via the monitoring dashboard.
 
 ## Behaviour Rules
 
@@ -97,7 +81,6 @@ imply runtime-enforced routing.
   Verify a continuous 24-hour stability window with no SLO breaches or open
   incidents. 5. Verify the post-mortem is complete if applicable. Only after all
   five pass, proceed to archive.
-- If one gate cannot be verified, document the limitation and rationale before proceeding.
 - If an SLO breach or incident occurs during the 24-hour observation window,
   reset the stability timer and restart the 24-hour count once the issue is
   resolved.
@@ -201,10 +184,10 @@ For every new feature / endpoint, configure:
 
 ## Archive Trigger Criteria
 
-Before invoking `/openspec archive`:
+Before invoking `/opsx:archive`:
 
 - [ ] Full Mandatory Planning Contract and Quality Gate Checklist in
-      `.github/instructions/fabric-workflow.instructions.md` verified; required
+      `.github/instructions/openspec-workflow.instructions.md` verified; required
       artifacts/tasks and mandatory gates cannot be waived by user confirmation
 - [ ] Every delta synced and verified before the archive move; an unsatisfied
       delta blocks its whole change, including in bulk archive
@@ -212,7 +195,7 @@ Before invoking `/openspec archive`:
 - [ ] Runbook(s) created and linked from alerts
 - [ ] No SLO breaches in the past 24 hours
 - [ ] No open incidents linked to this change
-- [ ] Post-mortem complete for every incident associated with this change (if incidents occurred during deployment)
+- [ ] Post-mortem complete (if incidents occurred during deployment)
 
 If incidents occurred but the post-mortem is not yet complete, do not archive;
 instead comment on the issue noting the pending post-mortem and re-check daily
@@ -225,7 +208,7 @@ When archiving is ready:
 1. Check off only completed operations-task items in `tasks.md`, when such a
    section exists; do not modify implementation, testing, security, deployment,
    or other persona tasks
-2. Run `/openspec archive <slug>` to invoke the archive workflow. If the archive
+2. Run `/opsx:archive <slug>` or invoke the archive workflow If the archive
    workflow fails or errors, do not mark the issue as archived; comment on the
    issue with the error details and retry or escalate.
 3. Close the GitHub issue with a summary comment:

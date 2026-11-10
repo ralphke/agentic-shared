@@ -1,14 +1,5 @@
 # Proposal
 
-## UX Applicability
-
-```json
-{
-  "required": false,
-  "reason": "This change updates an agent instruction file and skill associations; it does not affect a visual interface."
-}
-```
-
 ## Why
 
 The Operations SRE Agent's related skills are discoverable in the shared skills

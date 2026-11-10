@@ -117,11 +117,6 @@ Recommended pattern:
 
 ## Consumer manifest
 
-This canonical source repository includes `.agentic-shared.yml` with every asset
-group set to `local`, so default manifest validation works without synchronizing
-the source repository against itself. Its release pin is a reference baseline,
-not a claim that the current worktree matches that release.
-
 Consumer repositories should copy `.agentic-shared.example.yml` to
 `.agentic-shared.yml` and pin a tagged release. The manifest declares which
 asset groups are shared and whether each group is `managed`, `extended`, or
@@ -129,7 +124,7 @@ asset groups are shared and whether each group is `managed`, `extended`, or
 
 The supplied example sets `assets.specs: local` and protects
 `openspec/changes/**`. This is the recommended consumer configuration: consumers
-keep their OpenSpec store local while receiving the shared Fabric skills and
+keep their OpenSpec store local while receiving the shared command skills and
 SDLC policy assets. Set `assets.specs` to `managed` or `extended` only when
 deliberately adopting shared `openspec/` content and reviewing the resulting
 configuration and spec updates.
@@ -145,16 +140,6 @@ Copy `.github/workflows/agentic-shared-sync.yml` into the consumer repository.
 Run it manually with a tagged `target_version`. It checks out the installed and
 target releases, performs a three-way update, and opens a pull request. A
 managed-path conflict fails the workflow before any consumer file is changed.
-Removal of a formerly shared `openspec-*` skill or collision with a
-consumer-owned skill also stops synchronization for reviewed migration;
-protected paths remain untouched.
-New releases exclude upstream `openspec-*` skills from Fabric synchronization.
-Migration of an unchanged formerly shared skill requires an explicitly reviewed
-hash-bound migration record and generated upstream replacements, supplied via
-`--openspec-migration <review.json> --upstream-source <generated-root>` to the
-synchronizer. Customized, consumer-owned, or protected copies are not silently
-replaced. See the [migration procedure](doc/fabric-consumer-migration.md) for
-review fields, replacement checks, and backup-based rollback.
 
 Use reserved `local/` directories for consumer-only extensions:
 
@@ -163,56 +148,19 @@ Use reserved `local/` directories for consumer-only extensions:
 - `.github/prompts/local/`
 - `.github/instructions/local/`
 
-Software Fabric workflows are maintained as `fabric-*` command skills under
-`.github/skills/`. Upstream-generated `openspec-*` skills are installed and
-updated by OpenSpec, not synchronized as Fabric-owned assets.
-Consumer-owned prompts may remain under
+Shared OpenSpec workflows are maintained as command skills under
+`.github/skills/`. Consumer-owned prompts may remain under
 `.github/prompts/local/`; shared prompt wrappers are no longer published.
 
 Consumer changes to shared behavior should be proposed here through an issue or
 OpenSpec change. Consumer-specific behavior belongs in a local extension path
 and must not edit synchronized files in place.
 
-## OpenSpec and Software Fabric entry points
+## OpenSpec command skills
 
-OpenSpec owns CLI mechanics, schemas, artifact paths, and upstream-generated
-skills. Fabric owns persona handoffs, acceptance, intake, and applicable quality
-gates in separately named skills. Existing consumers default to Fabric; an
-explicit standalone OpenSpec selection uses the upstream skills unchanged,
-without Fabric agent orchestration. Repository merge and release controls remain
-independent of mode.
-
-| Action | Fabric chat skill | Standalone OpenSpec chat skill |
-| --- | --- | --- |
-| Proposal/planning | `/fabric-propose` | `/openspec-propose` |
-| Apply | `/fabric-apply-change` | `/openspec-apply-change` |
-| Verify | `/fabric-verify-change` | `/openspec-verify-change` |
-| Sync | `/fabric-sync-specs` | `/openspec-sync-specs` |
-| Archive | `/fabric-archive-change` | `/openspec-archive-change` |
-| Bulk archive | `/fabric-bulk-archive-change` | `/openspec-bulk-archive-change` |
-
-Other actions use the same `fabric-` versus `openspec-` prefix. Report the route
-with `python .github/skills/fabric-propose/scripts/route_fabric_workflow.py --action apply`;
-add `--mode standalone` only after an explicit standalone selection. This reports
-advisory routing; it neither changes repository protection nor proves approval.
-The mode and explicitly selected store remain sticky through handoffs.
-
-These chat workflows are not terminal commands. For example,
-`openspec instructions apply --change <slug> --json` supplies upstream task
-instructions; Fabric apply additionally verifies accepted complete planning.
-Fabric archive requires all applicable gates and every-delta sync verification.
-Direct `openspec archive <slug>` does not enforce the Fabric checklist, nor can
-agent instructions prevent arbitrary local CLI writes. Configured trusted checks
-and administrator protections govern merge and release destinations separately.
-See [Fabric policy](.github/instructions/fabric-workflow.instructions.md),
-[gate evidence](doc/fabric-gate-evidence.md), and
-[reviewed migration](doc/fabric-consumer-migration.md).
-
-Initially Fabric supports exactly OpenSpec **1.16.0** and Node.js **26 or later**.
-This is Fabric's tested runtime baseline; the OpenSpec 1.16.0 npm package declares
-Node.js `>=22.12.0`. Unsupported integration versions fail compatibility checks;
-expanding support requires upstream diff
-review and passing version-specific tests.
+The shared OpenSpec entry points are skills. The command skills use the OpenSpec
+CLI as their source of truth for artifact paths, workflow state, and
+instructions.
 
 ### Consumer-local store (recommended)
 
@@ -221,7 +169,7 @@ OpenSpec CLI. Initialize or retain an `openspec/` root in the consumer
 repository:
 
 ```powershell
-npm install -g @fission-ai/openspec@1.16.0
+npm install -g @fission-ai/openspec@latest
 openspec init
 openspec context --json
 openspec doctor
@@ -319,41 +267,52 @@ Software Fabric archive clearance.
 
 ### After updating the OpenSpec CLI assets
 
-Fabric policy is never restored into upstream skill bodies. The former
-`restore_openspec_contracts.py` tool is retired. Fabric retains its gates in
-separate skills; upstream may legitimately permit a different workflow.
+Run this maintainer procedure in this canonical repository, not a consumer.
+Option 2(b) uses bounded automation to restore repository policy after CLI
+regeneration; it does not automate the CLI update itself.
 
-1. Preserve worktree edits and record `node --version` and `openspec --version`.
-   Before any `openspec init`, back up existing configuration; do not initialize
-   an already configured root to refresh skills.
-2. Review proposed upstream skill changes in an isolated project. The canonical
-   snapshots use OpenSpec's custom profile with all twelve workflows and
-   skills-only delivery for GitHub Copilot. Configure this only in the isolated
-   project's `XDG_CONFIG_HOME` (`profile: custom`, `workflows`: the selected
-   actions, `delivery: skills` in `openspec/config.json`), not by overwriting a
-   developer's global profile. Consumers may retain their upstream tool/profile.
-3. Adopt a version only after updating the declared compatibility set and
-   pinned CI version with reviewed evidence. Run `openspec update` on the
-   intended upstream assets; review `git diff -- .github\skills`. Never patch
-   Fabric policy back into upstream skills or overwrite consumer customizations.
-4. Run targeted and full validation with bytecode disabled:
+1. Record `node --version` (Node.js 26 or later is required) and
+   `openspec --version` before and after upgrading the CLI.
+2. Preserve existing worktree changes. Before any `openspec init`, back up
+   `openspec/config.yaml`; afterward restore any repository-specific fields
+   overwritten by initialization. Do not initialize an already configured root
+   just to restore policy.
+3. Run the intended `openspec update`, then restore the repository-owned policy
+   blocks using the commands below. Create `.venv` with `python -m venv .venv`
+   first only if no environment exists.
 
    ```powershell
+   .\.venv\Scripts\python.exe -m pip install PyYAML
    $env:PYTHONDONTWRITEBYTECODE = "1"
-   python -m unittest discover -s .github\scripts -p "test_openspec_command_skills.py"
-   python -m unittest discover -s tests -p "test_fabric_skill_ownership_cli.py"
-   python -m unittest discover -s .github\scripts -p "test_*.py"
-   openspec context --json
+   .\.venv\Scripts\python.exe .github\scripts\restore_openspec_contracts.py
    ```
 
-PyYAML is the shared script suite's existing dependency; install it only when
-missing. The ownership integration test generates all upstream skills and runs
-a real refresh in an isolated project, comparing upstream bytes and verifying
-Fabric files remain unchanged. Contract tests separately check Fabric policy;
-they are not runtime proof of an agent's future compliance.
-OpenSpec-derived skill material retains its
-[MIT notice](doc/openspec-LICENSE.txt).
-Pull-request CI must not repair the checkout before testing. The
+4. Review `git diff -- .github\skills` for generated
+   changes and restored policy. The script preserves surrounding generated bytes
+   and newline styles, and a second invocation makes no changes. It fails
+   preflight without writing any target when a file, anchor, frontmatter, or
+   owned block is unsupported or conflicting. Review the reported file and
+   deliberately reconcile the script and policy rather than bypassing
+   validation. Write-time errors report completed writes; inspect the failing
+   file before retrying.
+5. Verify root resolution and run the complete script suite. Do not release on
+   errors or weaken assertions to accommodate missing policy:
+
+   ```powershell
+   openspec context --json
+   .\.venv\Scripts\python.exe -m unittest discover -s .github\scripts -p "test_*.py"
+   ```
+
+The restoration script only targets the three propose/apply/verify command
+skills and their three legacy wrappers. Human diff review remains necessary:
+recognizing the file layout does not prove a future CLI's semantics are
+compatible. Restoration does not rewrite generated bodies. Reconcile apply,
+archive/bulk-archive, sync, verification, planning, and onboarding bodies against
+the mandatory gates; never release regenerated confirmation overrides,
+premature implementation, or archive-without-sync choices. The strict policy
+contract tests check these paths alongside the restoration fixtures.
+Pull-request CI independently checks committed policy and
+restoration fixtures; it must not repair the checkout before testing. The
 `Shared script contracts` job runs only in `ralphke/agentic-shared` and
 skips consumer repositories, which do not receive this repository's script tests
 through asset synchronization. Administrators must configure the shared-script

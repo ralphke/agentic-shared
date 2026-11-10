@@ -21,11 +21,7 @@ context: |
     operations: owner=devops-sre; Deployment patterns, monitoring SLOs, and runbooks.
     legal-compliance: owner=legal-compliance; License compliance, IP ownership, and regulatory requirements.
 
-  Work mode: Fabric by default; explicit standalone OpenSpec uses upstream
-  workflows without Fabric agent orchestration. Repository controls still apply.
-  The following Fabric policies are not OpenSpec CLI enforcement.
-
-  Fabric quality gates, all required before Fabric archive:
+  Quality gates, all required before archive:
     require_tests=true: pytest or dotnet test must be green.
     require_security_review=true: no HIGH or CRITICAL CVEs.
     require_code_review=true: at least one review approval.
@@ -61,12 +57,12 @@ rules:
 operations:
   apply:
     guidance:
-      - In Fabric mode, require complete proposal, delta specs, design, and tasks and explicit acceptance of the current proposal/spec before implementation; skipped required artifacts and CLI readiness are not waivers.
-      - In Fabric mode, do not archive active changes merely because all tasks are complete.
-      - In Fabric mode, keep implementation scoped to the approved change.
+      - Require complete proposal, delta specs, design, and tasks and explicit acceptance of the current proposal/spec before implementation; skipped required artifacts and CLI readiness are not waivers.
+      - Do not archive active changes merely because all tasks are complete.
+      - Keep implementation scoped to the approved change.
   archive:
     guidance:
-      - In Fabric mode, confirm tests, security review, code review, CI, and coverage gates before archiving.
-      - In Fabric mode, block archive-driven sync writes and moves if required artifacts/tasks or any mandatory gate is incomplete or unverifiable; user confirmation cannot override mandatory gates.
-      - In Fabric mode, follow the full archive checklist in .github/instructions/fabric-workflow.instructions.md, including acceptance, scenario tests, removed references, and applicable legal and operational gates.
-      - In Fabric mode, sync and verify every delta before archive, including bulk archive; never archive a change with excluded or unverified deltas.
+      - Confirm tests, security review, code review, CI, and coverage gates before archiving.
+      - Block archive-driven sync writes and moves if required artifacts/tasks or any mandatory gate is incomplete or unverifiable; user confirmation cannot override mandatory gates.
+      - Follow the full archive checklist in .github/instructions/openspec-workflow.instructions.md, including acceptance, scenario tests, removed references, and applicable legal and operational gates.
+      - Sync and verify every delta before archive, including bulk archive; never archive a change with excluded or unverified deltas.

@@ -108,14 +108,18 @@ class SyncAgenticSharedTests(unittest.TestCase):
             self.assertEqual(
                 changed,
                 [
+                    Path(".github/skills/openspec-propose/SKILL.md"),
                     Path(".github/prompts/opsx-apply.prompt.md"),
                 ],
             )
             self.assertFalse(
                 (destination / ".github/prompts/opsx-apply.prompt.md").exists()
             )
-            self.assertFalse(
-                (destination / ".github/skills/openspec-propose/SKILL.md").exists()
+            self.assertEqual(
+                (destination / ".github/skills/openspec-propose/SKILL.md").read_text(
+                    encoding="utf-8"
+                ),
+                "replacement skill",
             )
             self.assertEqual(
                 (destination / ".github/prompts/local/custom.prompt.md").read_text(
@@ -165,84 +169,6 @@ class SyncAgenticSharedTests(unittest.TestCase):
                 (destination / ".github/skills/shared.md").read_text(encoding="utf-8"),
                 "new",
             )
-
-    def test_removed_openspec_skill_requires_review_without_partial_writes(self) -> None:
-        for content in ("old", "consumer customization"):
-            with self.subTest(content=content), tempfile.TemporaryDirectory() as directory:
-                root = Path(directory)
-                old_source, new_source, destination = (
-                    root / "old", root / "new", root / "destination"
-                )
-                skill = ".github/skills/openspec-propose/SKILL.md"
-                self.write(old_source, skill, "old")
-                self.write(destination, skill, content)
-                self.write(old_source, ".github/skills/other.md", "old")
-                self.write(new_source, ".github/skills/other.md", "new")
-                self.write(destination, ".github/skills/other.md", "old")
-                manifest = self.manifest()
-
-                with self.assertRaisesRegex(SyncConflictError, "reviewed migration"):
-                    synchronize(manifest, old_source, new_source, destination, "v1.1.0")
-
-                self.assertEqual((destination / skill).read_text(encoding="utf-8"), content)
-                self.assertEqual(
-                    (destination / ".github/skills/other.md").read_text(encoding="utf-8"),
-                    "old",
-                )
-                self.assertEqual(manifest["source"]["version"], "v1.0.0")
-
-    def test_consumer_owned_openspec_skill_is_not_overwritten(self) -> None:
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            old_source, new_source, destination = (
-                root / "old", root / "new", root / "destination"
-            )
-            skill = ".github/skills/openspec-apply-change/SKILL.md"
-            self.write(new_source, skill, "new shared")
-            self.write(destination, skill, "consumer owned")
-
-            with self.assertRaisesRegex(SyncConflictError, "reviewed migration"):
-                synchronize(self.manifest(), old_source, new_source, destination, "v1.1.0")
-
-            self.assertEqual(
-                (destination / skill).read_text(encoding="utf-8"), "consumer owned"
-            )
-
-    def test_customized_openspec_skill_update_requires_review(self) -> None:
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            old_source, new_source, destination = (
-                root / "old", root / "new", root / "destination"
-            )
-            skill = ".github/skills/openspec-propose/SKILL.md"
-            self.write(old_source, skill, "old")
-            self.write(new_source, skill, "new")
-            self.write(destination, skill, "customized")
-
-            with self.assertRaises(SyncConflictError):
-                synchronize(self.manifest(), old_source, new_source, destination, "v1.1.0")
-
-            self.assertEqual(
-                (destination / skill).read_text(encoding="utf-8"), "customized"
-            )
-
-    def test_protected_openspec_skill_is_preserved(self) -> None:
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            old_source, new_source, destination = (
-                root / "old", root / "new", root / "destination"
-            )
-            skill = ".github/skills/openspec-propose/SKILL.md"
-            self.write(old_source, skill, "old")
-            self.write(destination, skill, "consumer")
-            manifest = self.manifest()
-            manifest["protected_paths"].append(".github/skills/openspec-propose/**")
-
-            self.assertEqual(
-                synchronize(manifest, old_source, new_source, destination, "v1.1.0"),
-                [],
-            )
-            self.assertEqual((destination / skill).read_text(encoding="utf-8"), "consumer")
 
 
 if __name__ == "__main__":

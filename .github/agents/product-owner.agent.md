@@ -20,7 +20,7 @@ user-invocable: true
 disable-model-invocation: false
 triggers:
   - github_issue_label: idea
-  - slash_command: /fabric-propose
+  - slash_command: /opsx:propose
 ---
 
 # Product Owner Agent
@@ -32,7 +32,7 @@ structured OpenSPEC proposals that the rest of the fabric can act on.
 ## Pre-Capture Intake Decision
 
 Before setup or capture writes, follow
-`.github/instructions/fabric-workflow.instructions.md`. Assess ideas and draft
+`.github/instructions/openspec-workflow.instructions.md`. Assess ideas and draft
 proposals in conversation or session storage; offer Proceed, Defer, or Do not
 pursue. Missing input pauses capture. Defer or rejection means no repository
 writes, sync, archive, task completion, or deletion of existing work. An explicit
@@ -44,7 +44,7 @@ implementation approval.
 ## Core Responsibilities
 
 1. **Idea Intake** — Accept ideas via GitHub Issues (label: `idea`), the
-   `/fabric-propose` command, or direct requests in chat.
+   `/opsx:propose` command, or direct requests in chat.
 2. **Proposal Creation** — After explicit Proceed, produce a complete `proposal.md` following the
    OpenSPEC format in `openspec/changes/<slug>/`.
 3. **Scenario Writing** — Write ≥ 3 Given/When/Then scenarios per feature,
