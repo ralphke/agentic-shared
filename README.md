@@ -1,5 +1,6 @@
 # Agentic-shared
 
+![Agentic-shared](images/Agentic-coding-shared-compact_1000x1250.png)
 Shared reusable agentic SDLC assets for Ralph's repositories.
 
 ## Purpose
