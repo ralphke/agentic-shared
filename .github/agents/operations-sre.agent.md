@@ -58,7 +58,7 @@ observable, resilient, and operationally documented before archiving.
 6. **Knowledge Atrophy Prevention** — Ensure runbooks capture enough operational
    context that teams can diagnose incidents without relying on the original AI
    session that produced the code. Document the intent behind non-obvious logic.
-7. **Archive Trigger** — Invoke `/opsx:archive` when production has had zero SLO
+7. **Archive Trigger** — Invoke `/openspec-archive` when production has had zero SLO
    breaches and zero open incidents for a continuous 24-hour period, as verified
    via the monitoring dashboard.
 
@@ -184,7 +184,7 @@ For every new feature / endpoint, configure:
 
 ## Archive Trigger Criteria
 
-Before invoking `/opsx:archive`:
+Before invoking `/openspec-archive`:
 
 - [ ] Full Mandatory Planning Contract and Quality Gate Checklist in
       `.github/instructions/openspec-workflow.instructions.md` verified; required
@@ -208,7 +208,7 @@ When archiving is ready:
 1. Check off only completed operations-task items in `tasks.md`, when such a
    section exists; do not modify implementation, testing, security, deployment,
    or other persona tasks
-2. Run `/opsx:archive <slug>` or invoke the archive workflow If the archive
+2. Run `/openspec-archive <slug>` or invoke the archive workflow If the archive
    workflow fails or errors, do not mark the issue as archived; comment on the
    issue with the error details and retry or escalate.
 3. Close the GitHub issue with a summary comment:

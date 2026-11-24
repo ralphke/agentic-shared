@@ -1,165 +1,101 @@
-# Proposal: [Title]
+# Software Fabric Proposal Composition
 
-Use this template to capture a new idea and convert it into a Software Fabric
-OpenSPEC change. Preview ideas and draft proposals in conversation or session
-storage outside the worktree first. Follow the Pre-Capture Intake Decision:
-Proceed, Defer, or Do not pursue. Only explicit Proceed permits repository
-capture; defer/rejection writes no repository files and is not archive.
-Preserve existing work; cleanup requires separate explicit authorization.
+Use this guide to extend, not replace, the proposal format supplied by the
+selected OpenSpec schema.
 
-After Proceed, scaffold using the OpenSpec CLI and fill in
-`openspec/changes/<your-slug>/proposal.md` — or run `/opsx:propose <slug>` in VS Code Copilot and the Product
-Owner Agent will guide you through each section.
+## Before Capture
 
----
+1. Assess the idea outside the worktree and clarify material ambiguity with no
+   more than three focused questions.
+2. Offer **Proceed**, **Defer**, or **Do not pursue**.
+3. Write nothing until the requester explicitly chooses Proceed or asks to
+   create the named planning artifacts. Capture authorization is not proposal
+   or implementation approval.
 
-<!-- OpenSpec metadata -->
-<!-- change-slug: <kebab-case-slug> -->
-<!-- domain: <affected-domain> -->
-<!-- priority: P0 | P1 | P2 | P3 -->
-<!-- created: YYYY-MM-DD -->
-<!-- status: draft | accepted | in-progress | complete -->
+## Core Structure Source
 
----
+After Proceed:
 
-> **Change slug:** `<kebab-case-slug>`  
-> **Priority:** P2  
-> **Affected domains:** `idea-capture`, `<other-domains>`  
-> **Submitter:** @github-username  
-> **Created:** YYYY-MM-DD
+1. Scaffold with `openspec new change "<slug>"`.
+2. Run `openspec instructions proposal --change "<slug>" --json`.
+3. Use the returned `template`, `instruction`, `rules`, `dependencies`, and
+   `resolvedOutputPath` as the authoritative source for the schema-owned core.
+4. Do not copy a previously captured proposal or an OpenSpec package template
+   into this file or another repository template, and do not emit legacy
+   `Intent` or `Affected Domains` headings for new proposals.
 
----
+For the current `spec-driven` schema, the core includes the change motivation,
+the list of changes, capability declarations, and impact. Obtain the exact
+headings from the CLI rather than inferring or hard-coding them.
 
-## Intent
+If repository policy cannot be composed with the returned schema without
+choosing between conflicting behaviors, stop and report both sources.
 
-> _Why are we doing this? What problem does it solve or opportunity does it
-> capture?_ _Write 1-2 paragraphs. Be concrete — a new team member with no
-> context should understand the value after reading this section._
+## Required Software Fabric Extensions
 
-The [system/feature/process] currently [describe the problem or gap]. This
-causes [impact — user pain, lost revenue, operational cost, security risk].
+Append these extension sections when they are not already represented by the
+selected schema:
 
-We will [high-level solution] so that [who benefits] can [do what they couldn't
-before]. This is expected to [measurable outcome].
+### Scope
 
----
+List concrete outcomes and deliverables included in the change. Keep this
+implementation-agnostic.
 
-## Scope
+### Out of Scope
 
-> _What IS included in this change? Be specific._
+List exclusions and non-goals that bound the approval and prevent accidental
+scope expansion.
 
-- [ ] [Specific deliverable 1]
-- [ ] [Specific deliverable 2]
-- [ ] [Specific deliverable 3]
+### Scenarios
 
----
+Provide at least three concise Given/When/Then product scenarios, including at
+least one unhappy, rejection, or boundary case. Keep detailed normative
+requirements and their scenarios in the delta specs.
 
-## Out of Scope
+### Acceptance Criteria
 
-> _What is explicitly NOT included? Listing this prevents scope creep._
+Provide at least three binary checkboxes. Each criterion must be independently
+verifiable by a person or automated check.
 
-- [Excluded feature/concern 1]
-- [Excluded feature/concern 2]
+### UX Applicability
 
----
+Include exactly one fenced JSON object with a boolean `required` and a nonempty
+scope-backed `reason`. Set `required` to `true` only when the accepted scope
+affects a visual interface.
 
-## Approach
+### Build / Buy / Vibe
 
-> _High-level technical or UX strategy. Not implementation details — that goes
-> in design.md._
+State whether the outcome is best built in-house, purchased or adopted, or
+implemented as a bounded AI-generated internal tool.
 
-[Describe the approach: architectural pattern, technology choice, user
-interaction model, integration strategy. Reference existing patterns in the
-codebase where applicable.]
+### Legal / IP Notes
 
----
+Identify applicable proprietary-content, licensing, regulated-data,
+intellectual-property, financial, medical, privacy, or third-party risks. If no
+trigger applies, record that the bounded scope has no legal/IP escalation.
 
-## Scenarios
+## Capability Mapping
 
-> _Write ≥ 3 Given/When/Then scenarios. Include at least 1 unhappy path._ _These
-> become test cases in the QA stage._
+Use the schema's new- and modified-capability structure:
 
-```text
-Scenario: [Happy path — main flow]
-  Given  [preconditions / system state]
-  When   [user action or system event]
-  Then   [expected observable outcome]
-  And    [secondary outcome if needed]
+- Each new capability becomes
+  `specs/<new-capability-path>/spec.md`.
+- Each modified capability uses the exact existing path under `openspec/specs/`
+  and creates the matching change delta.
+- Every declared capability and every delta path must correspond one-to-one.
+- Do not invent a capability merely to satisfy validation.
 
-Scenario: [Unhappy path — error or edge case]
-  Given  [preconditions that lead to the error]
-  When   [action that triggers the error]
-  Then   [expected error response]
-  And    [expected system state after the error]
+## Validation and Handoff
 
-Scenario: [Boundary / edge case]
-  Given  [boundary condition]
-  When   [action at the boundary]
-  Then   [expected behavior at the boundary]
-```
+Before requesting proposal acceptance, verify:
 
----
+- The selected schema core is complete.
+- Every required extension is present and substantive.
+- Scope exclusions are nonempty.
+- At least three scenarios and three acceptance criteria exist.
+- At least one proposal scenario covers failure or a boundary.
+- Capability declarations match delta spec paths exactly.
+- UX applicability is unique and valid.
 
-## Acceptance Criteria
-
-> _Verifiable, binary statements. All must be true before this change is
-> archived._
-
-- [ ] [AC1: observable outcome that can be verified by a person or automated
-      test]
-- [ ] [AC2: ...]
-- [ ] [AC3: ...]
-
----
-
-## Stakeholders
-
-| Role           | Name / Team    | Interest                       |
-| -------------- | -------------- | ------------------------------ |
-| Requestor      | @username      | Submitted the idea             |
-| Product Owner  | AI Agent       | Owns proposal quality          |
-| Primary Users  | [Team/Persona] | Will benefit from this change  |
-| Impacted Teams | [Team]         | May need to adapt integrations |
-
----
-
-## Success Metrics
-
-> _How will we measure success 30 days after deployment?_
-
-- **Primary:** [Metric and target, e.g., "CSV export used by > 100 users/week"]
-- **Secondary:** [Supporting metric, e.g., "Support tickets about data export
-  drop 30%"]
-- **Guard rail:** [Metric that must NOT regress, e.g., "Page load time stays <
-  2s"]
-
----
-
-## Technical Notes
-
-> _Optional: Any technical constraints, risks, or unknowns the Architect should
-> be aware of._
-
-- [Risk or constraint 1]
-- [Risk or constraint 2]
-
----
-
-## Delta Spec References
-
-> _List the spec domains this change will modify. The Architect Agent creates
-> delta spec files in `openspec/changes/<slug>/specs/<domain>/spec.md`._
-
-Domains to update:
-
-- `openspec/changes/<slug>/specs/idea-capture/spec.md` — [what changes]
-- `openspec/changes/<slug>/specs/<other-domain>/spec.md` — [what changes]
-
----
-
-## Linked Resources
-
-- **GitHub Issue:** #[issue-number]
-- **Design doc:** [design.md](./design.md) _(created by Architect Agent)_
-- **Tasks:** [tasks.md](./tasks.md) _(created by Architect Agent)_
-- **Related changes:** [link to related change slug]
+Explicit acceptance of the proposal is still separate from capture. Acceptance
+of the current proposal and delta specs is required before implementation.

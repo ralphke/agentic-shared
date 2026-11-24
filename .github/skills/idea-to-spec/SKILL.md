@@ -19,7 +19,7 @@ explicit Proceed.
 Use this skill when a user submits:
 
 - A GitHub Issue with label `idea`
-- A `/opsx:propose <description>` command
+- A `/openspec-propose <description>` command
 - A raw idea in chat that needs structuring
 
 ---
@@ -31,9 +31,10 @@ Use this skill when a user submits:
 2. **Generate slug** — Convert title to kebab-case (e.g., "add csv export" →
    `add-csv-export`)
 3. **Validate slug** — Ensure kebab-case, 3–50 chars, starts with letter
-4. **Load template and assess** — Read `openspec/templates/idea-to-spec.md`;
-   clarify material ambiguity before any capture, asking ≤ 3 focused questions.
-   Keep the idea and draft proposal in conversation or session storage.
+4. **Load composition guide and assess** — Read
+   `openspec/templates/idea-to-spec.md`; clarify material ambiguity before any
+   capture, asking ≤ 3 focused questions. Keep the idea and draft proposal in
+   conversation or session storage.
 5. **Pre-Capture Intake Decision** — Follow
    `.github/instructions/openspec-workflow.instructions.md`. Offer Proceed,
    Defer, or Do not pursue. Missing input pauses capture. Defer or rejection
@@ -43,26 +44,20 @@ Use this skill when a user submits:
    idea alone does not. Proceed is not proposal/spec acceptance or permission
    to implement.
 6. **Capture after Proceed** — Use `openspec-propose` prerequisites, selected
-   root, and schema paths to scaffold with `openspec new change "<slug>"` and
-   obtain proposal instructions. Never hand-create a change directory or
-   initialize implicitly. Capture only the proposal within this skill's scope.
-7. **Write proposal.md** — Only after Proceed, fill in all required sections:
-   - `## Intent` — 1-2 paragraphs explaining why (what users need, not how to
-     build it)
-   - `## Scope` — bullet list of inclusions
-   - `## Out of Scope` — bullet list of exclusions
-   - `## Approach` — high-level strategy (outcomes, not implementation details)
-   - `## Build/Buy/Vibe Flag` — note if problem may be better served by existing
-     SaaS (Buy) or a bounded AI-generated internal tool (Vibe) rather than full
-     custom engineering
-   - `## Legal/IP Notes` — flag if domain involves proprietary algorithms, PII,
-     financial, or medical data; these require human review before AI tools are
-     used in implementation
-   - `## Scenarios` — ≥3 Given/When/Then (≥1 unhappy path)
-   - `## Acceptance Criteria` — binary checkboxes (≥3)
-   - `## Affected Domains` — OpenSPEC domains impacted
-   - `## UX Applicability` — one fenced JSON object with boolean `required`
-     and nonempty scope-backed `reason`; true only for affected visual surfaces
+   root, and schema paths to scaffold with `openspec new change "<slug>"`.
+   Obtain proposal instructions with
+   `openspec instructions proposal --change "<slug>" --json`. Never hand-create
+   a change directory or initialize implicitly. Capture only the proposal
+   within this skill's scope.
+7. **Write proposal.md** — Compose the returned `template` and `instruction` as
+   the schema-owned core with the Software Fabric extensions in
+   `openspec/templates/idea-to-spec.md`. Include scope, non-goals, at least
+   three product scenarios with one unhappy path, at least three binary
+   acceptance criteria, UX applicability, Build / Buy / Vibe guidance, and
+   applicable legal/IP notes. Map every core capability declaration to exactly
+   one delta spec path. Do not emit the legacy `Intent` or `Affected Domains`
+   headings in a new proposal. If the sources cannot be reconciled, stop and
+   report the conflict.
 8. **Obtain proposal acceptance** — Present the proposal. Only after explicit
    acceptance, label an existing handoff PR `stage:ux` if visual, otherwise
    `stage:design`; keep the source idea issue
@@ -76,8 +71,9 @@ Use this skill when a user submits:
 
 - [ ] Explicit Proceed preceded the first repository write; deferred/rejected
       intake has no repository artifacts or successful archive claim
-- [ ] proposal.md has the required sections, including UX Applicability,
-      Build/Buy/Vibe Flag, and Legal/IP Notes
+- [ ] The CLI schema core and all required Software Fabric extensions are
+      present, including UX Applicability, Build / Buy / Vibe, and applicable
+      Legal / IP Notes
 - [ ] CLI-only, API-only, and framework changes with no affected visual
       interface require no UX artifacts or UX tests; functional gates remain
 - [ ] At least 3 Given/When/Then scenarios
@@ -85,7 +81,8 @@ Use this skill when a user submits:
 - [ ] At least 3 binary acceptance criteria
 - [ ] Out of scope section is not empty
 - [ ] Slug is valid kebab-case
-- [ ] Intent describes outcomes and user needs, not implementation details
+- [ ] The schema-owned motivation section describes outcomes and user needs,
+      not implementation details
 
 ---
 
@@ -93,13 +90,12 @@ Use this skill when a user submits:
 
 ```text
 Created: openspec/changes/add-csv-export/proposal.md
-✓ Intent — explains the data export problem
+✓ CLI core — Why, What Changes, Capabilities, Impact
 ✓ Scope — 3 user actions included
 ✓ Out of Scope — PDF export, scheduling explicitly excluded
-✓ Approach — streaming CSV generation via export service
 ✓ Scenarios — 4 scenarios (3 happy, 1 unhappy: empty dataset)
 ✓ Acceptance Criteria — 5 binary checks
-✓ Affected Domains — idea-capture, testing-standards
+✓ Capabilities — two exact delta paths
 After acceptance: stage:ux if visual, otherwise stage:design
 ```
 
@@ -138,8 +134,9 @@ After acceptance: stage:ux if visual, otherwise stage:design
 
 ## Scenarios & References
 
-- Use the idea-capture spec and the OpenSpec proposal template as the source of
-  truth.
+- Use the selected schema's CLI proposal instructions as the core source of
+  truth and the idea-capture spec plus composition guide as the Software Fabric
+  extension source of truth.
 - Cover at least one happy path and each known unhappy path in the proposal
   scenarios.
 

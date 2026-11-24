@@ -41,7 +41,7 @@ the proposal/spec or authorize implementation.
 The primary non-developer intake is a GitHub issue labelled `idea`. Use its title,
 fields, labels, and discussion as proposal input; retain `idea` and
 `stage:proposal` until approval.
-Direct `/opsx:propose <description>` invocation is a valid alternative
+Direct `/openspec-propose <description>` invocation is a valid alternative
 and does not require an issue. This workflow authorizes planning only:
 Do not edit project code. Stop after planning and wait for a new explicit request
 before implementation.""",

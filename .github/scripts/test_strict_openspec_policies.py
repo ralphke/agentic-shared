@@ -93,7 +93,7 @@ class StrictOpenSpecPolicyTests(unittest.TestCase):
             "a generic acknowledgment is not capture consent",
         ))
         idea = read(INTAKE[0])
-        self.assertLess(idea.index("**Load template and assess**"),
+        self.assertLess(idea.index("**Load composition guide and assess**"),
                         idea.index("**Pre-Capture Intake Decision**"))
         self.assertLess(idea.index("**Pre-Capture Intake Decision**"),
                         idea.index("**Capture after Proceed**"))
@@ -247,6 +247,51 @@ class StrictOpenSpecPolicyTests(unittest.TestCase):
             "Never write a blocked artifact to bypass a required prerequisite",
             "explicit acceptance of the current proposal/spec",
         ))
+
+    def test_layered_proposal_contract_is_consistent_across_entry_points(self) -> None:
+        canonical_spec = "openspec/specs/idea-capture/spec.md"
+        active_delta = (
+            "openspec/changes/unify-openspec-proposal-format/specs/"
+            "idea-capture/spec.md"
+        )
+        proposal_contract = (
+            canonical_spec
+            if "### Requirement: Proposal format precedence" in read(canonical_spec)
+            else active_delta
+        )
+        assets = (
+            proposal_contract,
+            "openspec/templates/idea-to-spec.md",
+            ".github/agents/product-owner.agent.md",
+            ".github/skills/idea-to-spec/SKILL.md",
+            ".github/skills/openspec-propose/SKILL.md",
+        )
+        for path in assets:
+            with self.subTest(path=path):
+                content = normalized(read(path)).lower()
+                self.assertIn("ux applicability", content)
+                self.assertIn("capabilit", content)
+                if path.endswith("idea-capture/spec.md"):
+                    self.assertIn("openspec cli instruction output", content)
+                else:
+                    self.assertIn("openspec instructions proposal", content)
+        for path in assets[1:]:
+            with self.subTest(path=path):
+                content = normalized(read(path)).lower()
+                for phrase in (
+                    "scope",
+                    "out of scope",
+                    "scenarios",
+                    "acceptance criteria",
+                    "build / buy / vibe",
+                    "legal / ip notes",
+                ):
+                    self.assertIn(phrase, content)
+        for path in assets[1:]:
+            with self.subTest(path=path):
+                content = read(path)
+                self.assertIn("CLI", content)
+                self.assertIn("legacy", content.lower())
 
     def test_known_generated_body_bypasses_are_absent(self) -> None:
         patterns = (

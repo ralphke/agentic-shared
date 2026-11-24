@@ -39,7 +39,7 @@ fallback.
    Product Owner Agent reads its title, form fields, labels, and discussion when
    creating a proposal; the issue remains `idea` and `stage:proposal` until
    planning approval.
-2. Direct `/opsx:propose` remains a valid route for users who want to create a
+2. Direct `/openspec-propose` remains a valid route for users who want to create a
    proposal without opening an issue.
 3. The proposal skill creates every artifact transitively required by the
    selected schema and stops at the planning boundary.

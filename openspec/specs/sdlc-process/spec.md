@@ -2,7 +2,7 @@
 
 > **Domain:** `sdlc-process` | **Owner:** architect
 > This spec describes the end-to-end autonomous SDLC workflow.
-> Update via `/opsx:propose` — do not edit directly.
+> Update via `/openspec-propose` — do not edit directly.
 
 ---
 
@@ -37,7 +37,7 @@ before any spec, code, or design artifact is created.
 #### Scenario: New feature starts with idea capture
 
 - GIVEN a product idea or stakeholder request in natural language
-- WHEN the Product Owner Agent processes it via `/opsx:propose <idea-slug>`
+- WHEN the Product Owner Agent processes it via `/openspec-propose <idea-slug>`
 - THEN a `proposal.md` is created in `openspec/changes/<idea-slug>/`
 - AND all required sections (intent, scope, scenarios, acceptance criteria) are
   populated
@@ -187,7 +187,7 @@ MUST route directly to architecture.
 
 ### Requirement: Automated Quality Gates
 
-Every change MUST pass all quality gates before `/opsx:archive` is invoked.
+Every change MUST pass all quality gates before `/openspec-archive` is invoked.
 
 #### Scenario: Security gate blocks merge
 
@@ -446,6 +446,6 @@ flowchart TD
     R --> E
     Q -- Pass --> S[Deploy to Production]
     S --> T[Operations SRE\nMonitor & SLOs]
-    T --> U[/opsx:archive]
+    T --> U[/openspec-archive]
     U --> V([✅ Production Feature])
 ```

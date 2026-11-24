@@ -41,7 +41,7 @@ jobs:
                 '',
                 '**To start the pipeline now**, run in VS Code Copilot chat:',
                 '```',
-                `/opsx:propose  ← include issue #${context.issue.number} as the Product Owner input`,
+                `/openspec-propose  ← include issue #${context.issue.number} as the Product Owner input`,
                 '```',
                 '',
                 '**Or start the planning coordinator:**',

@@ -77,7 +77,7 @@ skipped statuses MUST NOT waive these prerequisites.
 
 ### Requirement: Automated Quality Gates
 
-Every change MUST pass all quality gates before `/opsx:archive` is invoked.
+Every change MUST pass all quality gates before `/openspec-archive` is invoked.
 Unmet or unverifiable mandatory gates MUST block single and bulk archive before
 sync writes or moves. User confirmation MUST NOT waive these gates.
 
@@ -123,7 +123,7 @@ skip sync verification, or accept confirmation as an override.
 
 - GIVEN all tasks in `tasks.md` are checked off
 - AND all quality gates have passed
-- WHEN `/opsx:archive` is invoked
+- WHEN `/openspec-archive` is invoked
 - THEN delta specs from `changes/<slug>/specs/` merge into `openspec/specs/`
 - AND the change folder moves to `openspec/changes/archive/`
 - AND the merged spec reflects the ADDED/MODIFIED/REMOVED sections
@@ -131,7 +131,7 @@ skip sync verification, or accept confirmation as an override.
 #### Scenario: Archive blocked by incomplete gates
 
 - GIVEN a change where CI is still failing
-- WHEN `/opsx:archive` is invoked
+- WHEN `/openspec-archive` is invoked
 - THEN the archive is rejected with a list of failing gates
 - AND no files are moved or modified
 

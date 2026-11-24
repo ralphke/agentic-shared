@@ -7,7 +7,7 @@
 The SDLC MUST support a human-authored idea captured in a GitHub issue labelled
 `idea` as the primary non-developer intake path. The Product Owner Agent MUST
 use that issue as input to the OpenSpec proposal skill before implementation
-code is created. Direct `/opsx:propose` invocation MUST remain a valid
+code is created. Direct `/openspec-propose` invocation MUST remain a valid
 alternative for users who want to create a proposal without first opening an
 idea issue. The proposal skill MUST use CLI-provided artifact instructions and
 MUST stop at the Product Owner proposal gate until the current proposal is
@@ -16,7 +16,7 @@ create delta specs, design, and tasks under the Architect's ownership. Command
 skills MUST require Node.js 26 or later and an available OpenSpec CLI; when
 unavailable, they MUST report the prerequisite and make no artifact or
 implementation changes. (Previously: The SDLC began through the
-`/opsx:propose <idea-slug>` prompt command.)
+`/openspec-propose <idea-slug>` prompt command.)
 
 #### Scenario: Proposal skill creates a planning-only change
 
@@ -55,7 +55,7 @@ implementation changes. (Previously: The SDLC began through the
 #### Scenario: Direct proposal does not require an idea issue
 
 - GIVEN a user provides a clear feature or fix request in chat
-- WHEN the user invokes `/opsx:propose`
+- WHEN the user invokes `/openspec-propose`
 - THEN the proposal skill creates the required planning artifacts without
   requiring a GitHub issue
 

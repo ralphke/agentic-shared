@@ -28,7 +28,7 @@ configured, so it does not mark unconfigured stages verified. Use
 
 ## Ordinary apply and manual host inspection
 
-The normal `/opsx:apply <change>` command and the managed apply skill are
+The normal `/openspec-apply <change>` command and the managed apply skill are
 unchanged. Running ordinary apply does not automatically invoke this local trace
 skill, dispatch the nine personas, or capture Copilot host activity. Tracing is
 opt-in: use the local `fabric-trace` skill, or run the CLI commands yourself. If

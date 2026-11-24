@@ -36,8 +36,8 @@ OpenSpec workflow entry points are maintained as command skills under
 - `.github/scripts/` — manifest validation and synchronization tools
 - `.github/instructions/` — shared instruction files and policy guidance
 - `.github/copilot-instructions.md` — shared Copilot guidance
-- `openspec/templates/idea-to-spec.md` — shared OpenSPEC-compatible spec
-  template
+- `openspec/templates/idea-to-spec.md` — shared Software Fabric proposal
+  composition guide layered over CLI-provided OpenSpec schema instructions
 
 ## Recommended usage
 

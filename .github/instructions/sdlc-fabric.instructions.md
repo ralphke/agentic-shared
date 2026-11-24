@@ -53,14 +53,14 @@ review.
 ## To Start a New Feature
 
 1. Create a GitHub Issue using the "💡 Idea Capture" template, OR
-2. Run `/opsx:propose <idea-slug>` in VS Code Copilot chat
+2. Run `/openspec-propose <idea-slug>` in VS Code Copilot chat
 
 ## To Work on an Existing Change
 
 ```text
-/opsx:apply <change-slug>    # Implement tasks
-/opsx:sync <change-slug>     # Preview spec merge
-/opsx:archive <change-slug>  # Complete the change
+/openspec-apply <change-slug>    # Implement tasks
+/openspec-sync <change-slug>     # Preview spec merge
+/openspec-archive <change-slug>  # Complete the change
 ```
 
 ## Spec Location Convention

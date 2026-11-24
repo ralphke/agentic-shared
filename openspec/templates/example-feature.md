@@ -6,65 +6,89 @@ This example shows a minimal compliant change set.
 
 ## Example proposal (`openspec/changes/add-csv-export/proposal.md`)
 
-### Proposal: Add CSV Export
-
-**Change Slug:** `add-csv-export`  
-**Author:** Product Owner  
-**Date:** 2026-06-05  
-**Status:** Draft  
-**Priority:** P2
-
-#### Intent
+### Why
 
 Users need a downloadable CSV export for filtered table results. Today they copy
 data manually, which is slow and error-prone.
 
-#### Scope
+### Scope
 
-- [ ] Add authenticated CSV export endpoint.
-- [ ] Add export action in the table UI.
-- [ ] Add audit log entry for each export.
+- Add an authenticated CSV export endpoint.
+- Add an export action in the table UI.
+- Add an audit log entry for each export.
 
-#### Out of Scope
+### Out of Scope
 
 - Scheduled exports.
 - PDF export.
 
-#### Approach
+### What Changes
 
-Add one API endpoint and reuse existing query filters so exported data matches
-what users see in the UI.
+- Add CSV export to filtered table results.
+- Reuse existing filters so exported data matches the visible result set.
+- Record each export in the existing audit stream.
 
-#### Scenarios
+### Capabilities
 
-##### Scenario: Export succeeds for authenticated user
+#### New Capabilities
+
+None.
+
+#### Modified Capabilities
+
+- `testing-standards`: add CSV export authorization, success, and empty-result
+  regression coverage.
+
+### UX Applicability
+
+```json
+{
+  "required": true,
+  "reason": "The accepted scope adds an export action to the filtered table interface."
+}
+```
+
+### Build / Buy / Vibe
+
+Build within the existing application because export, filtering, and audit
+controls are already available there.
+
+### Legal / IP Notes
+
+CSV export exposes only data already available to the authenticated user. No
+additional regulated-data, licensing, or intellectual-property trigger is
+identified.
+
+### Scenarios
+
+#### Scenario: Export succeeds for authenticated user
 
 - GIVEN an authenticated user with filtered results
 - WHEN the user requests CSV export
 - THEN the system returns a CSV file containing only those filtered records
 
-##### Scenario: Export denied for unauthenticated user
+#### Scenario: Export denied for unauthenticated user
 
 - GIVEN no valid authentication
 - WHEN CSV export is requested
 - THEN the system returns `401 Unauthorized`
 
-##### Scenario: Empty results export
+#### Scenario: Empty results export
 
 - GIVEN valid authentication and zero filtered results
 - WHEN CSV export is requested
 - THEN the system returns an empty CSV with headers only
 
-#### Acceptance Criteria
+### Acceptance Criteria
 
 - [ ] Authenticated users can export filtered data to CSV.
 - [ ] Unauthenticated export requests return `401`.
 - [ ] Empty result sets export with headers and no data rows.
 
-#### Affected Domains
+### Impact
 
-- `idea-capture`
-- `testing-standards`
+- Updates the export API, table UI, audit integration, and scenario-driven tests.
+- Requires no new dependency or infrastructure service.
 
 ---
 

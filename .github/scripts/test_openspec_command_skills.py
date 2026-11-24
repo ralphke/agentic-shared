@@ -117,7 +117,7 @@ class OpenSpecCommandSkillTests(unittest.TestCase):
         )
 
         self.assertIn("GitHub issue labelled `idea`", proposal_skill)
-        self.assertIn("Direct `/opsx:propose <description>` invocation is a valid alternative", proposal_skill)
+        self.assertIn("Direct `/openspec-propose <description>` invocation is a valid alternative", proposal_skill)
         self.assertIn("labels:\n  - idea\n  - stage:proposal", idea_template)
         self.assertIn("include issue #${context.issue.number}", orchestrator)
         self.assertIn("software-fabric-kickoff skill", orchestrator)
@@ -129,8 +129,8 @@ class OpenSpecCommandSkillTests(unittest.TestCase):
 
         self.assertIn("openspec-apply-change skill", orchestrator)
         self.assertIn("openspec-verify-change skill", orchestrator)
-        self.assertNotIn("/opsx:apply", orchestrator)
-        self.assertNotIn("/opsx:verify", orchestrator)
+        self.assertNotIn("/openspec-apply", orchestrator)
+        self.assertNotIn("/openspec-verify", orchestrator)
 
 
 if __name__ == "__main__":

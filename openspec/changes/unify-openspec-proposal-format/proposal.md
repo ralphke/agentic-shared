@@ -85,7 +85,7 @@ obligations remain unchanged.
 
 ## Scenarios
 
-### New proposal receives one coherent format
+### Scenario: New proposal receives one coherent format
 
 - GIVEN the Product Owner starts a proposal for an initialized OpenSpec project
 - WHEN the agent requests CLI instructions for the proposal artifact
@@ -94,7 +94,7 @@ obligations remain unchanged.
 - AND does not copy or infer a stale repository-owned replacement for the core
   template
 
-### Proposal capabilities produce matching deltas
+### Scenario: Proposal capabilities produce matching deltas
 
 - GIVEN a proposal lists a new or modified capability
 - WHEN the proposal is validated for planning completeness
@@ -102,7 +102,7 @@ obligations remain unchanged.
 - AND an unrelated, missing, or duplicate capability mapping is reported as a
   validation error
 
-### A proposal contains a valuable failure case
+### Scenario: A proposal contains a valuable failure case
 
 - GIVEN a captured idea has user-observable behavior
 - WHEN the Product Owner records product scenarios
@@ -110,7 +110,7 @@ obligations remain unchanged.
 - AND at least one scenario describes an error, rejection, or boundary outcome
 - AND detailed normative behavior remains in the affected delta specs
 
-### Legacy active proposal remains usable during migration
+### Scenario: Legacy active proposal remains usable during migration
 
 - GIVEN an active proposal still uses `Intent` instead of `Why` or
   `Affected Domains` instead of `Capabilities`
@@ -119,7 +119,7 @@ obligations remain unchanged.
 - AND the proposal remains subject to all Software Fabric extension requirements
 - AND new proposals are still generated using the layered format
 
-### Conflicting guidance blocks generation
+### Scenario: Conflicting guidance blocks generation
 
 - GIVEN the repository extension contract conflicts with a selected schema
   instruction in a way that cannot be reconciled without guessing

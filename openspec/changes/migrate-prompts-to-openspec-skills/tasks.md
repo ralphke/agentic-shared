@@ -30,5 +30,5 @@
       local prompt extensions across the transition.
 - [x] 9. Run the focused Python tests, manifest validation, and repository
       checks; record results and complete acceptance criteria.
-- [x] 10. Validate GitHub `idea` issue intake and direct `/opsx:propose` entry
+- [x] 10. Validate GitHub `idea` issue intake and direct `/openspec-propose` entry
       paths, including the orchestrator guidance and proposal-skill contract.

@@ -79,7 +79,7 @@ to architecture.
   specifications
 - **Outputs:** `proposal.md`, an explicit acceptance state, prioritized scope,
   and UX applicability
-- **Trigger:** `idea` issue, `/opsx:propose`, or a direct request after explicit
+- **Trigger:** `idea` issue, `/openspec-propose`, or a direct request after explicit
   Proceed
 - **Evidence / blockers:** Structure validation plus current explicit approval;
   ambiguity, conflicting scope, or stale acceptance blocks handoff
@@ -527,7 +527,7 @@ operational archive criteria.
 **Output:** Monitoring dashboards, alert policies, runbooks, post-mortem
 reports\
 **Triggers:** Successful production deployment (label: `stage:operate`)
-**Handoff:** Invokes `/opsx:archive` when SLOs are configured and stable
+**Handoff:** Invokes `/openspec-archive` when SLOs are configured and stable
 **Agent file:** `.github/agents/operations-sre.agent.md`
 
 ---

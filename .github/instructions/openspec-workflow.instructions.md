@@ -61,6 +61,24 @@ version, treat this the same as Stop Condition #2.
 - **Archived changes:** `openspec/changes/archive/<date>-<slug>/`
 - **Config:** `openspec/config.yaml`
 
+## Layered Proposal Format
+
+For proposal creation, run
+`openspec instructions proposal --change "<slug>" --json` and treat its
+`template`, `instruction`, and `rules` as the authoritative schema-owned core.
+Compose the returned core with the Software Fabric extensions documented in
+`openspec/templates/idea-to-spec.md`. Do not copy the package template into a
+repository-owned replacement or emit legacy `Intent` and `Affected Domains`
+headings in new proposals. Existing active proposals may use those two bounded
+aliases during migration, but they remain subject to all extension and
+capability-mapping checks.
+
+Required extensions are scope, non-goals, concise product scenarios with an
+unhappy path, binary acceptance criteria, UX applicability, Build / Buy / Vibe,
+and applicable legal/IP notes. Preserve the core capability declarations and
+require every declared capability to map exactly one-to-one to a delta spec
+path.
+
 ## Delta Spec Format
 
 When creating `specs/<domain>/spec.md` inside a change folder, use ADDED /

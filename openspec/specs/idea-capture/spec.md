@@ -26,7 +26,7 @@ The system MUST provide a structured mechanism for submitting new ideas.
 **Accepted input channels:**
 
 - GitHub Issue using the "💡 Idea Capture" issue template
-- `/opsx:propose <idea-slug>` command in VS Code Copilot chat
+- `/openspec-propose <idea-slug>` command in VS Code Copilot chat
 - Direct creation of `openspec/changes/<slug>/proposal.md` from template
 
 #### Scenario: Idea submitted via GitHub Issue
@@ -40,7 +40,7 @@ The system MUST provide a structured mechanism for submitting new ideas.
 
 #### Scenario: Idea submitted via chat command
 
-- GIVEN a user types `/opsx:propose add-csv-export` in VS Code Copilot chat
+- GIVEN a user types `/openspec-propose add-csv-export` in VS Code Copilot chat
 - WHEN the Product Owner Agent processes the command
 - THEN `openspec/changes/add-csv-export/proposal.md` is created
 - AND the agent asks clarifying questions if intent is ambiguous

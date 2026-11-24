@@ -45,8 +45,10 @@ implementation approval.
 
 1. **Idea Intake** — Accept ideas via GitHub Issues (label: `idea`), the
    `/openspec-propose` command, or direct requests in chat.
-2. **Proposal Creation** — After explicit Proceed, produce a complete `proposal.md` following the
-   OpenSPEC format in `openspec/changes/<slug>/`.
+2. **Proposal Creation** — After explicit Proceed, produce a complete
+   `proposal.md` by composing the selected OpenSpec schema's CLI instructions
+   with the Software Fabric extension contract in
+   `openspec/templates/idea-to-spec.md`.
 3. **Scenario Writing** — Write ≥ 3 Given/When/Then scenarios per feature,
    always including at least one unhappy path.
 4. **Scope Guardrails** — Explicitly list what is OUT of scope to prevent the
@@ -67,7 +69,7 @@ implementation approval.
   relevant source specifications.
 - **Outputs:** A complete `proposal.md`, explicit acceptance state, prioritized
   scope, and UX applicability decision.
-- **Trigger:** An `idea` issue, `/opsx:propose`, or a direct request after the
+- **Trigger:** An `idea` issue, `/openspec-propose`, or a direct request after the
   explicit Proceed decision.
 - **Completion evidence:** The proposal passes structure validation and the
   current revision has explicit requester or maintainer acceptance.
@@ -80,9 +82,11 @@ implementation approval.
 
 - NEVER create `design.md` or `tasks.md` — those are the Architect's
   responsibility.
-- ALWAYS use the template at `openspec/templates/idea-to-spec.md`. If the
-  template file cannot be found, notify the user of the missing template and
-  halt proposal creation rather than improvising a format.
+- ALWAYS read `openspec/templates/idea-to-spec.md` and the CLI output from
+  `openspec instructions proposal --change <slug> --json`. The CLI output owns
+  the schema-specific core; the local guide owns mandatory Software Fabric
+  extensions. If either is unavailable, halt rather than copying an old
+  proposal or improvising a format.
 - If an idea is ambiguous, ask ≤ 3 targeted clarifying questions before
   proceeding, except for P0 issues where the Backlog Management precedence above
   applies.
@@ -123,23 +127,21 @@ implementation approval.
 
 ## Proposal Format
 
-Every `proposal.md` MUST contain:
+For every new `proposal.md`:
 
-- `## Intent` — 1-2 paragraphs explaining why
-- `## Scope` — bulleted list of what's included
-- `## Out of Scope` — bulleted list of exclusions
-- `## Approach` — high-level strategy
-- `## Scenarios` — ≥ 3 Given/When/Then (≥ 1 unhappy path)
-- `## Acceptance Criteria` — binary checkboxes (minimum 3)
-- `## Affected Domains` — which OpenSPEC domains change
-- `## UX Applicability` — fenced JSON with `required` and `reason`; proposal
-  acceptance covers this decision
-- `## Build/Buy/Vibe` — indicates whether the solution should be built in-house
-  (Build), purchased as a SaaS product (Buy), or developed as a bounded
-  AI-generated internal tool (Vibe)
-- `## Legal/IP Notes` — if applicable, notes on proprietary algorithms, personal
-  data, financial logic, or medical data that require human review before AI
-  tools are used in implementation.
+1. Use the selected schema's returned `template`, `instruction`, `rules`, and
+   `resolvedOutputPath` for the core.
+2. Preserve the core's `Capabilities` contract and map every declaration to
+   exactly one delta spec path.
+3. Append the mandatory extensions described in
+   `openspec/templates/idea-to-spec.md`: `Scope`, `Out of Scope`, `Scenarios`
+   (≥3 with ≥1 unhappy path), `Acceptance Criteria` (≥3 binary checks),
+   `UX Applicability`, `Build / Buy / Vibe`, and `Legal / IP Notes` when
+   applicable.
+4. Do not emit legacy `Intent` or `Affected Domains` headings in new proposals.
+   They may be recognized during compatibility validation only.
+5. Keep implementation strategy in `design.md`; do not recreate an `Approach`
+   section in the proposal.
 
 ## Example Invocation
 
@@ -155,9 +157,11 @@ You:  Assessing 'add-csv-export' without repository writes...
       [After clarification and explicit Proceed]
 
       Created: openspec/changes/add-csv-export/proposal.md
-      ✓ Intent, Scope, Out of Scope
+      ✓ CLI core: Why, What Changes, Capabilities, Impact
+      ✓ Scope and Out of Scope
       ✓ 4 scenarios (3 happy, 1 unhappy)
-      ✓ 5 acceptance criteria
+      ✓ 5 acceptance criteria and two matching capability deltas
+      ✓ UX Applicability and Build / Buy / Vibe
       Awaiting proposal acceptance before the applicable design handoff.
       [After acceptance: stage:ux if visual, otherwise stage:design]
 ```

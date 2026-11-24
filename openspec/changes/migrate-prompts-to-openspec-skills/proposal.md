@@ -161,7 +161,7 @@ than independently adapted.
 - [x] README and consumer migration guidance document the replacement command
       names and retirement schedule.
 - [x] GitHub issues labelled `idea` are the primary non-developer proposal
-      intake, while direct `/opsx:propose` remains a supported issue-free
+      intake, while direct `/openspec-propose` remains a supported issue-free
       alternative.
 
 ## Affected Domains

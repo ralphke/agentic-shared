@@ -4,13 +4,11 @@
 
 ### Requirement: Proposal Structure
 
-Every `proposal.md` MUST use the core structure returned by the selected
-OpenSpec schema's `openspec instructions proposal` command and append the
-mandatory Software Fabric extension sections. The extension MUST include scope,
-non-goals, concise product scenarios, binary acceptance criteria, UX
-applicability, Build/Buy/Vibe guidance, and applicable legal/IP notes. New
-proposals MUST declare their new and modified capabilities using the CLI core
-format rather than duplicate legacy capability headings.
+Every `proposal.md` MUST compose the selected OpenSpec schema's CLI-provided
+core with the mandatory Software Fabric extensions: scope, non-goals, concise
+product scenarios, binary acceptance criteria, UX applicability, Build/Buy/Vibe
+guidance, and applicable legal/IP notes. New proposals MUST use the core
+capability headings rather than duplicate legacy capability headings.
 
 #### Scenario: Proposal passes structure validation
 

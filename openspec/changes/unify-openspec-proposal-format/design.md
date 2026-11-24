@@ -110,11 +110,14 @@ acceptance requirements. New generation guidance must never emit them.
 2. Update the local proposal template, Product Owner guidance, and OpenSpec
    command skill wording to apply CLI core instructions plus repository
    extensions.
-3. Keep the two legacy aliases valid for active changes.
-4. Run OpenSpec strict validation and focused Python tests.
-5. Apply and archive this change only after external quality gates have
-   evidence; archive sync updates the canonical `idea-capture` specification.
-6. After no active proposal uses legacy aliases, create a separate cleanup
+3. Keep `openspec/specs/idea-capture/spec.md` untouched during implementation;
+   only the change delta contains the proposed canonical behavior.
+4. Keep the two legacy aliases valid for active changes.
+5. Run OpenSpec strict validation and focused Python tests.
+6. Apply and archive this change only after external quality gates have
+   evidence; the gated archive sync is the first operation that updates the
+   canonical `idea-capture` specification.
+7. After no active proposal uses legacy aliases, create a separate cleanup
    change to remove compatibility. Rollback is to revert the planning guidance
    and validator changes together; no runtime data or deployment migration is
    involved.
