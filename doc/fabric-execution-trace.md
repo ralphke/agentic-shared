@@ -141,6 +141,11 @@ exits, and free-text claims cannot replace that evidence.
 
 The report uses these gate outcomes:
 
+Devcontainer warnings remain outside this table's verified security outcome.
+They must retain reviewer justification, owner, expiry or renewal, and linked
+mandatory follow-up evidence. They cannot satisfy application, merge, release,
+deployment, or archive gates.
+
 | Gate outcome     | Meaning                                                                                                             |
 | ---------------- | ------------------------------------------------------------------------------------------------------------------- |
 | `missing`        | Required evidence is absent.                                                                                        |

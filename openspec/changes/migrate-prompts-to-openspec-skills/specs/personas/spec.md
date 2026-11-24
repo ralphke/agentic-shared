@@ -6,17 +6,29 @@
 
 The Product Owner Agent MUST use the shared OpenSpec proposal skill for new
 work. The skill MUST preserve the planning-only boundary, use CLI-resolved
-artifact paths and instructions, and route completed planning artifacts to the
-Architect handoff. (Previously: The Product Owner Agent accepted raw ideas
-through a prompt-file command.)
+artifact paths and instructions, create and maintain the accepted proposal, and
+route it to UX or the Architect. The Architect remains the owner of delta specs,
+`design.md`, and `tasks.md`. (Previously: The Product Owner Agent accepted raw
+ideas through a prompt-file command.)
 
 #### Scenario: Product Owner uses the proposal skill
 
 - GIVEN a raw idea requiring a Software Fabric change
 - WHEN the Product Owner Agent starts planning
 - THEN it uses the proposal skill and OpenSpec CLI workflow state
-- AND it produces the proposal, delta specs, design, and tasks required for
-  apply
+- AND it produces the current `proposal.md` without claiming Architect-owned
+  artifacts
+- AND it awaits proposal acceptance before the applicable UX or architecture
+  handoff
+
+#### Scenario: Skill-standard change includes measurable acceptance criteria
+
+- GIVEN a proposal targets skill definition standards
+- WHEN the Product Owner Agent prepares the proposal
+- THEN the acceptance criteria include instruction completeness, ambiguity
+  reduction, and checklist coverage measures
+- AND the proposal identifies the required baseline and post-change evaluation
+  evidence
 
 #### Scenario: Idea to structured proposal
 
@@ -31,6 +43,13 @@ through a prompt-file command.)
 - WHEN the Architect Agent reviews it
 - THEN the proposal is returned for more detail
 - AND it is not approved until the minimum scenario count is met
+
+#### Scenario: Applicability cannot be guessed
+
+- GIVEN the affected visual scope is missing or contradictory
+- WHEN the Product Owner prepares the handoff
+- THEN clarification is required before selecting a route
+- AND missing evidence is not treated as a nonvisual exemption
 
 ### Requirement: Developer Agent
 

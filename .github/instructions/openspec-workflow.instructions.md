@@ -177,6 +177,13 @@ invalidate acceptance, pause affected implementation until acceptance is renewed
 - [ ] No removed requirements are still referenced elsewhere.
 - [ ] All CI checks are green (build, lint, unit tests).
 - [ ] Security review has passed with no HIGH or CRITICAL findings.
+      A devcontainer-only `security:devcontainer-warning` may permit the local
+      devcontainer validation lane to continue only with explicit reviewer
+      justification, remediation owner, expiry or renewal point, linked
+      mandatory follow-up, and evidence that the finding is isolated from
+      production. It is never passing security evidence for application, merge,
+      release, deployment, or archive; incomplete or expired warnings return to
+      blocking behavior.
 - [ ] New-code coverage is at least 80%.
 - [ ] At least one code-review approval (human or AI) is present.
 - [ ] All spec acceptance criteria are satisfied.

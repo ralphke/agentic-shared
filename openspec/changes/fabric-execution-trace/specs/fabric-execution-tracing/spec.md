@@ -1,4 +1,4 @@
-# Spec Delta
+# Delta for fabric-execution-tracing
 
 ## Purpose
 
@@ -16,16 +16,16 @@ ambiguous change selection and evidence from a different repository or revision.
 
 #### Scenario: Same slug in different planning directories
 
-- **WHEN** two change directories share a slug and the caller provides only that
+- WHEN two change directories share a slug and the caller provides only that
   slug
-- **THEN** initialization fails with a request for an explicit change directory
-- **AND** no trace is created against a guessed directory
+- THEN initialization fails with a request for an explicit change directory
+- AND no trace is created against a guessed directory
 
 #### Scenario: Evidence from another revision
 
-- **WHEN** a workflow result refers to an older head revision or another
+- WHEN a workflow result refers to an older head revision or another
   repository
-- **THEN** the result is retained as mismatched evidence and does not satisfy
+- THEN the result is retained as mismatched evidence and does not satisfy
   the current stage
 
 ### Requirement: Distinct activity and outcome records
@@ -36,10 +36,10 @@ activity SHALL NOT automatically mark a stage verified.
 
 #### Scenario: Apply skill loaded without security invocation
 
-- **WHEN** a session records loading the apply skill and reading the Fabric
+- WHEN a session records loading the apply skill and reading the Fabric
   instructions
-- **THEN** those activities appear in the trace
-- **AND** the security stage remains missing until its required evidence is
+- THEN those activities appear in the trace
+- AND the security stage remains missing until its required evidence is
   validated
 
 ### Requirement: Observed command execution
@@ -51,14 +51,14 @@ NOT establish successful validation of a clean committed revision.
 
 #### Scenario: Validation command fails
 
-- **WHEN** a traced test command exits nonzero
-- **THEN** its failure is recorded and propagated to the caller
-- **AND** the test stage cannot be reported verified from that attempt
+- WHEN a traced test command exits nonzero
+- THEN its failure is recorded and propagated to the caller
+- AND the test stage cannot be reported verified from that attempt
 
 #### Scenario: Process stops before a completion event
 
-- **WHEN** a trace contains a command start with no matching completion
-- **THEN** the report marks the invocation unfinished rather than successful
+- WHEN a trace contains a command start with no matching completion
+- THEN the report marks the invocation unfinished rather than successful
 
 ### Requirement: Qualified provenance
 
@@ -69,9 +69,9 @@ be upgraded to verified execution solely because it claims success.
 
 #### Scenario: Fabricated success event
 
-- **WHEN** a user imports an event asserting that all stages passed without
+- WHEN a user imports an event asserting that all stages passed without
   verifiable evidence
-- **THEN** the assertion remains self-reported and the overall trace is not
+- THEN the assertion remains self-reported and the overall trace is not
   verified complete
 
 ### Requirement: Complete stage inventory
@@ -83,9 +83,9 @@ verified, and not-applicable.
 
 #### Scenario: No deployment configured
 
-- **WHEN** proposal through review have sufficient evidence but deployment and
+- WHEN proposal through review have sufficient evidence but deployment and
   operations have none
-- **THEN** both missing stages appear in the report and prevent verified
+- THEN both missing stages appear in the report and prevent verified
   end-to-end completion
 
 ### Requirement: Explicit evidence contracts
@@ -97,16 +97,16 @@ fail closed with an actionable reason.
 
 #### Scenario: Green test job masks failures
 
-- **WHEN** a successful workflow lacks a required passing test report or
+- WHEN a successful workflow lacks a required passing test report or
   measured coverage of at least 80 percent
-- **THEN** the test gate is not verified
-- **AND** the report names the absent or failing evidence
+- THEN the test gate is not verified
+- AND the report names the absent or failing evidence
 
 #### Scenario: Security or review evidence is insufficient
 
-- **WHEN** security evidence contains HIGH or CRITICAL findings, omits required
+- WHEN security evidence contains HIGH or CRITICAL findings, omits required
   checks, or the current revision lacks an effective approval
-- **THEN** the affected gate is not verified even if its stage label is present
+- THEN the affected gate is not verified even if its stage label is present
 
 ### Requirement: Conditional legal review
 
@@ -117,14 +117,14 @@ gates can yield verified end-to-end completion.
 
 #### Scenario: No assessment recorded
 
-- **WHEN** no risk assessment exists
-- **THEN** legal is missing rather than automatically not-applicable
+- WHEN no risk assessment exists
+- THEN legal is missing rather than automatically not-applicable
 
 #### Scenario: High-risk assessment without clearance
 
-- **WHEN** the assessment identifies a legal escalation trigger and clearance is
+- WHEN the assessment identifies a legal escalation trigger and clearance is
   absent
-- **THEN** the legal gate remains incomplete and prevents verified end-to-end
+- THEN the legal gate remains incomplete and prevents verified end-to-end
   completion
 
 ### Requirement: Revision and dependency invalidation
@@ -137,15 +137,15 @@ implementation.
 
 #### Scenario: Push after successful tests
 
-- **WHEN** the target implementation revision changes
-- **THEN** previous tests, security results, and approvals cannot satisfy gates
+- WHEN the target implementation revision changes
+- THEN previous tests, security results, and approvals cannot satisfy gates
   for the new revision without the contract's required revalidation
 
 #### Scenario: Unrelated successful deployment
 
-- **WHEN** a successful deployment targets a different artifact without verified
+- WHEN a successful deployment targets a different artifact without verified
   lineage to the reviewed revision
-- **THEN** deploy and operate remain unverified for this trace
+- THEN deploy and operate remain unverified for this trace
 
 ### Requirement: Read-only GitHub collection
 
@@ -156,15 +156,15 @@ expose collection errors without substituting a passing result.
 
 #### Scenario: Required job was skipped
 
-- **WHEN** the run succeeded but the policy's required job or step was skipped
-- **THEN** the corresponding gate is not verified
+- WHEN the run succeeded but the policy's required job or step was skipped
+- THEN the corresponding gate is not verified
 
 #### Scenario: API access denied
 
-- **WHEN** GitHub evidence collection fails due to permissions or authentication
-- **THEN** the command exits nonzero and the report identifies unavailable
+- WHEN GitHub evidence collection fails due to permissions or authentication
+- THEN the command exits nonzero and the report identifies unavailable
   evidence
-- **AND** a previously cached result is not silently treated as current
+- AND a previously cached result is not silently treated as current
 
 ### Requirement: Durable consistent reporting
 
@@ -176,18 +176,18 @@ verified or validly not-applicable, and valid prerequisite ordering.
 
 #### Scenario: Report requested from an incomplete trace
 
-- **WHEN** a participant generates a report containing a self-reported review
+- WHEN a participant generates a report containing a self-reported review
   and missing operations evidence
-- **THEN** both output formats show the same incomplete result and source
+- THEN both output formats show the same incomplete result and source
   limitations
-- **AND** the readiness command exits nonzero
+- AND the readiness command exits nonzero
 
 #### Scenario: Full synthetic lifecycle
 
-- **WHEN** deterministic fixtures provide valid evidence for every required
+- WHEN deterministic fixtures provide valid evidence for every required
   stage and ordering constraint
-- **THEN** both formats show evidence-complete with a simulation marker
-- **AND** neither output claims that fixtures prove a real deployment occurred
+- THEN both formats show evidence-complete with a simulation marker
+- AND neither output claims that fixtures prove a real deployment occurred
 
 ### Requirement: Privacy-safe local storage
 
@@ -199,9 +199,9 @@ from version control by default.
 
 #### Scenario: Command includes a credential
 
-- **WHEN** a supported command field contains a credential-shaped value
-- **THEN** the value is rejected or redacted before persistence
-- **AND** the stored event and generated reports contain no such value
+- WHEN a supported command field contains a credential-shaped value
+- THEN the value is rejected or redacted before persistence
+- AND the stored event and generated reports contain no such value
 
 ### Requirement: Opt-in integration and honest coverage
 
@@ -212,7 +212,7 @@ apply behavior SHALL remain unchanged.
 
 #### Scenario: Skill invoked outside the trace wrapper
 
-- **WHEN** a host invokes a skill without an observable trace event
-- **THEN** the report does not invent an invocation
-- **AND** it explains that uninstrumented activity is outside the trace's
+- WHEN a host invokes a skill without an observable trace event
+- THEN the report does not invent an invocation
+- AND it explains that uninstrumented activity is outside the trace's
   coverage

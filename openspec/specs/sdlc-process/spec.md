@@ -1,7 +1,7 @@
 # SDLC Process — Source of Truth
 
-> **Domain:** `sdlc-process` | **Owner:** architect  
-> This spec describes the end-to-end autonomous SDLC workflow.  
+> **Domain:** `sdlc-process` | **Owner:** architect
+> This spec describes the end-to-end autonomous SDLC workflow.
 > Update via `/opsx:propose` — do not edit directly.
 
 ---
@@ -77,24 +77,12 @@ implementation task is assigned.
 
 ### Requirement: Ordered Agent Handoffs
 
-Each applicable stage MUST complete before the next begins, signalled by PR
-labels. Visual changes MUST pass UX before architecture; nonvisual changes
-MUST route directly to architecture. Legal-risk changes MUST pass conditional
-legal review after security and before review. A `legal:blocked` change MUST
-NOT advance to review or deployment.
-
-| Stage Label       | Responsible Persona | Next Stage                      |
-| ----------------- | ------------------- | ------------------------------- |
-| `stage:proposal`  | Product Owner       | `stage:ux` or `stage:design`    |
-| `stage:ux`        | UX Designer         | `stage:design`                  |
-| `stage:design`    | Architect           | `stage:implement`               |
-| `stage:implement` | Developer           | `stage:test`                    |
-| `stage:test`      | QA Engineer         | `stage:security`                |
-| `stage:security`  | Security Engineer   | `stage:legal` or `stage:review` |
-| `stage:legal`     | Legal & Compliance  | `stage:review`                  |
-| `stage:review`    | Code Reviewer       | `stage:deploy`                  |
-| `stage:deploy`    | DevOps/SRE          | `stage:operate`                 |
-| `stage:operate`   | Operations SRE      | `archived`                      |
+Each applicable stage MUST complete in order and signal the handoff with a PR
+label. The handoff MUST identify one accountable owner, contributors, required
+exit evidence, the next role, and blockers. Legitimate overlap is permitted;
+an unresolved ownership dispute MUST block until a common-ground decision is
+recorded. Visual changes MUST pass UX before architecture, and nonvisual changes
+MUST route directly to architecture.
 
 #### Scenario: Stage label gates merge
 
@@ -182,19 +170,24 @@ NOT advance to review or deployment.
 - THEN applicable gates evaluate the current artifacts again
 - AND prior successful checks do not automatically satisfy changed scope
 
+| Stage Label       | Responsible Persona | Next Stage                      |
+| ----------------- | ------------------- | ------------------------------- |
+| `stage:proposal`  | Product Owner       | `stage:ux` or `stage:design`    |
+| `stage:ux`        | UX Designer         | `stage:design`                  |
+| `stage:design`    | Architect           | `stage:implement`               |
+| `stage:implement` | Developer           | `stage:test`                    |
+| `stage:test`      | QA Engineer         | `stage:security`                |
+| `stage:security`  | Security Engineer   | `stage:legal` or `stage:review` |
+| `stage:legal`     | Legal & Compliance  | `stage:review`                  |
+| `stage:review`    | Code Reviewer       | `stage:deploy`                  |
+| `stage:deploy`    | DevOps/SRE          | `stage:operate`                 |
+| `stage:operate`   | Operations SRE      | `archived`                      |
+
 ---
 
 ### Requirement: Automated Quality Gates
 
 Every change MUST pass all quality gates before `/opsx:archive` is invoked.
-
-**Gate checklist:**
-
-- [ ] All CI checks green (build, lint, unit tests)
-- [ ] No HIGH or CRITICAL vulnerabilities in security scan
-- [ ] Code coverage ≥ 80% on new code
-- [ ] At least one review approval (human or AI code-reviewer)
-- [ ] All acceptance criteria in spec checked off
 
 #### Scenario: Security gate blocks merge
 
@@ -211,6 +204,29 @@ Every change MUST pass all quality gates before `/opsx:archive` is invoked.
 - THEN the PR is labelled `coverage-insufficient`
 - AND the QA Engineer Agent is notified to add tests
 
+#### Scenario: Missing evidence cannot be confirmed away
+
+- GIVEN an applicable quality gate lacks current usable evidence
+- WHEN archive readiness is evaluated
+- THEN the gate remains unverified and blocking
+- AND requester confirmation cannot convert the missing evidence into a pass
+
+**Gate checklist:**
+
+- [ ] All CI checks green (build, lint, unit tests)
+- [ ] No HIGH or CRITICAL vulnerabilities in security scan
+- [ ] Code coverage ≥ 80% on new code
+- [ ] At least one review approval (human or AI code-reviewer)
+- [ ] Current proposal and delta-spec acceptance is verified
+- [ ] All tasks are complete
+- [ ] All new scenarios have passing tests
+- [ ] No removed requirements remain referenced
+- [ ] Strict OpenSpec validation passes
+- [ ] All spec acceptance criteria are satisfied
+- [ ] Applicable legal approval is current
+- [ ] Applicable operational evidence is current
+- [ ] Every delta is synchronized and verified
+
 ---
 
 ### Requirement: Spec Archive on Completion
@@ -222,7 +238,7 @@ merged into the main `specs/` source of truth and the change folder archived.
 
 - GIVEN all tasks in `tasks.md` are checked off
 - AND all quality gates have passed
-- WHEN `/opsx:archive` is invoked
+- WHEN `/openspec-archive` is invoked
 - THEN delta specs from `changes/<slug>/specs/` merge into `openspec/specs/`
 - AND the change folder moves to `openspec/changes/archive/`
 - AND the merged spec reflects the ADDED/MODIFIED/REMOVED sections
@@ -230,7 +246,7 @@ merged into the main `specs/` source of truth and the change folder archived.
 #### Scenario: Archive blocked by incomplete gates
 
 - GIVEN a change where CI is still failing
-- WHEN `/opsx:archive` is invoked
+- WHEN `/openspec-archive` is invoked
 - THEN the archive is rejected with a list of failing gates
 - AND no files are moved or modified
 
@@ -292,6 +308,106 @@ Applicability MUST be checked separately for each change in a PR.
 - WHEN its applicability is assessed from the accepted scope
 - THEN the mere presence of frontend files does not require UX
 - AND an inaccurate applicability declaration must be corrected during review
+
+---
+
+### Requirement: Delta reconciliation preserves or intentionally retires scenarios
+
+Before a `MODIFIED` delta is applied, every scenario in the current requirement
+MUST be evaluated. Still-relevant scenarios MUST be preserved or updated;
+intentionally retired scenarios MUST have a reason and migration or replacement.
+A stale `ADDED` requirement MUST be reconciled rather than added again.
+
+#### Scenario: Existing scenario remains relevant
+
+- GIVEN a current scenario is omitted from a `MODIFIED` requirement
+- WHEN the delta is reconciled
+- THEN the scenario is evaluated against the accepted change
+- AND a still-relevant scenario is restored or updated in the delta
+
+#### Scenario: Existing scenario is no longer relevant
+
+- GIVEN a current scenario no longer applies to the accepted behavior
+- WHEN the delta is reconciled
+- THEN its retirement is explicit
+- AND the record identifies the reason and the replacement or migration
+
+#### Scenario: Active delta attempts to add an existing requirement
+
+- GIVEN a completed active change has an `ADDED` requirement already
+  present in the canonical spec
+- WHEN archive readiness is evaluated
+- THEN the delta is reconciled as retained or modified canonical behavior
+- AND no duplicate requirement is introduced
+
+---
+
+### Requirement: Handoff disputes use accountable collaboration
+
+When stage responsibilities overlap, the current stage owner MUST identify the
+primary accountable role, contributing roles, shared evidence, and proposed
+next-stage decision. A legitimate overlap is not itself a failure; unresolved
+disagreement MUST block handoff until a common-ground resolution is recorded.
+
+#### Scenario: Overlap has an agreed primary owner
+
+- GIVEN two personas contribute to the same handoff activity
+- WHEN the stage owner prepares the handoff
+- THEN the handoff records one accountable role and the named contributors
+- AND the work proceeds after the required evidence is complete
+
+#### Scenario: Overlap remains disputed
+
+- GIVEN collaborating personas disagree about ownership or exit criteria
+- WHEN the current stage tries to advance
+- THEN the handoff is blocked
+- AND the disagreement is escalated with competing interpretations and the
+  minimum evidence needed for a common-ground resolution
+
+#### Scenario: Shared ownership does not weaken gate ownership
+
+- GIVEN multiple roles contribute to a requirement or artifact
+- WHEN a mandatory gate is evaluated
+- THEN the gate remains owned by its responsible quality role
+- AND shared contribution does not transfer, waive, or self-approve the gate
+
+---
+
+### Requirement: Archive readiness requires complete current evidence
+
+A change MUST NOT archive until all applicable planning, task, scenario-test,
+strict-validation, CI, coverage, security, code-review, legal, operational,
+acceptance, removed-reference, and delta-sync evidence is current. Missing or
+unusable evidence MUST remain unverified and blocking.
+
+#### Scenario: All applicable archive evidence is current
+
+- GIVEN all required evidence is current for the evaluated revision
+- WHEN archive readiness is checked
+- THEN every mandatory gate is recorded as passed
+- AND delta synchronization and archive may proceed
+
+#### Scenario: A mandatory gate lacks evidence
+
+- GIVEN one applicable gate has no current usable evidence
+- WHEN archive readiness is checked
+- THEN the gate remains unverified
+- AND no synchronization, move, or archive action is performed
+
+#### Scenario: Non-applicability is justified by scope
+
+- GIVEN a mandatory-looking gate does not apply to the accepted scope
+- WHEN archive readiness is checked
+- THEN the scope-based reason is recorded
+- AND all other mandatory gates remain independently required
+
+#### Scenario: Active change cannot archive because its delta is stale
+
+- GIVEN a completed active change has a delta that conflicts with the
+  canonical spec
+- WHEN archive readiness is checked
+- THEN the change remains active
+- AND reconciliation is required before sync or archive
 
 ## Workflow Diagrams
 

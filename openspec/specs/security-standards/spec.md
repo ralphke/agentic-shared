@@ -1,6 +1,6 @@
 # Security Standards — Source of Truth
 
-> **Domain:** `security-standards` | **Owner:** security-engineer  
+> **Domain:** `security-standards` | **Owner:** security-engineer
 > Defines security requirements, OWASP alignment, threat modelling standards,
 > and the security gate process for all Software Fabric changes.
 
@@ -26,19 +26,6 @@ defines the minimum security bar and the automated scanning process.
 All application code MUST be reviewed against the OWASP Top 10 vulnerability
 categories.
 
-**OWASP Top 10 Checks (enforced per change):**
-
-1. A01 — Broken Access Control: verify AuthN/AuthZ on every new endpoint
-2. A02 — Cryptographic Failures: no plain-text secrets, use TLS everywhere
-3. A03 — Injection: parameterized queries, input validation, output encoding
-4. A04 — Insecure Design: threat model reviewed for new components
-5. A05 — Security Misconfiguration: no debug endpoints, secure defaults
-6. A06 — Vulnerable Components: no known CVEs in new dependencies
-7. A07 — Auth Failures: no hard-coded credentials, MFA where applicable
-8. A08 — Software Integrity: signed commits, verified build pipeline
-9. A09 — Logging Failures: security events MUST be logged (auth, access, errors)
-10. A10 — SSRF: validate all outbound URL inputs
-
 #### Scenario: New endpoint passes access control check
 
 - GIVEN a new API endpoint that requires authentication
@@ -54,11 +41,38 @@ categories.
 - AND the file path and line number are reported
 - AND the developer is instructed to use environment variables or Key Vault
 
+**OWASP Top 10 Checks (enforced per change):**
+
+1. A01 — Broken Access Control: verify AuthN/AuthZ on every new endpoint
+2. A02 — Cryptographic Failures: no plain-text secrets, use TLS everywhere
+3. A03 — Injection: parameterized queries, input validation, output encoding
+4. A04 — Insecure Design: threat model reviewed for new components
+5. A05 — Security Misconfiguration: no debug endpoints, secure defaults
+6. A06 — Vulnerable Components: no known CVEs in new dependencies
+7. A07 — Auth Failures: no hard-coded credentials, MFA where applicable
+8. A08 — Software Integrity: signed commits, verified build pipeline
+9. A09 — Logging Failures: security events MUST be logged (auth, access, errors)
+10. A10 — SSRF: validate all outbound URL inputs
+
 ---
 
 ### Requirement: Static Analysis (SAST)
 
 All code changes MUST pass automated static analysis before code review.
+
+#### Scenario: SAST finds SQL injection risk
+
+- GIVEN a Python function that interpolates user input into a SQL string
+- WHEN `bandit` runs SAST on the code
+- THEN a HIGH severity finding is reported
+- AND the PR merge is blocked until the finding is remediated
+
+#### Scenario: SAST produces clean report
+
+- GIVEN a PR with no static analysis findings
+- WHEN SAST completes
+- THEN a summary comment confirms "✅ SAST: No findings"
+- AND the PR is labelled `security:sast-passed`
 
 **Required SAST tooling:**
 
@@ -75,20 +89,6 @@ All code changes MUST pass automated static analysis before code review.
 | HIGH     | Block merge, open P1 issue        |
 | MEDIUM   | Warning comment, track in backlog |
 | LOW/INFO | Informational comment only        |
-
-#### Scenario: SAST finds SQL injection risk
-
-- GIVEN a Python function that interpolates user input into a SQL string
-- WHEN `bandit` runs SAST on the code
-- THEN a HIGH severity finding is reported
-- AND the PR merge is blocked until the finding is remediated
-
-#### Scenario: SAST produces clean report
-
-- GIVEN a PR with no static analysis findings
-- WHEN SAST completes
-- THEN a summary comment confirms "✅ SAST: No findings"
-- AND the PR is labelled `security:sast-passed`
 
 ---
 
@@ -176,3 +176,50 @@ All deployments MUST use security hardened defaults.
 - THEN debug endpoints are disabled, external traffic uses HTTPS, and secrets
   are injected at runtime
 - AND the container image has passed vulnerability scanning
+
+---
+
+### Requirement: Devcontainer validation may record a scoped security warning
+
+The devcontainer image validation lane MAY override a blocking HIGH or CRITICAL
+image finding only for that validation lane. The override MUST produce a strict
+warning rather than a passed result and MUST record the affected finding,
+justification, security reviewer, remediation owner, expiry or renewal point,
+and mandatory follow-up. The override MUST NOT apply to application code,
+deployment, merge, release, or archive security gates.
+
+#### Scenario: Devcontainer validation records an approved warning
+
+- GIVEN a HIGH or CRITICAL finding affects only a devcontainer image
+  dependency used for local development validation
+- WHEN an identified security reviewer approves the narrowly scoped
+  exception
+- THEN the validation result is recorded as
+  `security:devcontainer-warning`
+- AND it names the finding, justification, reviewer, remediation owner, and
+  expiry or renewal point
+- AND a linked mandatory follow-up issue or task is created
+
+#### Scenario: Devcontainer warning cannot satisfy a production gate
+
+- GIVEN a devcontainer security warning exists for the current revision
+- WHEN an application, merge, release, deployment, or archive security gate
+  is evaluated
+- THEN the warning is not treated as passed security evidence
+- AND any applicable HIGH or CRITICAL finding still blocks that gate
+
+#### Scenario: Exception expires without remediation
+
+- GIVEN a devcontainer warning reaches its expiry or renewal point
+- WHEN remediation has not been completed and verified
+- THEN the devcontainer exception is no longer valid
+- AND the validation lane returns to a blocking result until renewed with
+  current evidence
+
+#### Scenario: Warning lacks accountable follow-up
+
+- GIVEN a devcontainer override request has no remediation owner, expiry,
+  or linked follow-up
+- WHEN the request is reviewed
+- THEN the override is rejected
+- AND the original HIGH or CRITICAL finding remains blocking

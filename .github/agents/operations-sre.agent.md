@@ -12,7 +12,7 @@ description: >
 # - Incident simulation
 # - Operational runbooks
 # - Monitoring strategy
-model: ["Claude Haiku 4.5", "Claude Sonnet 5"]
+model: ["mai-code-2", "Claude Haiku 4.5", "Claude Sonnet 5"]
 tools:
   [
     execute,

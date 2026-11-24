@@ -1,15 +1,13 @@
 # Operations — Source of Truth
 
-> **Domain:** `operations` | **Owner:** devops-sre  
-> Defines deployment patterns, observability standards, SLO requirements,
-> runbook conventions, and incident response for the Software Fabric.
-
----
+> **Domain:** `operations` | **Owner:** devops-sre
 
 ## Purpose
 
-Defines deployment, observability, SLO, runbook, and incident-response
-requirements for the Software Fabric.
+Defines deployment patterns, observability standards, SLO requirements,
+runbook conventions, and incident response for the Software Fabric.
+
+---
 
 ## Overview
 
@@ -82,6 +80,14 @@ Every deployed service MUST expose a health check endpoint.
 
 Every production service MUST emit the three observability pillars.
 
+#### Scenario: New endpoint is observable from day one
+
+- GIVEN a new API endpoint deployed to production
+- WHEN a request is made to the endpoint
+- THEN the request appears in: metrics dashboard, structured logs, and
+  distributed trace
+- AND the trace spans from the load balancer through all downstream services
+
 **Metrics (via Prometheus/Azure Monitor):**
 
 - Request rate (req/s), error rate (%), latency (p50/p95/p99)
@@ -103,19 +109,19 @@ Every production service MUST emit the three observability pillars.
 - Trace sampling: 100% for errors, 10% for normal traffic
 - Trace propagation via `W3C TraceContext` headers
 
-#### Scenario: New endpoint is observable from day one
-
-- GIVEN a new API endpoint deployed to production
-- WHEN a request is made to the endpoint
-- THEN the request appears in: metrics dashboard, structured logs, and
-  distributed trace
-- AND the trace spans from the load balancer through all downstream services
-
 ---
 
 ### Requirement: Service Level Objectives (SLOs)
 
 Every user-facing service MUST have defined and monitored SLOs.
+
+#### Scenario: SLO breach triggers alert
+
+- GIVEN a service whose error rate rises above 0.1% for > 5 minutes
+- WHEN the SLO monitoring system detects the breach
+- THEN a P1 alert fires to the on-call engineer
+- AND an incident issue is automatically opened in GitHub
+- AND the alert links to the relevant dashboard and runbook
 
 **Minimum SLO set per service:**
 
@@ -131,14 +137,6 @@ Every user-facing service MUST have defined and monitored SLOs.
 1. Operations Agent defines SLOs in `openspec/specs/operations/slo-register.md`
 2. Alerts fire when SLO burn rate exceeds threshold (multi-window alerting)
 3. SLO violations trigger incident response workflow
-
-#### Scenario: SLO breach triggers alert
-
-- GIVEN a service whose error rate rises above 0.1% for > 5 minutes
-- WHEN the SLO monitoring system detects the breach
-- THEN a P1 alert fires to the on-call engineer
-- AND an incident issue is automatically opened in GitHub
-- AND the alert links to the relevant dashboard and runbook
 
 ---
 
@@ -167,15 +165,6 @@ Every operational scenario MUST have a runbook before going to production.
 
 Production incidents MUST follow a defined response process.
 
-**Severity levels:**
-
-| Severity | Definition                        | Response Time | Escalation    |
-| -------- | --------------------------------- | ------------- | ------------- |
-| SEV-1    | Complete service outage           | 5 minutes     | Auto-escalate |
-| SEV-2    | Major feature unavailable         | 15 minutes    | PD/Teams      |
-| SEV-3    | Degraded performance              | 1 hour        | Next business |
-| SEV-4    | Minor issue, workaround available | Next sprint   | Backlog       |
-
 #### Scenario: SEV-1 incident triggers automatic response
 
 - GIVEN availability drops below 99% for > 2 minutes
@@ -184,6 +173,15 @@ Production incidents MUST follow a defined response process.
 - AND the on-call engineer is paged via PagerDuty/Teams
 - AND the Operations Agent begins automated diagnosis
 - AND a status page entry is created
+
+**Severity levels:**
+
+| Severity | Definition                        | Response Time | Escalation    |
+| -------- | --------------------------------- | ------------- | ------------- |
+| SEV-1    | Complete service outage           | 5 minutes     | Auto-escalate |
+| SEV-2    | Major feature unavailable         | 15 minutes    | PD/Teams      |
+| SEV-3    | Degraded performance              | 1 hour        | Next business |
+| SEV-4    | Minor issue, workaround available | Next sprint   | Backlog       |
 
 ---
 

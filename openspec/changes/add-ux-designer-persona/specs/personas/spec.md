@@ -1,6 +1,6 @@
 # Delta for personas
 
-## ADDED Requirements
+## MODIFIED Requirements
 
 ### Requirement: UX Designer Agent
 
@@ -8,6 +8,15 @@ The UX Designer Agent MUST produce an evidence-grounded UX brief before
 architecture only when the accepted change affects a visual user interface.
 CLI-only, API-only, framework, and other nonvisual changes MUST NOT require UX
 design, a UX brief, UX-specific specs, or UX tests.
+
+#### Scenario: Visual change receives UX design
+
+- GIVEN an accepted proposal affects a visual interface
+- WHEN the Product Owner hands off the proposal
+- THEN it is routed to the UX Designer at `stage:ux`
+- AND the Designer creates `ux-brief.md` before `stage:design`
+- AND the brief covers affected journeys, states, content, discoverability,
+  accessibility, and responsive interactions
 
 #### Scenario: Accepted proposal produces a UX brief
 
@@ -24,6 +33,22 @@ design, a UX brief, UX-specific specs, or UX tests.
 - THEN it goes directly to architecture without UX design, UX briefs,
   UX-specific specs, or UX tests
 - AND functional planning, testing, and existing quality gates remain required
+
+#### Scenario: Nonvisual change bypasses UX without extra artifacts
+
+- GIVEN an accepted CLI-only, API-only, or framework change affects no visual
+  interface
+- WHEN the Product Owner hands off the proposal
+- THEN it goes directly to the Architect at `stage:design`
+- AND no UX stage, brief, UX-specific spec, or UX test is required
+- AND functional planning, testing, and existing quality gates still apply
+
+#### Scenario: Mixed scope limits UX to affected visual surfaces
+
+- GIVEN a change affects both visual and nonvisual behavior
+- WHEN the UX Designer prepares the brief
+- THEN UX requirements cover the affected visual surfaces
+- AND no nonvisual UX obligations are invented for the remaining behavior
 
 #### Scenario: UX brief defines accessible interactions
 

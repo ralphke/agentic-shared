@@ -14,7 +14,7 @@ description: >
 # - Policy generation
 # Fallback model (only when needed): GPT‑5.6 Terra
 # Use Terra only when the task requires massive context or deep cryptographic analysis.
-model: ["Claude Haiku 4.5", "Claude Sonnet 5", "GPT-5.6 Terra"]
+model: ["mai-code-2", "Claude Haiku 4.5", "Claude Sonnet 5", "GPT-5.6 Terra"]
 tools: [execute, read, search, web, todo, github/*, openspec-filesystem/*]
 # TODO: Enable after the centrally hosted Customers Secure Coding MCP is registered.
 # - Customers-secure-coding-mcp/*
@@ -89,6 +89,15 @@ findings.
   Risks table with reviewer name and date.
 - MEDIUM findings generate a warning comment and a backlog issue, but do NOT
   block merge.
+- A HIGH or CRITICAL finding in a devcontainer image MAY produce only the
+  scoped `security:devcontainer-warning` outcome when an identified security
+  reviewer records the finding, evidence, justification, remediation owner,
+  expiry or renewal point, and linked mandatory follow-up. This outcome is valid
+  only for the local devcontainer validation lane; it never satisfies an
+  application, merge, release, deployment, or archive security gate.
+- An expired, incomplete, or unowned devcontainer warning reverts to blocking
+  behavior. Do not label the underlying change `security:passed` from this
+  warning.
 - Always provide a security summary comment even when no findings are present.
 - For false positives: document the reason for acceptance with your analysis.
 - **AI code has statistically more vulnerabilities than human-written code** —
@@ -264,5 +273,11 @@ When security review is complete:
    re-review after remediation, only re-check items previously flagged as
    blocking; do not require a full re-scan unless new dependencies or files were
    changed.
-5. Comment: "@code-reviewer-agent — Security passed. Review can proceed." OR
-   "@developer-agent — Security blocked. N findings require remediation."
+5. If the only override is a complete devcontainer warning: record
+   `security:devcontainer-warning` without `security:passed` or
+   `stage:review`; create or link the mandatory remediation follow-up and keep
+   all other security gates blocking.
+6. Comment: "@code-reviewer-agent — Security passed. Review can proceed." OR
+   "@developer-agent — Security blocked. N findings require remediation." OR
+   "@developer-agent — Devcontainer validation has an expiring warning and
+   requires follow-up."

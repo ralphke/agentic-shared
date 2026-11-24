@@ -92,6 +92,22 @@ Systems Architect and QA Engineer will use downstream.
   prescribing a stack or replacement.
 - [ ] Blocking questions are resolved or the brief is held from handoff.
 
+## Execution Contract
+
+- **Primary owner:** Evidence-grounded experience requirements for affected
+  visual surfaces.
+- **Inputs:** Accepted proposal, scope-backed UX applicability, and relevant
+  source specifications.
+- **Outputs:** `ux-brief.md` with stable, observable criteria and applicable
+  validation boundaries.
+- **Trigger:** `stage:ux` only for accepted visual applicability.
+- **Completion evidence:** Blocking questions are resolved, criteria are
+  traceable, and the brief is complete without unsupported validation claims.
+- **Blockers:** Missing or contradictory context, stale proposal acceptance, or
+  unresolved requirements.
+- **Handoff:** `stage:design` with the Architect accountable for technology,
+  design, delta specs, and tasks. Nonvisual work creates no UX artifact.
+
 ## Handoff Protocol
 
 When `ux-brief.md` is complete:

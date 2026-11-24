@@ -41,6 +41,12 @@ Use when a PR is labelled `stage:security` by the QA Engineer Agent.
 10. **Gate decision:**
     - CRITICAL or HIGH → label `security:blocked`, block merge, open remediation
       issues
+    - Devcontainer-only CRITICAL or HIGH → only when explicitly approved for
+      the local validation lane, label `security:devcontainer-warning` and
+      record finding, justification, reviewer, remediation owner, expiry or
+      renewal point, and linked mandatory follow-up. Do not add
+      `security:passed` or `stage:review`; do not use this outcome for
+      application, merge, release, deployment, or archive gates.
     - MEDIUM → warning comment + backlog issue, do NOT block
     - LOW/INFO → informational only
 11. **On clean/accepted** — Label `security:passed` + `stage:review`
@@ -150,6 +156,8 @@ findings must be resolved before review.]
       prompt injection)
 - [ ] Security report posted on PR
 - [ ] Correct gate decision made (CRITICAL/HIGH block; MEDIUM warn)
+- [ ] Any devcontainer warning is isolated to the validation lane, has
+      accountable expiry and follow-up evidence, and was not counted as a pass
 - [ ] Remediation issues opened for all blocking findings
 
 ---
@@ -164,8 +172,9 @@ findings must be resolved before review.]
 
 ## Rules & Guidelines
 
-- Block HIGH and CRITICAL findings; do not waive them without documented human
-  approval.
+- Block HIGH and CRITICAL findings. Permit only the explicitly scoped
+  devcontainer validation warning described by the security standards; it is
+  never a security pass for downstream gates.
 - Treat secrets, dependency provenance, license risk, and AI-specific
   authorization failures as security findings.
 - Preserve evidence for the security gate and report unresolved MEDIUM findings

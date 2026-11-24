@@ -12,7 +12,7 @@ description: >
 # - Infrastructure scripts
 # - Log analysis
 # - Deployment automation
-model: ["GPT-5.4 mini", "GPT-5.6 Luna"]
+model: ["mai-code-2-flash", "GPT-5.4 mini", "GPT-5.6 Luna"]
 tools:
   [
     execute,

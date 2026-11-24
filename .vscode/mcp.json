@@ -8,7 +8,7 @@
     },
     "openspec-filesystem": {
       "type": "stdio",
-      "command": "npx",
+      "command": "npx.cmd",
       "args": [
         "-y",
         "@modelcontextprotocol/server-filesystem",

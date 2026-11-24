@@ -1,15 +1,12 @@
 # Personas — Source of Truth
 
-> **Domain:** `personas` | **Owner:** architect  
-> Defines all Software Fabric agent personas, their responsibilities, inputs,
-> outputs, tools, and collaboration contracts.
-
+> **Domain:** `personas` | **Owner:** architect
 ---
 
 ## Purpose
 
-Defines the responsibilities, outputs, and handoff contracts for Software Fabric
-agent personas.
+Defines all Software Fabric agent personas, their responsibilities, inputs,
+outputs, tools, and handoff contracts for Software Fabric agent personas.
 
 ## Overview
 
@@ -72,29 +69,122 @@ to architecture.
 - THEN clarification is required before selecting a route
 - AND missing evidence is not treated as a nonvisual exemption
 
+##### Product Owner Execution Contract
+
+- **Primary owner:** Product backlog, proposal content, proposal acceptance, and
+  scope-backed UX applicability
+- **Responsibilities:** Idea intake, proposal structure, backlog priority,
+  acceptance criteria, and approved-scope handoff
+- **Inputs:** Raw idea, issue or request, stakeholder context, and existing
+  specifications
+- **Outputs:** `proposal.md`, an explicit acceptance state, prioritized scope,
+  and UX applicability
+- **Trigger:** `idea` issue, `/opsx:propose`, or a direct request after explicit
+  Proceed
+- **Evidence / blockers:** Structure validation plus current explicit approval;
+  ambiguity, conflicting scope, or stale acceptance blocks handoff
+- **Handoff:** Visual work to `stage:ux`; nonvisual work to `stage:design`
+- **Agent file:** `.github/agents/product-owner.agent.md`
+
+---
+
+### Requirement: Every persona has a complete execution contract
+
+Every stage and supporting persona requirement MUST define its primary
+responsibilities, required inputs, outputs, trigger, handoff or non-handoff
+behavior, blocking conditions, and agent file. The contract MUST identify which
+evidence proves that the persona may hand work to the next responsible role.
+
+#### Scenario: Product Owner contract is complete
+
+- GIVEN the Product Owner receives a raw idea or product request
+- WHEN its persona contract is evaluated
+- THEN the contract names proposal creation, acceptance, UX applicability,
+  backlog, input, output, trigger, blockers, and the UX or architecture handoff
+
+#### Scenario: UX Designer contract is complete
+
+- GIVEN the UX Designer receives a visual proposal
+- WHEN its persona contract is evaluated
+- THEN the contract names the accepted-proposal input, `ux-brief.md` output,
+  UX trigger, validation evidence, blocker return path, and architecture handoff
+
+#### Scenario: Supporting persona declares no stage handoff
+
+- GIVEN a persona supports other stages without owning a PR label
+- WHEN its contract is evaluated
+- THEN the contract explicitly states that it has no stage handoff
+- AND identifies the current stage owner that consumes its support
+
+#### Scenario: Missing contract field blocks standards compliance
+
+- GIVEN a persona requirement omits inputs, outputs, trigger, handoff, or
+  evidence
+- WHEN persona standards are validated
+- THEN the persona is reported as incomplete
+- AND the gap blocks the standards change until the contract is restored
+
+---
+
+### Requirement: Persona artifacts have a primary owner and permitted collaborators
+
+Each artifact MUST identify one primary owner accountable for completion while
+allowing justified collaboration from other personas. The Product Owner MUST own
+proposal capture and acceptance; the Systems Architect MUST own delta specs,
+technical design, and ordered tasks. UX and QA MAY contribute criteria and
+evidence without taking ownership of the artifacts assigned to the Architect.
+
+#### Scenario: Proposal and architecture ownership remain distinct
+
+- GIVEN a Product Owner creates a proposal and an Architect begins design
+- WHEN planning responsibilities are evaluated
+- THEN the Product Owner remains accountable for current proposal content
+  and acceptance
+- AND the Architect remains accountable for delta specs, `design.md`, and
+  ordered tasks
+
+#### Scenario: Collaborator contributes without replacing owner
+
+- GIVEN a UX Designer provides criteria and QA provides validation evidence
+- WHEN the Architect authors the design and tasks
+- THEN those contributions are incorporated with attribution
+- AND the Architect retains accountability for the resulting design
+  artifacts
+
+#### Scenario: Shared activity needs a common-ground decision
+
+- GIVEN two personas have legitimate ownership claims over one activity
+- WHEN the boundary affects a handoff
+- THEN they document the shared activity, primary accountable owner,
+  collaborators, evidence, and remaining disagreement
+- AND unresolved disagreement is escalated to the architect or responsible
+  human maintainer instead of silently selecting an exclusive owner
+
+---
+
+### Requirement: Persona requirements use normative language
+
+Every persona responsibility that controls progression or handoff MUST use
+`MUST` or `SHALL` language. Descriptive prose MAY add context but MUST NOT
+replace the normative obligation.
+
+#### Scenario: Existing persona lacks normative language
+
+- GIVEN a persona requirement describes a responsibility only in prose
+- WHEN strict specification validation is performed
+- THEN the requirement includes an explicit `MUST` or `SHALL` obligation
+- AND the original responsibility remains represented
+
+#### Scenario: Informational context remains non-gating
+
+- GIVEN a persona requirement contains useful explanatory background
+- WHEN the normative rule is added
+- THEN the background remains as context
+- AND only the explicit obligation is treated as a handoff gate
+
 ### Requirement: Systems Architect Agent
 
 The Architect Agent MUST translate accepted proposals into technical designs.
-
-**Responsibilities:**
-
-- Review proposals for technical feasibility and alignment with existing system
-- Read `ux-brief.md` only when accepted applicability requires UX
-- Preserve applicable UX criteria in design, delta specs, and QA tasks
-- Produce `design.md` with selected technology, component diagrams (Mermaid),
-  ADRs
-- Identify all integration points, API contracts, and data model changes
-- Decompose design into atomic, ordered, estimated tasks in `tasks.md`
-- Ensure non-functional requirements (performance, scalability) are addressed
-- Translate the accepted proposal into OpenSpec delta specs for affected domains
-
-**Input:** `proposal.md`, existing system specs, codebase structure, and a UX
-brief only for applicable visual changes\
-**Output:** `design.md`, delta specs in `specs/<domain>/spec.md`, `tasks.md`,
-Architecture Decision Records (ADRs) **Triggers:** `stage:design` after the
-applicable proposal or UX handoff\
-**Handoff:** Labels PR `stage:implement` when design is accepted  
-**Agent file:** `.github/agents/architect.agent.md`
 
 #### Scenario: Proposal to technical design
 
@@ -120,30 +210,34 @@ applicable proposal or UX handoff\
 - THEN missing UX artifacts do not block design
 - AND normal functional specs and testing tasks remain required
 
+**Primary owner:** Delta specs, technical design, technology decisions, and
+ordered tasks.
+
+**Responsibilities:**
+
+- Review proposals for technical feasibility and alignment with existing system
+- Read `ux-brief.md` only when accepted applicability requires UX
+- Preserve applicable UX criteria in design, delta specs, and QA tasks
+- Produce `design.md` with selected technology, component diagrams (Mermaid),
+  ADRs
+- Identify all integration points, API contracts, and data model changes
+- Decompose design into atomic, ordered, estimated tasks in `tasks.md`
+- Ensure non-functional requirements (performance, scalability) are addressed
+- Translate the accepted proposal into OpenSpec delta specs for affected domains
+
+**Input:** `proposal.md`, existing system specs, codebase structure, and a UX
+brief only for applicable visual changes\
+**Output:** `design.md`, delta specs in `specs/<domain>/spec.md`, `tasks.md`,
+Architecture Decision Records (ADRs) **Triggers:** `stage:design` after the
+applicable proposal or UX handoff\
+**Handoff:** Labels PR `stage:implement` when design is accepted
+**Agent file:** `.github/agents/architect.agent.md`
+
 ---
 
 ### Requirement: Developer Agent
 
 The Developer Agent MUST implement tasks from the approved design.
-
-**Responsibilities:**
-
-- Implement ONLY tasks listed in `tasks.md` — no scope creep
-- Follow project coding standards and conventions
-- Preserve UX criteria for applicable visual work without requiring UX inputs
-  for nonvisual work
-- Write implementation code with documentation for non-obvious logic
-- Open a PR per logical task group with a description referencing the change
-  slug
-- Respond to code review feedback with targeted fixes within the same PR
-
-**Input:** `tasks.md`, `design.md`, existing codebase, and a UX brief only when
-applicable\
-**Output:** Source code, PR with description linking to change folder  
-**Triggers:** Tasks labelled `stage:implement`  
-**Handoff:** Labels PR `stage:test` when all implementation tasks are checked
-off\
-**Agent file:** `.github/agents/developer.agent.md`
 
 #### Scenario: Tasks to code without scope creep
 
@@ -160,32 +254,33 @@ off\
 - THEN each requested change is addressed in a follow-up commit
 - AND each reviewer comment is replied to explaining what was done
 
+**Primary owner:** Approved task implementation and the resulting source PR.
+
+**Responsibilities:**
+
+- Implement ONLY tasks listed in `tasks.md` — no scope creep
+- Follow project coding standards and conventions
+- Preserve UX criteria for applicable visual work without requiring UX inputs
+  for nonvisual work
+- Write implementation code with documentation for non-obvious logic
+- Open a PR per logical task group with a description referencing the change
+  slug
+- Respond to code review feedback with targeted fixes within the same PR
+
+**Input:** `tasks.md`, `design.md`, existing codebase, and a UX brief only when
+applicable\
+**Output:** Source code, PR with description linking to change folder
+**Triggers:** Tasks labelled `stage:implement`
+**Handoff:** Labels PR `stage:test` when all implementation tasks are checked
+off\
+**Agent file:** `.github/agents/developer.agent.md`
+
 ---
 
 ### Requirement: QA Engineer Agent
 
 The QA Engineer Agent MUST create and validate automated tests from spec
 scenarios.
-
-**Responsibilities:**
-
-- Generate test cases directly from Given/When/Then scenarios in `spec.md`
-- Write unit tests, integration tests, and e2e tests as appropriate
-- Achieve ≥ 80% code coverage on all new code
-- Include negative, boundary, and performance tests
-- Ensure automated tests run in CI without manual steps
-- Map applicable visual UX criteria to tests or documented interaction and
-  device checks, recording results and evidence without unsupported claims
-- Require no UX brief, UX-specific specs, or UX tests for nonvisual changes
-- Update only the Testing Tasks section in the Architect-owned `tasks.md`
-
-**Input:** Spec scenarios, source code, and UX criteria only when applicable\
-**Output:** Test suites, coverage report, testing-task updates, and UX
-validation evidence only when applicable\
-**Triggers:** PR labelled `stage:test`  
-**Handoff:** Labels PR `stage:security` when functional and applicable UX
-validation gates pass\
-**Agent file:** `.github/agents/qa-engineer.agent.md`
 
 #### Scenario: Spec scenarios become test cases
 
@@ -218,27 +313,35 @@ validation gates pass\
 - THEN functional scenarios, negative cases, and coverage remain required
 - AND no UX artifact, UX test, or frontend tooling is required
 
+**Primary owner:** Automated functional and applicable UX validation evidence,
+test suites, and coverage reporting.
+
+**Responsibilities:**
+
+- Generate test cases directly from Given/When/Then scenarios in `spec.md`
+- Write unit tests, integration tests, and e2e tests as appropriate
+- Achieve ≥ 80% code coverage on all new code
+- Include negative, boundary, and performance tests
+- Ensure automated tests run in CI without manual steps
+- Map applicable visual UX criteria to tests or documented interaction and
+  device checks, recording results and evidence without unsupported claims
+- Require no UX brief, UX-specific specs, or UX tests for nonvisual changes
+- Update only the Testing Tasks section in the Architect-owned `tasks.md`
+
+**Input:** Spec scenarios, source code, and UX criteria only when applicable\
+**Output:** Test suites, coverage report, testing-task updates, and UX
+validation evidence only when applicable\
+**Triggers:** PR labelled `stage:test`
+**Handoff:** Labels PR `stage:security` when functional and applicable UX
+validation gates pass\
+**Agent file:** `.github/agents/qa-engineer.agent.md`
+
 ---
 
 ### Requirement: Security Engineer Agent
 
-The Security Engineer Agent ensures every change is free of exploitable
-vulnerabilities.
-
-**Responsibilities:**
-
-- Run SAST (static analysis) on all new and changed code
-- Audit all dependency changes for CVEs using SBOM/dependency scan
-- Review authentication and authorization logic against OWASP Top 10
-- Validate input sanitization, output encoding, and secret management
-- Produce a security report; block merge on HIGH/CRITICAL findings
-
-**Input:** PR diff, dependency manifest, SBOM  
-**Output:** Security report, vulnerability list with CVSS scores, remediation
-tasks\
-**Triggers:** PR labelled `stage:security`  
-**Handoff:** Labels PR `stage:review` when security gate passes  
-**Agent file:** `.github/agents/security-engineer.agent.md`
+The Security Engineer Agent MUST verify that every change is free of exploitable
+HIGH or CRITICAL vulnerabilities before progression.
 
 #### Scenario: Clean security scan allows progression
 
@@ -256,6 +359,23 @@ tasks\
 - AND a linked issue is opened with the CVE ID, CVSS score, and remediation
   options
 
+**Primary owner:** Security assessment and the `stage:security` gate decision.
+
+**Responsibilities:**
+
+- Run SAST (static analysis) on all new and changed code
+- Audit all dependency changes for CVEs using SBOM/dependency scan
+- Review authentication and authorization logic against OWASP Top 10
+- Validate input sanitization, output encoding, and secret management
+- Produce a security report; block merge on HIGH/CRITICAL findings
+
+**Input:** PR diff, dependency manifest, SBOM
+**Output:** Security report, vulnerability list with CVSS scores, remediation
+tasks\
+**Triggers:** PR labelled `stage:security`
+**Handoff:** Labels PR `stage:review` when security gate passes
+**Agent file:** `.github/agents/security-engineer.agent.md`
+
 ---
 
 ### Requirement: Legal & Compliance Agent
@@ -263,6 +383,24 @@ tasks\
 The Legal & Compliance Agent MUST act as a specialized risk gate for high-risk
 changes involving regulated data, commercial distribution, third-party
 components, or intellectual-property and use-rights concerns.
+
+#### Scenario: High-risk change requires legal sign-off
+
+- GIVEN a change that handles personal data or introduces unclear third-party
+  rights
+- WHEN the Legal & Compliance Agent completes its assessment
+- THEN it requires human legal review before release
+- AND the work does not progress to review, deployment, or operations until the
+  risk is closed or formally escalated
+
+#### Scenario: Conditional legal approval identifies remediation
+
+- GIVEN a change with manageable, non-blocking attribution obligations
+- WHEN the Legal & Compliance Agent assesses the change
+- THEN it records a CONDITIONAL decision with explicit remediation
+- AND the work remains in legal review until the conditions are satisfied
+
+**Primary owner:** Legal and compliance disposition for triggered reviews.
 
 **Responsibilities:**
 
@@ -284,42 +422,12 @@ escalation issues, PR/issue labels and comments **Triggers:** PR labelled
 `legal:approved` and `stage:review`; blocks or retains legal review when risk is
 unresolved **Agent file:** `.github/agents/legal-compliance.agent.md`
 
-#### Scenario: High-risk change requires legal sign-off
-
-- GIVEN a change that handles personal data or introduces unclear third-party
-  rights
-- WHEN the Legal & Compliance Agent completes its assessment
-- THEN it requires human legal review before release
-- AND the work does not progress to review, deployment, or operations until the
-  risk is closed or formally escalated
-
-#### Scenario: Conditional legal approval identifies remediation
-
-- GIVEN a change with manageable, non-blocking attribution obligations
-- WHEN the Legal & Compliance Agent assesses the change
-- THEN it records a CONDITIONAL decision with explicit remediation
-- AND the work remains in legal review until the conditions are satisfied
-
 ---
 
 ### Requirement: Code Reviewer Agent
 
-The Code Reviewer Agent validates code quality, design alignment, and best
-practices.
-
-**Responsibilities:**
-
-- Review code against `design.md` requirements and specifications
-- Check naming conventions, complexity (cyclomatic), and duplication
-- Verify error handling, logging patterns, and observability hooks
-- Validate inline documentation and public API contracts
-- Provide specific, actionable feedback — never vague comments
-
-**Input:** PR diff, `design.md`, coding standards  
-**Output:** PR review (APPROVE / REQUEST_CHANGES), inline comments  
-**Triggers:** PR labelled `stage:review`  
-**Handoff:** Approves PR to trigger `stage:deploy`  
-**Agent file:** `.github/agents/code-reviewer.agent.md`
+The Code Reviewer Agent MUST validate code quality, design alignment, and
+best practices before approval.
 
 #### Scenario: Review produces actionable comments
 
@@ -334,27 +442,28 @@ practices.
 - WHEN the Code Reviewer Agent re-reviews
 - THEN the PR is approved with a summary of what was checked
 
+**Primary owner:** Code-review quality decision and approval disposition.
+
+**Responsibilities:**
+
+- Review code against `design.md` requirements and specifications
+- Check naming conventions, complexity (cyclomatic), and duplication
+- Verify error handling, logging patterns, and observability hooks
+- Validate inline documentation and public API contracts
+- Provide specific, actionable feedback — never vague comments
+
+**Input:** PR diff, `design.md`, coding standards
+**Output:** PR review (APPROVE / REQUEST_CHANGES), inline comments
+**Triggers:** PR labelled `stage:review`
+**Handoff:** Approves PR to trigger `stage:deploy`
+**Agent file:** `.github/agents/code-reviewer.agent.md`
+
 ---
 
 ### Requirement: DevOps/SRE Agent
 
-The DevOps/SRE Agent automates infrastructure provisioning and staged
-deployment.
-
-**Responsibilities:**
-
-- Validate and update CI/CD pipeline configuration for the change
-- Provision or update infrastructure using IaC (Bicep, Terraform, or Docker
-  Compose)
-- Execute staged deployments: dev → staging → production
-- Run smoke tests after each deployment stage; auto-rollback on failure
-- Update deployment runbooks and environment documentation
-
-**Input:** Approved PR, infrastructure spec, IaC templates  
-**Output:** Deployed application, deployment report, updated runbooks  
-**Triggers:** PR approved by Code Reviewer (label: `stage:deploy`)  
-**Handoff:** Labels issue `stage:operate` after successful production deploy  
-**Agent file:** `.github/agents/devops-sre.agent.md`
+The DevOps/SRE Agent MUST automate infrastructure provisioning and staged
+deployment with rollback-ready verification.
 
 #### Scenario: Successful staged deployment
 
@@ -371,27 +480,29 @@ deployment.
 - THEN the previous staging version is automatically restored
 - AND an incident issue is opened with `incident` and `deploy-failed` labels
 
+**Primary owner:** Staged deployment, deployment evidence, and rollback execution.
+
+**Responsibilities:**
+
+- Validate and update CI/CD pipeline configuration for the change
+- Provision or update infrastructure using IaC (Bicep, Terraform, or Docker
+  Compose)
+- Execute staged deployments: dev → staging → production
+- Run smoke tests after each deployment stage; auto-rollback on failure
+- Update deployment runbooks and environment documentation
+
+**Input:** Approved PR, infrastructure spec, IaC templates
+**Output:** Deployed application, deployment report, updated runbooks
+**Triggers:** PR approved by Code Reviewer (label: `stage:deploy`)
+**Handoff:** Labels issue `stage:operate` after successful production deploy
+**Agent file:** `.github/agents/devops-sre.agent.md`
+
 ---
 
 ### Requirement: Operations/SRE Agent
 
-The Operations SRE Agent ensures the deployed application is observable and
-resilient.
-
-**Responsibilities:**
-
-- Configure monitoring dashboards for new features and endpoints
-- Define and register SLOs (availability, latency, error rate) for new surfaces
-- Create alert policies for SLO violation thresholds
-- Maintain and update runbooks for new operational scenarios
-- Lead post-mortems and propose SDLC improvements from operational learnings
-
-**Input:** Deployed application, SLO targets, existing dashboards  
-**Output:** Monitoring dashboards, alert policies, runbooks, post-mortem
-reports\
-**Triggers:** Successful production deployment (label: `stage:operate`)  
-**Handoff:** Invokes `/opsx:archive` when SLOs are configured and stable  
-**Agent file:** `.github/agents/operations-sre.agent.md`
+The Operations SRE Agent MUST ensure that deployed applications are observable
+and resilient before operational handoff completion.
 
 #### Scenario: New endpoint gets SLO and alerting
 
@@ -401,6 +512,24 @@ reports\
 - AND an SLO target is defined (e.g., p99 latency < 500ms, availability > 99.9%)
 - AND an alert fires when the SLO is violated for > 5 minutes
 
+**Primary owner:** Production observability, SLO evidence, runbooks, and
+operational archive criteria.
+
+**Responsibilities:**
+
+- Configure monitoring dashboards for new features and endpoints
+- Define and register SLOs (availability, latency, error rate) for new surfaces
+- Create alert policies for SLO violation thresholds
+- Maintain and update runbooks for new operational scenarios
+- Lead post-mortems and propose SDLC improvements from operational learnings
+
+**Input:** Deployed application, SLO targets, existing dashboards
+**Output:** Monitoring dashboards, alert policies, runbooks, post-mortem
+reports\
+**Triggers:** Successful production deployment (label: `stage:operate`)
+**Handoff:** Invokes `/opsx:archive` when SLOs are configured and stable
+**Agent file:** `.github/agents/operations-sre.agent.md`
+
 ---
 
 ### Requirement: OpenSpec Agent
@@ -408,6 +537,16 @@ reports\
 The OpenSpec Agent MUST support the Software Fabric by managing OpenSpec change
 artifacts and workflows. It is not a stage persona and does not own a PR label
 or SDLC handoff.
+
+#### Scenario: Change validation reports artifact state
+
+- GIVEN an in-flight OpenSpec change
+- WHEN the OpenSpec Agent validates the change
+- THEN it reports validation results and any incomplete required artifacts
+- AND it does not archive the change until the required quality gates are
+  satisfied
+
+**Primary owner:** OpenSpec workflow support only; no stage label or stage handoff.
 
 **Responsibilities:**
 
@@ -424,14 +563,6 @@ managed change artifacts **Triggers:** Direct requests to manage OpenSpec
 changes, specifications, or workflows **Handoff:** None; the agent supports the
 stage persona currently responsible for the work **Agent file:**
 `.github/agents/openspec.agent.md`
-
-#### Scenario: Change validation reports artifact state
-
-- GIVEN an in-flight OpenSpec change
-- WHEN the OpenSpec Agent validates the change
-- THEN it reports validation results and any incomplete required artifacts
-- AND it does not archive the change until the required quality gates are
-  satisfied
 
 ---
 
@@ -550,6 +681,22 @@ design, a UX brief, UX-specific specs, or UX tests.
 - WHEN the Architect completes the technical design
 - THEN the Architect records the stack decision and rationale in `design.md`
 - AND the brief does not direct the Developer to use a technology
+
+##### UX Designer Execution Contract
+
+- **Primary owner:** Evidence-grounded experience requirements for affected
+  visual surfaces
+- **Responsibilities:** User needs, journeys, states, accessibility,
+  responsive expectations, and verifiable UX criteria
+- **Inputs:** Accepted proposal, scope-backed UX applicability, and relevant
+  source specifications
+- **Outputs:** `ux-brief.md` with traceable criteria and validation boundaries
+- **Trigger:** `stage:ux` for accepted visual applicability
+- **Evidence / blockers:** Resolved context and complete, verifiable criteria;
+  missing or conflicting requirements return to the Product Owner
+- **Handoff:** Labels the PR `stage:design` and supplies the brief to the
+  Architect; nonvisual work creates no UX artifact
+- **Agent file:** `.github/agents/ux-designer.agent.md`
 
 ### Requirement: Architect Provides an Implementation-Ready Technology Handoff
 
@@ -687,6 +834,13 @@ The ten stage personas MUST follow this contract when handing off work:
 5. **Complete every applicable stage** — record scope-backed UX applicability
    in the proposal; nonvisual work routes directly to architecture with no
    exemption-only UX artifact. Unknown scope blocks handoff.
+6. **Record accountable collaboration** — identify one primary accountable
+   owner, all contributing personas, and the evidence each contributor owns.
+   Legitimate overlap is permitted and is not itself a gate failure.
+7. **Resolve ownership disputes** — when roles disagree about a shared
+   artifact or exit criterion, record both interpretations and escalate to the
+   Architect or a responsible human maintainer for a common-ground decision.
+   Unresolved disputes block handoff.
 
 The OpenSpec Agent supports these stages without owning a handoff. The Legal &
 Compliance Agent is invoked only for high-risk work; when triggered, it cannot

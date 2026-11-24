@@ -1,6 +1,6 @@
 # Testing Standards — Source of Truth
 
-> **Domain:** `testing-standards` | **Owner:** qa-engineer  
+> **Domain:** `testing-standards` | **Owner:** qa-engineer
 > Defines the testing strategy, required test types, coverage minimums, and
 > quality gates for all Software Fabric changes.
 
@@ -57,16 +57,6 @@ test.
 
 Changes MUST include tests at multiple levels following the test pyramid.
 
-**Test levels and requirements:**
-
-| Level       | Scope                      | Required When                          | Coverage Goal          |
-| ----------- | -------------------------- | -------------------------------------- | ---------------------- |
-| Unit        | Single function/class      | Any new function or method             | ≥ 90% of units         |
-| Integration | Component interaction      | New service calls, DB queries, APIs    | All integrations       |
-| End-to-End  | Full user journey          | User-facing features or flows          | Happy path + 1 unhappy |
-| Performance | Latency / throughput       | New endpoints or data-heavy operations | p99 baseline           |
-| Smoke       | Critical paths post-deploy | Every deployment                       | All P0 paths           |
-
 #### Scenario: New API endpoint triggers integration test
 
 - GIVEN a new REST endpoint `POST /api/v1/exports`
@@ -81,6 +71,16 @@ Changes MUST include tests at multiple levels following the test pyramid.
 - WHEN the QA Agent determines test requirements
 - THEN an e2e test (Playwright/Selenium) covers the full user journey
 - AND the test runs headlessly in CI
+
+**Test levels and requirements:**
+
+| Level       | Scope                      | Required When                          | Coverage Goal          |
+| ----------- | -------------------------- | -------------------------------------- | ---------------------- |
+| Unit        | Single function/class      | Any new function or method             | ≥ 90% of units         |
+| Integration | Component interaction      | New service calls, DB queries, APIs    | All integrations       |
+| End-to-End  | Full user journey          | User-facing features or flows          | Happy path + 1 unhappy |
+| Performance | Latency / throughput       | New endpoints or data-heavy operations | p99 baseline           |
+| Smoke       | Critical paths post-deploy | Every deployment                       | All P0 paths           |
 
 ---
 

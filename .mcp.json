@@ -6,16 +6,16 @@
     },
     "openspec-filesystem": {
       "type": "stdio",
-      "command": "npx",
+      "command": "npx.cmd",
       "args": [
         "-y",
         "@modelcontextprotocol/server-filesystem",
-        "${workspaceFolder}/openspec"
+        "C:\\DevDrive\\repos\\agentic-shared\\openspec"
       ]
     },
     "azure-mcp": {
       "type": "stdio",
-      "command": "npx",
+      "command": "npx.cmd",
       "args": [
         "-y",
         "@azure/mcp@latest",

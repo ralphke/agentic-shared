@@ -11,7 +11,7 @@ description: >
 # - Scenrio analysis
 # - Risk identification
 # - Logic validation
-model: ["Claude Haiku 5.5", "Claude Sonnet 5"]
+model: ["mai-code-2","Claude Haiku 5.5", "Claude Sonnet 5"]
 tools: [execute, read, edit, search, web, todo, github/*, openspec-filesystem/*]
 # TODO: Enable after the centrally hosted Customers Secure Coding MCP is registered.
 # - Customers-secure-coding-mcp/*

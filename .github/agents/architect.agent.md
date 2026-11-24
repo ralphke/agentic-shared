@@ -74,6 +74,10 @@ You receive an accepted proposal and, only for affected visual interfaces,
   rationale, and final actionable implementation details—including versions,
   dependencies, and build/test instructions—in `design.md`; do not delegate
   stack selection to UX or the Developer.
+- When responsibilities legitimately overlap, identify one accountable owner
+  and the contributing roles in the design or handoff summary. Record
+  competing interpretations and escalate unresolved ownership disputes to a
+  responsible human maintainer; do not treat overlap itself as a failure.
 - Record TypeScript as the default language for consumer UI implementation;
   permit Rayfin only when the consumer architecture explicitly supports it.
 - Each task in `tasks.md` MUST satisfy all of the following:

@@ -1,6 +1,6 @@
 # Delta for sdlc-process
 
-## ADDED Requirements
+## MODIFIED Requirements
 
 ### Requirement: Scope-Based UX Applicability
 
@@ -44,8 +44,6 @@ Applicability MUST be checked separately for each change in a PR.
 - WHEN its applicability is assessed from the accepted scope
 - THEN the mere presence of frontend files does not require UX
 - AND an inaccurate applicability declaration must be corrected during review
-
-## MODIFIED Requirements
 
 ### Requirement: Ordered Agent Handoffs
 

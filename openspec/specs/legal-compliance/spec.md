@@ -1,6 +1,6 @@
 # Legal Compliance - Source of Truth
 
-> **Domain:** `legal-compliance` | **Owner:** legal-compliance  
+> **Domain:** `legal-compliance` | **Owner:** legal-compliance
 > Defines legal and compliance review requirements for licensing, use rights,
 > intellectual property, regulated data, and mandatory escalation in the
 > Software Fabric lifecycle.

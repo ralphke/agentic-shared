@@ -1,6 +1,6 @@
 # Delta for testing-standards
 
-## ADDED Requirements
+## MODIFIED Requirements
 
 ### Requirement: Applicable UX Criterion Validation
 
